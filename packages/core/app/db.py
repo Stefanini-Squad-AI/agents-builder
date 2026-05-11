@@ -59,3 +59,20 @@ def session_scope() -> Iterator[Session]:
         raise
     finally:
         session.close()
+
+
+def get_session() -> Iterator[Session]:
+    """FastAPI dependency yielding a transactional Session.
+
+    Used as `Depends(get_session)` in API handlers; commits on a clean
+    return path and rolls back on exception.
+    """
+    session = session_factory()()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()

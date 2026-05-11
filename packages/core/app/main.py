@@ -14,6 +14,7 @@ import structlog
 from fastapi import FastAPI
 
 from app import health
+from app.api import artifacts as artifacts_api
 from app.logging import configure_logging
 from app.settings import get_settings
 
@@ -45,6 +46,8 @@ def create_app() -> FastAPI:
         ),
         lifespan=lifespan,
     )
+
+    app.include_router(artifacts_api.router)
 
     @app.get("/health", tags=["meta"])
     async def health_endpoint() -> dict[str, Any]:

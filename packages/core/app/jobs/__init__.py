@@ -11,7 +11,7 @@ To add a new actor:
 """
 
 # Import order is significant and ruff's import-sorter would reshuffle it.
-# ruff: noqa: I001, F401
+# ruff: noqa: I001
 
 # The broker MUST be configured before any actor module is imported, so
 # that `@dramatiq.actor` decorators attach to our Redis broker (not
@@ -19,6 +19,6 @@ To add a new actor:
 from app.jobs._broker import broker, use_stub_broker
 
 # Eagerly import every actor module so `dramatiq app.jobs` discovers them.
-from app.jobs import ping
+from app.jobs import extract_artifact, ping
 
-__all__ = ["broker", "use_stub_broker"]
+__all__ = ["broker", "extract_artifact", "ping", "use_stub_broker"]

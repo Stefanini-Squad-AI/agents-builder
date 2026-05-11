@@ -14,25 +14,20 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _stub_broker() -> dramatiq.brokers.stub.StubBroker:
-    """Swap the global broker for a fresh StubBroker around every test.
+    """Swap to StubBroker and rebind ping_actor.broker to it.
 
-    Importing `app.jobs` triggers `_broker.py`, which installs a Redis
-    broker. We replace it with a stub via `use_stub_broker()`. Since
-    actors are registered against the broker that was active at decoration
-    time, we re-register the ping_actor against the stub.
+    `dramatiq.set_broker(stub)` only changes the global default; actors
+    decorated before the swap keep their original `.broker` reference,
+    so `.send()` would still queue into Redis. We mutate `actor.broker`
+    directly and register the actor on the stub so `stub.join("default")`
+    finds the queue.
     """
     from app.jobs import use_stub_broker
+    from app.jobs.ping import ping_actor
 
     stub = use_stub_broker()
-    # Re-decorate the actor against the new (stub) broker. Dramatiq lets
-    # us declare the same actor name twice; the last registration wins.
-    from app.jobs import ping
-
-    # ping_actor was registered against the original (Redis) broker on
-    # first import. Force a fresh registration by re-applying the decorator.
-    dramatiq.actor(  # type: ignore[call-overload]
-        queue_name="default", max_retries=0
-    )(ping.ping_actor.fn)
+    ping_actor.broker = stub
+    stub.declare_actor(ping_actor)
     return stub
 
 
@@ -61,13 +56,15 @@ def test_ping_actor_round_trip(_stub_broker: dramatiq.brokers.stub.StubBroker) -
         worker.stop()
 
 
-def test_actor_idempotent_redeclaration() -> None:
-    """Re-decorating the same function under the same name is allowed.
+def test_actor_broker_is_the_stub(
+    _stub_broker: dramatiq.brokers.stub.StubBroker,
+) -> None:
+    """After the fixture runs, ping_actor.broker must BE the stub.
 
-    This guards the import-order invariant the fixture relies on: when
-    code imports `app.jobs.ping` while the global broker has been swapped,
-    the actor decorator re-binds without raising."""
+    This is the assertion that the previous version of the test missed —
+    without rebinding `actor.broker`, the round-trip test was a false-pass
+    (queue empty, .join() returned without checking anything).
+    """
     from app.jobs.ping import ping_actor
 
-    # Just touching `ping_actor` after the fixture should be a no-op.
-    assert ping_actor.actor_name == "ping_actor"
+    assert ping_actor.broker is _stub_broker

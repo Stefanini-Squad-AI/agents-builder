@@ -18,39 +18,29 @@ from __future__ import annotations
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.brokers.stub import StubBroker
-from dramatiq.middleware import (
-    AgeLimit,
-    Callbacks,
-    Pipelines,
-    Retries,
-    ShutdownNotifications,
-    TimeLimit,
-)
 
+from app.logging import configure_logging
 from app.settings import get_settings
 
-
-def _standard_middleware() -> list:  # type: ignore[type-arg]
-    """The middleware list used by both Redis and Stub brokers.
-
-    Order matters: Pipelines/Callbacks must come before Retries.
-    """
-    return [
-        Pipelines(),
-        Callbacks(),
-        AgeLimit(),
-        TimeLimit(),
-        ShutdownNotifications(),
-        Retries(),
-    ]
+# Configure structlog for the dramatiq worker process. The FastAPI app
+# does this in its lifespan, but the worker is a separate Python process
+# spawned by `dramatiq app.jobs` and would otherwise inherit structlog's
+# silent default config — making actor logs disappear.
+configure_logging(level=get_settings().log_level, json_output=get_settings().log_json)
 
 
 def _build_redis_broker() -> RedisBroker:
-    """Build a RedisBroker with sensible defaults + the project's middleware."""
+    """Build a RedisBroker. Lets Dramatiq install its default middleware list.
+
+    Earlier versions of this module replaced `broker.middleware = [...]`
+    with a hand-picked list. That dropped Dramatiq-internal middleware
+    that the Redis broker relies on (notably `CurrentMessage` and the
+    dead-letter handlers), causing every enqueued message to land in the
+    dead-letter queue immediately. The fix is to accept Dramatiq's
+    default middleware as-is.
+    """
     settings = get_settings()
-    redis_broker = RedisBroker(url=settings.redis_url)  # type: ignore[no-untyped-call]
-    redis_broker.middleware = _standard_middleware()
-    return redis_broker
+    return RedisBroker(url=settings.redis_url)  # type: ignore[no-untyped-call]
 
 
 # Install the Redis broker as the global default. CLI workers (`dramatiq
@@ -62,13 +52,11 @@ dramatiq.set_broker(broker)
 def use_stub_broker() -> StubBroker:
     """Replace the global broker with an in-process StubBroker.
 
-    Returns the StubBroker so tests can call `.join(queue_name)` to wait
-    for queued messages to be processed. Reapplies the same middleware
-    list so actor behavior matches production.
+    Uses StubBroker's own default middleware list (same hands-off rule as
+    `_build_redis_broker`).
     """
     global broker
     stub = StubBroker()
-    stub.middleware = _standard_middleware()
     stub.emit_after("process_boot")
     dramatiq.set_broker(stub)
     broker = stub

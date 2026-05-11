@@ -50,6 +50,8 @@ ignore = [
 # Typer's idiomatic pattern uses Option/Argument as default values; B008 fights it.
 "packages/cli/workshop/**" = ["B008"]
 "packages/cli/tests/**" = ["B008"]
+# FastAPI's idiomatic Depends() pattern is identical.
+"packages/core/app/api/**" = ["B008"]
 
 [tool.ruff.format]
 quote-style = "double"
