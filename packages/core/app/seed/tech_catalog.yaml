@@ -1,0 +1,163 @@
+# Agents Workshop — Tech Panorama catalog.
+#
+# Loaded by `seed.seeder.seed_tech_catalog()` into `tech_dimensions` and
+# `tech_items`. Each item gets a deterministic slug (kebab-case of name) and
+# a small `tags` list used for filtering in the picker.
+#
+# Re-running the seeder is idempotent: dimensions and items are upserted by
+# (dimension.slug) and (dimension_id, item.slug).
+
+dimensions:
+  - slug: languages
+    name: Linguagens
+    description: Programming languages targeted by this project (or being migrated from).
+    order: 1
+    items:
+      - { slug: python,     name: Python,                   tags: [scripting, async, ml, backend] }
+      - { slug: java,       name: Java,                     tags: [enterprise, jvm, backend] }
+      - { slug: javascript, name: JavaScript,               tags: [web, frontend, backend] }
+      - { slug: typescript, name: TypeScript,               tags: [web, frontend, backend, typed] }
+      - { slug: csharp,     name: "C# (.NET 9)",            tags: [dotnet, enterprise, backend] }
+      - { slug: sql,        name: SQL,                      tags: [database, query] }
+      - { slug: plsql,      name: PL/SQL,                   tags: [oracle, database, procedural] }
+
+  - slug: backend_framework
+    name: Frameworks backend
+    description: Server-side frameworks targeted (or being modernized from).
+    order: 2
+    items:
+      - { slug: flask,        name: Flask,                  tags: [python, micro, wsgi] }
+      - { slug: spring-boot,  name: Spring Boot,            tags: [java, jvm, enterprise] }
+      - { slug: quarkus,      name: Quarkus,                tags: [java, jvm, native, microservices] }
+      - { slug: fastapi,      name: FastAPI,                tags: [python, async, rest, openapi] }
+      - { slug: express,      name: Express.js,             tags: [node, javascript, rest] }
+      - { slug: dotnet9,      name: ".NET 9",               tags: [csharp, enterprise] }
+
+  - slug: frontend_framework
+    name: Frameworks frontend
+    description: Web UI frameworks and build tooling.
+    order: 3
+    items:
+      - { slug: react18,    name: React 18,                 tags: [spa, hooks, jsx] }
+      - { slug: angular18,  name: Angular 18,               tags: [spa, typescript, signals] }
+      - { slug: angular21,  name: Angular 21,               tags: [spa, typescript, signals] }
+      - { slug: vite,       name: Vite,                     tags: [bundler, dev-server, esbuild] }
+
+  - slug: messaging
+    name: Mensageria
+    description: Asynchronous messaging and queue infrastructure.
+    order: 4
+    items:
+      - { slug: kafka,    name: Apache Kafka,                tags: [streaming, distributed, log] }
+      - { slug: rabbitmq, name: RabbitMQ,                    tags: [amqp, queue, fanout] }
+      - { slug: aws-sqs,  name: AWS SQS,                     tags: [aws, managed, queue] }
+
+  - slug: database
+    name: Banco de dados
+    description: Persistence engines.
+    order: 5
+    items:
+      - { slug: postgresql, name: PostgreSQL,                tags: [sql, oss, relational] }
+      - { slug: mysql,      name: MySQL,                     tags: [sql, oss, relational] }
+      - { slug: oracle,     name: Oracle,                    tags: [sql, enterprise, relational] }
+      - { slug: db2,        name: DB2,                       tags: [sql, mainframe, ibm] }
+      - { slug: dynamodb,   name: DynamoDB,                  tags: [aws, nosql, key-value] }
+      - { slug: redis,      name: Redis,                     tags: [in-memory, cache, key-value, pubsub] }
+
+  - slug: cloud_infra
+    name: Cloud & infra
+    description: Cloud providers, infrastructure services, container orchestration.
+    order: 6
+    items:
+      - { slug: azure-key-vault,  name: Azure Key Vault,     tags: [azure, secrets, managed-identity] }
+      - { slug: azure-devops,     name: Azure DevOps,        tags: [azure, ci, pipelines] }
+      - { slug: azure-arm,        name: Azure ARM,           tags: [azure, iac, deployment] }
+      - { slug: aws-s3,           name: AWS S3,              tags: [aws, object-storage] }
+      - { slug: aws-sqs-infra,    name: AWS SQS,             tags: [aws, queue] }
+      - { slug: aws-dynamodb,     name: AWS DynamoDB,        tags: [aws, nosql] }
+      - { slug: docker,           name: Docker,              tags: [containers, runtime] }
+      - { slug: kubernetes,       name: Kubernetes,          tags: [orchestration, containers, k8s] }
+
+  - slug: architecture_patterns
+    name: Padrões de arquitetura
+    description: Architectural styles and patterns shaping the system design.
+    order: 7
+    items:
+      - { slug: microservices,       name: Microserviços,           tags: [distributed, bounded-context] }
+      - { slug: ddd,                 name: DDD,                     tags: [modeling, bounded-context] }
+      - { slug: clean-architecture,  name: Clean Architecture,      tags: [layered, ports-adapters] }
+      - { slug: event-driven,        name: Event-Driven,            tags: [async, messaging] }
+      - { slug: pass-through-api,    name: Pass-through API,        tags: [proxy, integration] }
+      - { slug: batch-processing,    name: Batch Processing,        tags: [scheduled, throughput] }
+      - { slug: etl,                 name: ETL,                     tags: [pipeline, data-engineering] }
+
+  - slug: observability
+    name: Observabilidade
+    description: Telemetry, logging, metrics, and tracing.
+    order: 8
+    items:
+      - { slug: opentelemetry,    name: OpenTelemetry,            tags: [tracing, metrics, logs] }
+      - { slug: prometheus,       name: Prometheus,               tags: [metrics, time-series] }
+      - { slug: grafana,          name: Grafana,                  tags: [dashboards, visualization] }
+      - { slug: elk,              name: ELK,                      tags: [logs, search, kibana] }
+      - { slug: structured-logging, name: structured logging,     tags: [logs, json] }
+
+  - slug: security
+    name: Segurança
+    description: Auth, identity, secrets, and compliance frameworks.
+    order: 9
+    items:
+      - { slug: oauth2,            name: OAuth2,                  tags: [auth, federation] }
+      - { slug: mtls,              name: mTLS,                    tags: [zero-trust, certs, transport] }
+      - { slug: ldap-ad,           name: LDAP/AD,                 tags: [directory, enterprise, sso] }
+      - { slug: keycloak-oidc,     name: Keycloak/OIDC,           tags: [auth, identity, sso] }
+      - { slug: pci-dss,           name: PCI-DSS,                 tags: [compliance, payments] }
+      - { slug: lgpd,              name: LGPD,                    tags: [compliance, privacy, br] }
+      - { slug: azure-key-vault-sec, name: Azure Key Vault,       tags: [secrets, azure] }
+
+  - slug: testing
+    name: Testes
+    description: Test frameworks and contract-testing approaches.
+    order: 10
+    items:
+      - { slug: pytest,                 name: pytest,                       tags: [python, unit, integration] }
+      - { slug: junit,                  name: JUnit,                        tags: [java, unit] }
+      - { slug: mockito,                name: Mockito,                      tags: [java, mocks] }
+      - { slug: openapi-contract,       name: OpenAPI contract testing,     tags: [contract, schemathesis, dredd] }
+      - { slug: testcontainers,         name: Testcontainers,               tags: [integration, docker] }
+
+  - slug: ai_automation
+    name: IA & automação
+    description: AI tooling and automation patterns used in delivery.
+    order: 11
+    items:
+      - { slug: llms,                       name: LLMs,                                   tags: [ai, foundation-model] }
+      - { slug: cursor-skills-agents,       name: Cursor Skills/Agents,                   tags: [ide, agents, skills] }
+      - { slug: sai-app,                    name: SAI APP,                                tags: [agents, internal] }
+      - { slug: prompt-engineering,         name: engenharia de prompts,                  tags: [ai, methodology] }
+      - { slug: doc-generation,             name: geração de documentação,                tags: [ai, docs] }
+      - { slug: legacy-code-analysis,       name: análise de código legado,               tags: [ai, modernization] }
+
+  - slug: legacy_modernized
+    name: Legados modernizados
+    description: Legacy stacks that have been (or are being) modernized.
+    order: 12
+    items:
+      - { slug: cobol-db2-jcl,    name: COBOL/DB2/JCL,            tags: [mainframe, batch, legacy] }
+      - { slug: oracle-forms-10g, name: Oracle Forms 10g,         tags: [oracle, forms, legacy] }
+      - { slug: visual-foxpro,    name: Visual FoxPro,            tags: [desktop, legacy, xbase] }
+      - { slug: ssis-tsql,        name: SSIS/T-SQL,               tags: [etl, sql-server, legacy] }
+      - { slug: java-legado,      name: Java legado,              tags: [java, legacy, struts] }
+
+  - slug: sector
+    name: Setores atendidos
+    description: Business sector the project serves.
+    order: 13
+    items:
+      - { slug: financeiro,           name: Financeiro,                       tags: [banking, payments, finance] }
+      - { slug: automotivo,           name: Automotivo,                       tags: [auto, manufacturing] }
+      - { slug: energia,              name: Energia,                          tags: [utilities, power] }
+      - { slug: varejo,               name: Varejo,                           tags: [retail, ecommerce] }
+      - { slug: logistica-ferroviaria, name: Logística Ferroviária,           tags: [logistics, rail] }
+      - { slug: educacao,             name: Educação,                         tags: [education, learning] }
+      - { slug: telecom,              name: Telecom,                          tags: [telecommunications] }
