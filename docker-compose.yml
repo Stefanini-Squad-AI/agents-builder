@@ -1,0 +1,59 @@
+# Agents Workshop — local development services.
+#
+# In MVP we only run Postgres and Redis in containers; the FastAPI API and the
+# Dramatiq worker run on the host via `uv run uvicorn ...` / `uv run dramatiq ...`.
+# A containerized api + worker can be added later for shareable deployments.
+#
+# Usage:
+#   docker compose up -d           # start postgres + redis in the background
+#   docker compose ps              # show status (must be "healthy")
+#   docker compose logs -f redis   # tail one service's logs
+#   docker compose down            # stop + remove containers (keeps volumes)
+#   docker compose down -v         # stop + remove containers AND data volumes
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: workshop-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: workshop
+      POSTGRES_USER: workshop
+      POSTGRES_PASSWORD: workshop
+      # initdb args for sensible defaults
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      # Host 5433 → container 5432, to avoid clashing with other local Postgres
+      # instances (e.g. another PoC running on 5432). Update DATABASE_URL accordingly.
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - workshop_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workshop -d workshop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: workshop-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - workshop_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  workshop_pg_data:
+    name: workshop_pg_data
+  workshop_redis_data:
+    name: workshop_redis_data
