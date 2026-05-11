@@ -14,6 +14,8 @@ dependencies = [
     "dramatiq[redis]>=2.1.0",
     "fastapi>=0.136.1",
     "httpx>=0.28.1",
+    "markitdown[docx,pdf]>=0.1.5",
+    "pdfplumber>=0.11.9",
     "psycopg[binary]>=3.3.4",
     "pydantic-settings>=2.14.1",
     "redis>=7.4.0",
@@ -32,4 +34,6 @@ packages = ["app"]
 [dependency-groups]
 dev = [
     "pytest-asyncio>=1.3.0",
+    "python-docx>=1.2.0",
+    "reportlab>=4.5.0",
 ]
