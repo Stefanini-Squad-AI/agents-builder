@@ -26,12 +26,12 @@ class Settings(BaseSettings):
     # -------------------------------------------------------------------
     # Database (Postgres via psycopg, used by SQLAlchemy from Step 0.4 on)
     # -------------------------------------------------------------------
-    database_url: str = "postgresql+psycopg://workshop:workshop@localhost:5433/workshop"
+    database_url: str = "postgresql+psycopg://workshop:workshop@127.0.0.1:5433/workshop"
 
     # -------------------------------------------------------------------
     # Redis (Dramatiq broker + light cache)
     # -------------------------------------------------------------------
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str = "redis://127.0.0.1:6379/0"
 
     # -------------------------------------------------------------------
     # LLM defaults (Anthropic is the only default provider in MVP).
