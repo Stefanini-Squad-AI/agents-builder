@@ -1,0 +1,58 @@
+code: CORP-202
+phase_code: phase-2-foundation
+title: Bronze ingestion notebook + data-quality profiling
+type: Story
+story_points: 8
+priority: High
+status: ready
+human_gate: true
+skills:
+  - corp-databricks-planner
+  - corp-delta-merge
+depends_on:
+  - CORP-201
+parallel_with: []
+
+human_gate_checklist: |
+  Phase 2 sign-off:
+  - [ ] Bronze ingestion completes against the real source on first run.
+  - [ ] Profiling results reviewed; soft_delete_threshold_pct agreed
+        with business owner.
+  - [ ] Conflict baseline (cross-company duplicates) recorded.
+
+context: |
+  Bronze ingestion must run once before the If/Else branch (shared by
+  both modes). Profiling runs as the first task of the workflow so
+  downstream notebooks can read thresholds via taskValues.
+
+task: |
+  1. Notebook `02_ingest_bronze.py`:
+     - Read taskValues from `01_verify_processing_dates`
+       (processamento_full, data_inicio_referencia, data_fim_referencia).
+     - For each source table: JDBC query (with DT_ALTERACAO filter in
+       incremental mode; no filter in full mode).
+     - Apply `to_utc_timestamp(col, 'America/Sao_Paulo')` to every
+       timestamp column.
+     - Write to Bronze: `mode("append")` for incremental, `mode("overwrite")`
+       for full reload.
+     - Add 5 metadata columns: `_bronze_ingestion_ts`, `_source_system`,
+       `_processamento_full`, `_data_inicio_ref`, `_data_fim_ref`.
+     - Assert `bronze_row_count > 0` and set as taskValue.
+  2. Notebook `00_data_quality_profiling.py`:
+     - 7 profiling queries via JDBC against the source SQL Server.
+     - Write to `config.profiling_results` Delta table.
+     - Set taskValues: `soft_delete_threshold_pct`,
+       `conflict_volume_baseline`.
+     - Emit `# TODO` markers for thresholds needing human approval.
+
+outputs: |
+  - `databricks/notebooks/00_data_quality_profiling.py`.
+  - `databricks/notebooks/02_ingest_bronze.py`.
+
+acceptance_criteria: |
+  - [ ] All timestamp columns are UTC after ingestion.
+  - [ ] Incremental run only reads rows in (data_inicio_ref, data_fim_ref].
+  - [ ] Full run overwrites Bronze with no filter.
+  - [ ] 5 metadata columns present on every Bronze table.
+  - [ ] `bronze_row_count > 0` assertion in place.
+  - [ ] `config.profiling_results` populated; two taskValues set.

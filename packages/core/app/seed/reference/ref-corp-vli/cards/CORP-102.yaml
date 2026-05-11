@@ -1,0 +1,45 @@
+code: CORP-102
+phase_code: phase-1-discovery
+title: Business-rule catalog from the SSIS package
+type: Task
+story_points: 5
+priority: High
+status: ready
+human_gate: false
+skills:
+  - corp-rule-extractor
+depends_on:
+  - CORP-101
+parallel_with: []
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/corp-rule-extractor/SKILL.md
+    label: Rule extractor playbook
+  - kind: skill_resource
+    path: .agents/skills/corp-rule-extractor/resources/rule-catalog-template.md
+    label: Rule entry template
+  - kind: artifact
+    path: discovery/CORP-101-ssis-analysis.md
+    label: Output from CORP-101
+
+context: |
+  Translate the implicit rules in the SSIS package into a two-level
+  catalog: business-readable summary + engineering-actionable detail.
+  Required for business sign-off before migration starts.
+
+task: |
+  1. Produce `discovery/CORP-102-rule-catalog.md` with both sections.
+  2. One entry per rule, evidence verbatim, sign-off required only for
+     rules that affect business outcome (dedup, conflict, soft-delete).
+  3. Open questions section captures the +/-7h tie-break ambiguity.
+
+outputs: |
+  - `discovery/CORP-102-rule-catalog.md` (20+ rules expected).
+
+acceptance_criteria: |
+  - [ ] Every rule has a verbatim Evidence fragment.
+  - [ ] Every rule has Business description (plain language, no SQL).
+  - [ ] Cross-source dedup +/-7h tie-break flagged as open question.
+  - [ ] Sign-off required marked YES on every conflict / dedup / soft-delete
+        rule.

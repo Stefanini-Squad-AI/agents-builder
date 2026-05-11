@@ -1,0 +1,59 @@
+# The seven discovery answers. First three are required.
+
+business_problem: |
+  The legacy COBOL batch is the only place that knows the 20+ business
+  rules controlling daily transaction-limit assignments to customer
+  accounts. Source changes require mainframe expertise the bank no longer
+  has in-house, every change has weeks-long lead time, and incidents
+  cannot be debugged without specialist contractors.
+
+success_definition: |
+  An identical business outcome (same row inserted into the limits table
+  for the same input file) reachable via:
+  (a) an internally maintainable Java + Angular stack, and
+  (b) a development cycle measured in hours, not weeks.
+  Two parallel-run cycles must reconcile byte-for-byte against the COBOL
+  output before cutover.
+
+users_and_actors: |
+  - "Gestor" (back-office user): approves import batches via the SPA.
+  - "Operador" (back-office user): runs imports, browses errors.
+  - SIGLM batch (system actor): validates and persists rows.
+  - Upstream: CSV files dropped on an SFTP share by partner systems.
+  - Downstream: reports + reconciliation feeds that read GLMTB013.
+
+must_preserve: |
+  - The exact 15 field-validation error codes (R-1301..R-1315) so
+    downstream reports keep matching.
+  - The versioned-upsert pattern: never DELETE from the main limits table;
+    expire old rows by setting DT_FIM_VLDD and INSERT a new row with the
+    next sequence value.
+  - Decimal-point-is-comma input parsing.
+  - The S/N -> 1/2 encoding on Y/N indicator columns.
+
+must_change: |
+  - Replace the all-or-nothing batch ABEND with row-level errors. A bad
+    record marks itself with DS_ERRO_PROCESSO_REGISTRO and the batch
+    continues with status "Processado Parcialmente".
+  - Replace the mainframe daily schedule with on-demand import triggered
+    from the SPA (operator clicks Import, watches state machine progress).
+  - Surface validation errors in pt-BR human-readable form, not the
+    legacy SQLCODE numbers.
+
+compliance: |
+  - LGPD (Brazilian privacy law): the limits table contains account
+    numbers; logging must redact these, exports must require explicit
+    role-based access.
+  - BACEN reporting: every approval/rejection must be auditable; an
+    immutable audit log of who-approved-what-when is mandatory.
+  - Internal: no cleartext credentials in code; secrets via Key Vault.
+
+known_gaps: |
+  - Rule RN-235 is referenced in one source PDF but never defined
+    anywhere. Need SME clarification before phase 2.
+  - Two PDFs disagree on whether GLMTB013 has 18 or 20 columns.
+    Authoritative source is the PowerDesigner export — use that as the
+    tie-break.
+  - The legacy "situacao ativa" check is commented out in COBOL. Keep
+    the rule but expose a feature flag (strict-situacao-ativa) defaulting
+    to false to match current behavior.

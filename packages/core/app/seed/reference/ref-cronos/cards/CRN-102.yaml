@@ -1,0 +1,48 @@
+code: CRN-102
+phase_code: phase-1-reports
+title: Approval summary report by status and period
+type: Story
+story_points: 5
+priority: High
+status: ready
+human_gate: true
+skills:
+  - cronos-add-feature
+  - cronos-role-access
+depends_on:
+  - CRN-101
+parallel_with: []
+
+human_gate_checklist: |
+  Phase 1 sign-off:
+  - [ ] Walk through both new tabs on /reports with gestor + admin.
+  - [ ] Demo empty-state notification.
+  - [ ] Confirm scope: gestor sees only own team; admin sees all.
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/cronos-add-feature/SKILL.md
+    label: Add-feature chain (reuse the pattern from CRN-101)
+
+context: |
+  Second report. Selects a date range (inclusive) and exports an Excel
+  file with one row per collaborator showing count-by-status plus
+  total approved hours.
+
+task: |
+  Add a "Resumo de Aprovacoes" tab on /reports (gestor/admin only).
+  Backend: `GET /api/analytics/approval-summary?startDate&endDate`.
+  Aggregate per collaborator: counts of Enviados / Aprovados /
+  Rejeitados + sum of approved hours.
+
+outputs: |
+  - Updated analytics service + controller.
+  - api.ts method `getApprovalSummary(startDate, endDate, token)`.
+  - New tab on /reports reusing the xlsx + Mantine pattern from CRN-101.
+
+acceptance_criteria: |
+  - [ ] Tab gated to gestor/admin.
+  - [ ] Date range required; inclusive on both ends.
+  - [ ] Excel columns: Colaborador, Matricula, Enviados, Aprovados,
+        Rejeitados, Horas Aprovadas.
+  - [ ] Phase 1 human-gate walkthrough completed.

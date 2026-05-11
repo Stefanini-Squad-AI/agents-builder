@@ -1,0 +1,65 @@
+code: SIGLM-301
+phase_code: phase-3-lifecycle-async
+title: Async import lifecycle (state machine + approval + per-row errors)
+type: Story
+story_points: 8
+priority: High
+status: ready
+human_gate: false
+skills:
+  - siglm-context
+  - siglm-import-lifecycle
+  - siglm-spring-backend
+depends_on:
+  - SIGLM-203
+parallel_with: []
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/siglm-import-lifecycle/SKILL.md
+    label: Lifecycle skill — state machine + audit log + idempotency
+
+context: |
+  The async batch import is the last big piece. The PoC needs the full
+  seven-state lifecycle, manual approval by a gestor, per-row error
+  reporting, and CSV export of those errors.
+
+task: |
+  1. `LoteImportacao` entity + Flyway migrations for GLMTBC01 and
+     GLMTBC02 (staging) tables.
+  2. `ImportacaoLifecycleService` per the skill contract.
+  3. Endpoints:
+     - POST /api/v1/lotes (multipart CSV) -> 202 + Location: /api/v1/lotes/{id}
+     - GET  /api/v1/lotes/{id}
+     - POST /api/v1/lotes/{id}/aprovar
+     - POST /api/v1/lotes/{id}/cancelar
+     - POST /api/v1/lotes/{id}/executar
+     - GET  /api/v1/lotes/{id}/erros.csv
+  4. Async runner uses `@Async` + a dedicated thread pool (sized 2).
+  5. Row-error rollup logic per the skill.
+  6. Audit-log table; every state transition writes one row.
+  7. SPA: importar screen now uses real endpoints; polls /status every
+     1500ms while in Em Andamento; surfaces row errors in a Mat table
+     with a "Baixar CSV de erros" button.
+  8. Integration tests (Testcontainers Postgres): happy path
+     Iniciado -> Finalizado; failure path Iniciado -> Processado
+     Parcialmente; cancel path Aguardando Aprovacao -> Cancelado.
+
+outputs: |
+  - Three Flyway migrations (lotes, lotes_staging, audit_log).
+  - Six REST endpoints implemented + documented in OpenAPI.
+  - Async runner wired with thread pool.
+  - SPA importar screen calling real endpoints.
+  - Three integration test classes; >= 12 test methods total.
+
+acceptance_criteria: |
+  - [ ] Every legal transition succeeds; every illegal one returns 409
+        with code `ESTADO_INVALIDO`.
+  - [ ] Approving an already-approved lot is idempotent (200, no error).
+  - [ ] Cancelling past Aprovado returns 409.
+  - [ ] Row errors persist with rule code (R-13xx / L-16xx) + pt-BR
+        message.
+  - [ ] CSV export contains one row per failed input row + the columns
+        codigo_regra, mensagem, linha_origem.
+  - [ ] Audit-log row exists for every transition; `actor` is set.
+  - [ ] All three integration tests pass.

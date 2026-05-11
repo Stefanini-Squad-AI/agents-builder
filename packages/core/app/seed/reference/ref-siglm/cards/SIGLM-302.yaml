@@ -1,0 +1,51 @@
+code: SIGLM-302
+phase_code: phase-3-lifecycle-async
+title: Demo Final — async import end-to-end + cutover readiness
+type: Demo
+story_points: 3
+priority: High
+status: ready
+human_gate: true
+skills:
+  - siglm-context
+  - siglm-import-lifecycle
+depends_on:
+  - SIGLM-301
+parallel_with: []
+
+human_gate_checklist: |
+  Cutover readiness:
+  - [ ] Two parallel-run cycles completed with byte-for-byte reconciliation
+        vs legacy.
+  - [ ] Run-book documented for: import, approve, monitor, recover from
+        partial failure.
+  - [ ] Audit-log retention configured (>= 7 years for LGPD/BACEN).
+  - [ ] Backup + restore drill performed on the Postgres data.
+  - [ ] Security review signed off (LGPD log redaction, mTLS at the
+        ingress, Key Vault for DB password).
+
+context: |
+  Final demo of the modernization. Closes the PoC scope and gates the
+  cutover decision.
+
+task: |
+  1. Live demo: end-to-end import covering Iniciado -> Aprovado -> Em
+     Andamento -> Finalizado, and a separate run hitting Processado
+     Parcialmente.
+  2. Side-by-side parity-run report from two cycles vs the legacy COBOL.
+  3. Run-book delivered + reviewed.
+  4. Security review session held.
+
+outputs: |
+  - Cutover decision (go / no-go) captured in the project tracker.
+  - Two parallel-run reports in `analysis/parallel-run-cycle-N.md`.
+  - Run-book in `docs/run-book.md`.
+  - Security review notes in `docs/security-review.md`.
+
+acceptance_criteria: |
+  - [ ] Both parallel-run cycles PASS (rows / weights match within
+        tolerance, no unexplained discrepancies).
+  - [ ] Run-book covers every operational scenario: import, approve,
+        cancel, recover-from-partial, audit query.
+  - [ ] LGPD log redaction verified.
+  - [ ] Stakeholder sign-off captured in writing.

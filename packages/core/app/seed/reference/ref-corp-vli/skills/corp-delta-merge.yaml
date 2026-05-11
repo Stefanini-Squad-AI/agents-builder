@@ -1,0 +1,119 @@
+slug: corp-delta-merge
+name: CORP Delta Merge Designer
+description: |
+  Design Delta Lake MERGE, anti-join, soft-delete, and incremental refresh
+  patterns. Covers incremental upsert, full reload, cancelled-record
+  soft-delete, and missing-source logical exclusion. Use when translating
+  delete-insert ETL, upsert logic, or logical exclusion rules into Delta.
+kind: procedure
+body: |
+  # Delta Merge Designer
+
+  ## Guiding principle
+
+  Preserve business semantics before optimizing for elegance. A correct
+  but verbose MERGE is better than an elegant one that silently drops
+  records. Always validate the business key before writing a single line
+  of MERGE code.
+
+  ## Define before writing code
+
+  ```
+  Business key:         columns that uniquely identify a record
+  Source of truth:      which system wins on conflict
+  Match condition:      how source/target rows join
+  Update behavior:      what changes on match
+  Insert behavior:      what happens for new records
+  Soft-delete behavior: what marks a record invalid
+  Idempotency:          what happens if same data runs twice
+  Version requirement:  minimum DBR version
+  ```
+
+  ## Pattern 1 — Incremental upsert
+
+  ```python
+  delta_fact.alias("target").merge(
+      df_silver.alias("source"),
+      """target.cdv_sk_vagao             = source.vag_sk_vagao
+       AND target.cdv_sk_dt_operacao     = source.cdv_dt_operacao
+       AND target.cdv_sk_empresa_ferr    = source.epf_sk_empresa_ferr"""
+  ).whenMatchedUpdate(
+      set={"cdv_qt_peso_liquido": "source.cdv_qt_peso_liquido",
+           "cdv_dt_alteracao_registro": "current_timestamp()"}
+  ).whenNotMatchedInsert(
+      values={...}
+  ).execute()
+  ```
+
+  ## Pattern 2 — Full reload
+
+  ```python
+  df_silver.write.format("delta") \
+      .mode("overwrite") \
+      .option("overwriteSchema", "false") \
+      .saveAsTable("gold.fd_cargas_descargas_vagoes")
+  ```
+
+  Always assert `COUNT(*) > 0` after the write.
+
+  ## Pattern 3 — Cancelled-record soft-delete
+
+  ```python
+  delta_target.alias("cdv").merge(
+      df_cancelados.alias("cancelled"),
+      """cdv.cdv_sk_vagao        = cancelled.vag_sk_vagao
+       AND cdv.cdv_sg_empresa    = 'VLI'
+       AND cdv.cdv_sn_exclusao_logica IS NULL"""
+  ).whenMatchedUpdate(
+      set={"cdv_sn_exclusao_logica": "'S'",
+           "cdv_dt_alteracao_registro": "current_timestamp()"}
+  ).execute()
+  ```
+
+  ## Pattern 4 — Missing-source soft-delete (FULL RELOAD ONLY)
+
+  Requires DBR 12.2+ for `whenNotMatchedBySource`. Add a runtime assert
+  at the top of the notebook against the `processamento_full` taskValue;
+  abort if not in full mode (defense in depth against a DAG misconfig).
+
+  ## Timezone convention (UTC everywhere)
+
+  All timestamps from SQL Server are UTC-3 (America/Sao_Paulo). Convert
+  to UTC on Bronze ingestion (`to_utc_timestamp`) and convert back only
+  when writing the control table (`from_utc_timestamp`). The +/-7h
+  cross-company comparison MUST be done in UTC to avoid DST edge cases.
+
+  ## Range join optimization
+
+  The +/- 7h dedup is a non-equi join. PySpark will silently degrade to
+  a cross-join and OOM on real data. Before executing:
+
+  ```python
+  spark.conf.set("spark.databricks.optimizer.rangeJoin.binSize", "7200")
+  ```
+
+  Also broadcast the smaller side. Verify in the Spark UI: confirm
+  SortMergeJoin or BroadcastHashJoin, never CartesianProduct.
+
+  ## Conflict resolution protocol (priority rule ambiguous)
+
+  - Do not halt the pipeline on a data conflict.
+  - Do not silently drop either record.
+  - Write both with `cdv_sn_conflito = 'S'`, `cdv_sn_exclusao_logica = NULL`.
+  - Log to the audit table.
+  - Escalate via a reconciliation flag.
+
+  A halted pipeline blocks all consumers; a flagged record is recoverable.
+
+  ## Idempotency contract
+
+  Every notebook produces the same result run once or run ten times
+  against the same input. Silver `mode("overwrite")` is safe. Gold MERGE
+  is idempotent by business key. Soft-delete setting 'S' on already-'S'
+  rows is a no-op. Control table updates use MERGE or UPDATE WHERE,
+  never blind INSERT.
+
+  ## When to pull in sibling skills
+
+  - For DAG and scheduling -> the workflow-job skill (not in this seed).
+  - For reconciliation -> `corp-reconciler`.

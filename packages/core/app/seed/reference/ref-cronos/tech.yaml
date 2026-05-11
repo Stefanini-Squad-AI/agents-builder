@@ -1,0 +1,31 @@
+languages:
+  - { item: typescript, role: target }
+
+backend_framework:
+  - { custom: "NestJS", role: target, tags: [typescript, node, di] }
+
+frontend_framework:
+  - { custom: "Next.js 14", role: target, tags: [react, ssr, app-router] }
+
+database:
+  - { item: postgresql, role: target }
+
+architecture_patterns:
+  - { custom: "Single-module monolith", role: target, tags: [simple, internal-saas] }
+
+observability:
+  - { item: structured-logging, role: target }
+
+security:
+  - { item: lgpd, role: target }
+  - { custom: "Custom JWT in localStorage", role: target, tags: [auth, simple] }
+
+testing:
+  - { item: pytest, role: optional }
+  - { custom: "Jest + Supertest", role: target, tags: [unit, integration, e2e] }
+
+ai_automation:
+  - { item: cursor-skills-agents, role: target }
+
+sector:
+  - { custom: "Corporate / Internal", role: target, tags: [internal-it] }

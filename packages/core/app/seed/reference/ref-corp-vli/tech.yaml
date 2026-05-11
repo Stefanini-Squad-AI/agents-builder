@@ -1,0 +1,35 @@
+languages:
+  - { item: python, role: target }
+  - { item: sql,    role: target }
+
+database:
+  - { custom: "SQL Server", role: legacy, tags: [tsql, mainframe-style] }
+  - { custom: "Delta Lake",  role: target, tags: [databricks, parquet] }
+
+cloud_infra:
+  - { custom: "Databricks on Azure", role: target, tags: [unity-catalog, jobs, workflows] }
+  - { item: docker,   role: optional }
+
+architecture_patterns:
+  - { item: etl,            role: target }
+  - { item: batch-processing, role: target }
+  - { custom: "Medallion architecture", role: target, tags: [bronze-silver-gold, lakehouse] }
+
+observability:
+  - { item: structured-logging, role: target }
+  - { custom: "Databricks audit log", role: target, tags: [databricks] }
+
+security:
+  - { item: oauth2,            role: target }
+
+testing:
+  - { item: pytest,         role: target }
+
+ai_automation:
+  - { item: legacy-code-analysis, role: target }
+
+legacy_modernized:
+  - { item: ssis-tsql, role: legacy }
+
+sector:
+  - { item: logistica-ferroviaria, role: target }

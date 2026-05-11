@@ -1,0 +1,83 @@
+slug: siglm-context
+name: SIGLM Project Context
+description: |
+  Canonical knowledge base for the Sample Banking Limits Modernization PoC —
+  architecture, domain glossary, DB2 -> Postgres table map, import-lifecycle
+  states, legacy COBOL conventions, and known documentation gaps. Use
+  whenever the user asks about banking limits, Parametros Padroes, GLMTB013,
+  GLMTBC01, GLMTBC02, the CES middleware, or any requirement PDF.
+kind: context
+body: |
+  # SIGLM Project Context
+
+  Sample Banking Limits Modernization is a back-office system controlling
+  financial transaction limits ("Parametros Padroes") applied to customer
+  accounts at opening. The PoC has two assets:
+
+  - **frontend/** — Angular 18 SPA. Uses `useMock: true` for mock HTTP,
+    flips to live API in phase 2.
+  - **backend/** — Spring Boot 3 + PostgreSQL, scaffolded in phase 2.
+
+  All user-facing text is **pt-BR**; identifiers may mix abbreviations
+  (`sgServico`, `nuFaixaHorario`, `vrLimiteMinimo`).
+
+  ## Production architecture (out of PoC scope)
+
+  ```
+  Angular SPA  ->  REST API  ->  CES Middleware  ->  CICS WS  ->  COBOL on z/OS  ->  DB2
+  ```
+
+  The PoC stops at the SPA + Spring backend layer. "Backend" in PoC
+  conversations means our Spring service, not the middleware chain.
+
+  ## Domain glossary (pt-BR -> technical)
+
+  | Term | Meaning | Where it appears |
+  |---|---|---|
+  | Parametro Padrao | Initial limit (min/max/unit) applied at account opening. | GLMTB013 |
+  | Lote / Carga | CSV batch for bulk import. | GLMTBC01 controls, GLMTBC02 stages |
+  | Gestor | Human user with batch-approval authority. | UC 002.053 |
+  | SIGLM (as actor) | Automatic validator/persister (not human). | UC 014.009, 014.010 |
+  | Faixa Horaria | Time window for Pix limits. Values 1 or 3 require unit limit. | NU_FAIXA_HORARIO |
+  | Pre-Cadastro | Indicator S/N (DB: 1/2) for pre-registered destination. | IC_PRE_CADASTRO |
+
+  ## Key DB tables (DB2 -> Postgres mapping)
+
+  - `GLMTB013_PARAMETRO_PADRAO` — main, never truncated (safety lock).
+  - `GLMTBC01_CARGA_IMPCO_PRMZO` — batch lifecycle control.
+  - `GLMTBC02_CARGA_PRMTO_PDRO_PIX` — Pix-specific staging.
+  - `GLMTB004 / 005 / 015 / 017 / TBP04` — lookup tables for FK validations.
+  - `GLMSQ013_NU_SQNCL_PRMTO_PDRO` — sequence for new PKs on upsert.
+
+  ## Import lifecycle states
+
+  ```
+  Iniciado -> Aguardando Aprovacao -> Aprovado -> Aguardando Execucao
+          -> Em Andamento -> Finalizado
+  ```
+
+  Alternative paths: `Cancelado` (before Aprovado), `Processado
+  Parcialmente` (some rows failed), `Erro no Processamento` (whole batch).
+
+  ## Legacy COBOL conventions (binding rules)
+
+  - `DECIMAL-POINT IS COMMA` — parse with pt-BR locale.
+  - `S`/`N` indicators get rewritten to `1`/`2` before INSERT.
+  - Safety lock: `LK-IC-DELETE` is hardcoded to `'N'`; the main table is
+    never truncated. **Keep this invariant in the port.**
+  - Versioned upsert: UPDATE old row's DT_FIM_VLDD, then INSERT new with
+    NEXTVAL of GLMSQ013.
+
+  ## Known documentation gaps
+
+  1. **RN-235** is cited in one PDF but never defined. Flag to user.
+  2. **GLMTB013 column count (18 vs 20)** — PowerDesigner export wins.
+  3. **Situacao ativa check** is commented out in COBOL. Keep as a flag
+     `siglm.validation.strict-situacao-ativa=false` by default.
+
+  ## When to pull in sibling skills
+
+  - Need to port a specific COBOL rule -> `siglm-cobol-to-rules`.
+  - Adding an Angular screen -> `siglm-angular-screen`.
+  - Working on Spring backend layout -> `siglm-spring-backend`.
+  - State machine for the import lot -> `siglm-import-lifecycle`.

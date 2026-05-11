@@ -1,0 +1,53 @@
+code: CRN-301
+phase_code: phase-3-quality
+title: Wire AuditLog to TimesheetSubmission + AccessRequest events
+type: Story
+story_points: 5
+priority: Medium
+status: ready
+human_gate: false
+skills:
+  - cronos-add-feature
+  - cronos-role-access
+depends_on:
+  - CRN-202
+parallel_with:
+  - CRN-302
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/cronos-role-access/SKILL.md
+    label: Role gating (admin-only GET /api/audit-log)
+
+context: |
+  The `AuditLog` Prisma model exists but no service writes to it. Wire
+  it into the two highest-value flows and add an admin-only endpoint
+  to query it.
+
+task: |
+  In `ApprovalsService.approve/reject`, write an `auditLog.create` with
+  `entity='TimesheetSubmission'`, action, changedBy, oldValue, newValue,
+  reason. Wrap in try/catch — audit-write failure must NOT roll back
+  the approval.
+
+  Same in `AccessRequestsService.approve/reject` with
+  `entity='AccessRequest'`.
+
+  Add `AuditLogController` with `GET /api/audit-log` (admin-only).
+  Query params: `entity`, `entityId`. Order by `changedAt desc`, take 200.
+
+  If `assertAdminRole` doesn't exist on UsersService yet, add it.
+
+outputs: |
+  - ApprovalsService + AccessRequestsService write to AuditLog on approve/reject.
+  - `audit-log.controller.ts` + module entry.
+  - `assertAdminRole` added if missing.
+
+acceptance_criteria: |
+  - [ ] AuditLog rows created on TimesheetSubmission approve and reject.
+  - [ ] AuditLog rows created on AccessRequest approve and reject.
+  - [ ] `oldValue` and `newValue` reflect the status transition.
+  - [ ] `GET /api/audit-log` returns rows for admin; 403 for everyone else.
+  - [ ] Filters `entity` and `entityId` work.
+  - [ ] Audit-write failure does NOT block or revert the primary operation
+        (verified by a test that mocks prisma to throw).

@@ -1,0 +1,40 @@
+code: SIGLM-001
+phase_code: phase-0-quality-gates
+title: Setup Git + CI (lint + test on every PR)
+type: Task
+story_points: 2
+priority: High
+status: ready
+human_gate: false
+skills: []
+depends_on: []
+parallel_with: []
+
+context: |
+  Today the workspace is not a Git repo with a pipeline. Every other card
+  in the backlog depends on a CI gate running on each Pull Request.
+  Without it, the demo cards cannot be considered "green".
+
+task: |
+  1. `git init` the workspace, commit the current state.
+  2. Pick a CI provider (default: GitHub Actions).
+  3. `.github/workflows/ci.yml` with two jobs:
+     - `frontend-ci`: `npm ci && npm run lint && npm test -- --watch=false`.
+     - `backend-ci`: `mvn -B -ntp verify` from `./backend/`.
+  4. Trigger on `pull_request` and `push: branches: [main]`.
+  5. Protect `main`: PR required, CI required, 1 approval.
+  6. CI badge in the root README.
+
+outputs: |
+  - `.github/workflows/ci.yml` (new).
+  - `.gitignore` reviewed.
+  - `README.md` updated with CI badge.
+
+acceptance_criteria: |
+  - [ ] Git repo initialized (`git log` shows >= 1 commit).
+  - [ ] `main` protected: PR required + CI required + 1 approval.
+  - [ ] CI runs on every PR and on push to main.
+  - [ ] Frontend job fails on lint error.
+  - [ ] Backend job fails on test failure.
+  - [ ] If `frontend/` or `backend/` don't exist yet, jobs skip gracefully.
+  - [ ] CI badge renders green in README after the first commit.

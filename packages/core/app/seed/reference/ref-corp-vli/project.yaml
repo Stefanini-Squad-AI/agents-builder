@@ -1,0 +1,28 @@
+# Reference PoC: SSIS package -> Databricks (Delta Lake + PySpark)
+# migration. Scrubbed adaptation of a freight-logistics ETL modernization.
+# Used as a few-shot exemplar for "analyzer kind" skills with rich
+# resources/ subfolders.
+
+slug: ref-corp-vli
+name: Sample SSIS to Databricks Migration
+card_code_prefix: CORP
+card_template: phase_vli
+grouping: phase
+status: draft
+llm_provider: anthropic
+llm_model: claude-sonnet-4-5
+
+objective: |
+  Migrate a legacy SSIS package (consolidating wagon load/unload events
+  from two railway operators into a unified fact) to Databricks on Delta
+  Lake. Preserve every business rule: cross-source deduplication within a
+  +/- 7-hour window, soft-delete via logical-exclusion flag, full and
+  incremental execution modes, predecessor-package dependencies, and the
+  audit-and-control table updates.
+
+context_md: |
+  Source system: SQL Server (mainframe-ish, on-prem). Target: Databricks
+  on Azure with Unity Catalog + medallion architecture (Bronze / Silver /
+  Gold). Workflow orchestration: Databricks Jobs (not DLT — the package
+  has branching control logic and explicit soft-delete that fit
+  Workflows + MERGE better).

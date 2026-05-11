@@ -1,0 +1,76 @@
+slug: cronos-frontend-conventions
+name: Cronos Frontend Conventions
+description: |
+  Project-specific frontend conventions for the Next.js 14 App Router +
+  Mantine 8 + React Query SaaS. Use for any frontend work: adding a page,
+  editing UI components, working with forms or modals, reading auth state,
+  adding an API call, or modifying the navigation shell.
+kind: context
+body: |
+  # Cronos Frontend Conventions
+
+  ## Auth
+
+  Custom JWT in `localStorage` — `next-auth` is installed but NOT used.
+
+  ```typescript
+  import { useAuth } from '@/hooks/useAuth';
+  const { user, token, isGestor, isAdmin, isLoading } = useAuth();
+  ```
+
+  `user.role` is always one of `'colaborador' | 'gestor' | 'admin'`
+  (normalized by `useAuth`).
+
+  Standard guard at the top of every protected page:
+
+  ```typescript
+  useEffect(() => {
+    if (!isLoading && !token) router.replace('/login');
+  }, [isLoading, token, router]);
+  if (isLoading || !user) return null;
+  ```
+
+  ## API calls
+
+  All go through `frontend/src/services/api.ts`. Instantiate with token:
+
+  ```typescript
+  const api = new ApiClient(token ?? undefined);
+  ```
+
+  The `token?` param is accepted by every method — always pass it on
+  authenticated calls. Base URL resolves to `http://localhost:3000/api`
+  by default — **do NOT hardcode URLs**.
+
+  ## React Query
+
+  Providers set up in `app/providers.tsx`. Use `useQuery` for reads,
+  `useMutation` for writes. Queries are keyed by `[feature, token]` so
+  switching users invalidates correctly.
+
+  ## Mantine 8 patterns
+
+  - Notifications: `notifications.show({ message, color })`.
+  - Confirm modal: `modals.openConfirmModal({ title, children, onConfirm })`.
+  - Forms: `useForm({ initialValues, validate })`.
+  - Date inputs: from `@mantine/dates`.
+
+  ## Feature flags / nav
+
+  `frontend/src/lib/app-features.ts` is the single source of truth for
+  nav items. Each entry: `{ key, label, href, section, availableFor:
+  ['gestor', 'admin'], icon, ... }`. `getVisibleFeatures(role)` drives
+  the navigation shell.
+
+  ## Nav badge counters
+
+  Two exist: pending access requests and pending hour approvals. Pattern:
+  `sessionStorage` + `CustomEvent`. To add a new badge: copy
+  `pending-hour-approvals.ts`, define a new cache key + event, then
+  listen in `navigation-shell.tsx`.
+
+  ## When to pull in sibling skills
+
+  - Full-stack feature (model + endpoint + page) -> `cronos-add-feature`.
+  - Adding an approval flow -> `cronos-approval-workflow`.
+  - Restricting visibility by role -> `cronos-role-access`.

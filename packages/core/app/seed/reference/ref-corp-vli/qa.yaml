@@ -1,0 +1,40 @@
+business_problem: |
+  The unified-fact pipeline runs daily as an SSIS package on aging
+  Windows servers. Every change requires SSIS expertise that the data
+  team is consolidating away from. Storage is full. Latency is hours
+  but business now needs near-hourly refresh.
+
+success_definition: |
+  Two parallel-run cycles where the Databricks Gold table matches the
+  legacy fact within tolerance (row delta < 0.1 percent, weight delta
+  < 0.5 percent) per company per month. Reconciliation evidence package
+  signed off by business and data engineering.
+
+users_and_actors: |
+  - Data engineers (maintainers).
+  - Business analysts reading freight-volume and reconciliation reports.
+  - Upstream: two operator systems writing to two SQL Server schemas.
+  - Downstream: BI dashboards + a reconciliation feed shared with both
+    operators.
+
+must_preserve: |
+  - Soft-delete semantics: `cdv_sn_exclusao_logica='S'` marks records
+    invalid; never physically delete.
+  - The +/- 7-hour cross-company deduplication rule.
+  - Both execution modes (full reload + incremental by DT_ALTERACAO).
+  - The control-table state machine (start / fim / status transitions).
+
+must_change: |
+  - Replace the all-or-nothing SSIS failure mode with task-level retry.
+  - Move from delete-and-insert to Delta MERGE for the incremental path.
+  - Add a reconciliation task to the DAG (missing in SSIS).
+
+compliance: |
+  - Inter-company data contract: any cross-company aggregate must be
+    reconcilable on demand against both operators' books.
+
+known_gaps: |
+  - The priority rule for the +/- 7h dedup tie-break is partly captured
+    in a 2023 email thread; SME sign-off required before Phase 4.
+  - One SSIS task `ESQL_Delete_logico_Nao_Encontrados` is currently
+    disabled. Audit needs to decide whether to keep or drop.

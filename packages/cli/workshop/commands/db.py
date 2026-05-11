@@ -16,7 +16,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from workshop._common import find_repo_root, run_subprocess, stub
+from workshop._common import find_repo_root, run_subprocess
 
 app = typer.Typer(no_args_is_help=True, rich_markup_mode="rich")
 console = Console()
@@ -99,5 +99,36 @@ def history() -> None:
 
 @app.command()
 def seed() -> None:
-    """Load the tech catalog + three reference PoCs into the database."""
-    stub("db", "seed", "Step 0.7 (tech catalog) and 0.8 (reference PoCs)")
+    """Load the tech catalog + three reference PoCs into the database.
+
+    Idempotent: re-running inserts only missing rows. Existing reference
+    projects are left untouched (drop them manually to force a re-seed).
+    """
+    # Imports are deferred so that `workshop --help` does not pay the cost
+    # of loading SQLAlchemy + every ORM module just to print help text.
+    from app.db import session_scope
+    from app.seed.seeder import seed_reference_pocs, seed_tech_catalog
+
+    with session_scope() as session:
+        tech_report = seed_tech_catalog(session)
+    console.print(
+        f"[green]Tech catalog:[/green] "
+        f"inserted {tech_report['dimensions_inserted']} dimensions, "
+        f"{tech_report['items_inserted']} items"
+    )
+
+    with session_scope() as session:
+        poc_report = seed_reference_pocs(session)
+    for slug, counts in poc_report.items():
+        if counts.get("already_present"):
+            console.print(f"[dim]{slug}: already present (skipped)[/dim]")
+        else:
+            console.print(
+                f"[green]{slug}:[/green] "
+                f"{counts['skills']} skills, "
+                f"{counts['phases']} phases, "
+                f"{counts['cards']} cards, "
+                f"{counts['qa_answers']} qa, "
+                f"{counts['tech_choices']} tech"
+            )
+    console.print("[green]Seed complete.[/green]")

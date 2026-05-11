@@ -1,0 +1,53 @@
+code: CORP-501
+phase_code: phase-5-cutover
+title: Two parallel-run cycles + reconciliation sign-off (cutover gate)
+type: Demo
+story_points: 5
+priority: High
+status: ready
+human_gate: true
+skills:
+  - corp-reconciler
+depends_on:
+  - CORP-401
+parallel_with: []
+
+human_gate_checklist: |
+  Cutover go/no-go:
+  - [ ] Cycle 1 reconciliation report: row delta < 0.1 percent and
+        weight delta < 0.5 percent per company per month.
+  - [ ] Cycle 2 same.
+  - [ ] Every non-zero delta has a traceability chain.
+  - [ ] Soft-deleted records compared SEPARATELY from active.
+  - [ ] Run-book delivered + reviewed.
+  - [ ] Business owner and data-engineering lead both signed off.
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/corp-reconciler/SKILL.md
+    label: Reconciler playbook
+
+context: |
+  Final gate before cutting traffic from SSIS to Databricks. The
+  reconciliation produces evidence — not just a number.
+
+task: |
+  1. Run the Databricks workflow against the same reference period as
+     the legacy SSIS package's most recent run.
+  2. Produce `cutover/reconciliation_CORP_fdCargasDescargasVagoes_<TS>.md`
+     covering: structural mapping, quantitative reconciliation by
+     company x month with active vs soft-deleted separated, and a
+     traceability chain for every non-zero delta.
+  3. Repeat for a second cycle on the next day.
+  4. Sign-off captured in the project tracker.
+
+outputs: |
+  - Two reconciliation reports (cycle 1 + cycle 2) in `cutover/`.
+  - `cutover/run-book.md` with operational scenarios.
+  - Sign-off statement from both stakeholders.
+
+acceptance_criteria: |
+  - [ ] Both cycles PASS within tolerance.
+  - [ ] Soft-deleted comparison present and matches separately.
+  - [ ] Every non-zero delta has a ranked-hypotheses paragraph.
+  - [ ] Sign-off captured in writing before traffic switch.

@@ -1,0 +1,34 @@
+phases:
+  - code: phase-1-discovery
+    name: Discovery
+    description: |
+      Analyze the SSIS package, extract business rules, audit the
+      disabled tasks, and produce a connectivity map for every external
+      connection. Output: discovery report + rule catalog + risk
+      register. Phase ends with a SME sign-off gate.
+
+  - code: phase-2-foundation
+    name: Foundation
+    description: |
+      Provision Unity Catalog schemas (Bronze/Silver/Gold), define Delta
+      DDLs, profile source data, and stand up the Bronze ingestion plus
+      a workflow-bundle skeleton.
+
+  - code: phase-3-silver
+    name: Silver — Canonical Model
+    description: |
+      Per-stream Silver notebooks: VLI carga, VALE carga, VALE descarga.
+      UNION + deduplication + the +/- 7h cross-company conflict resolution.
+
+  - code: phase-4-gold
+    name: Gold — Fact Load
+    description: |
+      Delta MERGE for incremental; overwrite for full reload. Surrogate
+      keys resolved via broadcast joins. Partitioned by derived
+      partition_month column.
+
+  - code: phase-5-cutover
+    name: Cutover
+    description: |
+      Parallel-run reconciliation against the legacy fact for two
+      cycles, sign-off, switch traffic to the Databricks workflow.

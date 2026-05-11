@@ -1,0 +1,46 @@
+code: SIGLM-203
+phase_code: phase-2-backend-rules-postgres
+title: Demo Phase 2 — frontend useMock=false against live backend
+type: Demo
+story_points: 3
+priority: High
+status: ready
+human_gate: true
+skills:
+  - siglm-context
+depends_on:
+  - SIGLM-202
+parallel_with: []
+
+human_gate_checklist: |
+  Before opening Phase 3:
+  - [ ] Live walkthrough of the four screens against the Spring backend.
+  - [ ] Validation matrix: trigger each R-13xx and L-16xx at least once
+        from the UI and confirm the canonical error envelope renders.
+  - [ ] Cross-system parity: pick 10 sample rows; same input via legacy
+        and via PoC produces byte-identical rows in their respective
+        target tables (modulo timestamps).
+  - [ ] LGPD: confirm account numbers are redacted in logs.
+
+context: |
+  Phase 2 demo gate. After this, the import lifecycle work in Phase 3
+  starts.
+
+task: |
+  1. Flip `useMock=false` in the SPA.
+  2. Bring the full stack up: postgres + backend + SPA.
+  3. Run the demo walkthrough scripted in the human_gate_checklist.
+  4. Capture a parity report comparing legacy vs PoC on 10 rows.
+
+outputs: |
+  - Parity report (markdown table) in `analysis/parity-report.md`.
+  - Updated README with the "live demo" section.
+  - Sign-off captured in the project tracker.
+
+acceptance_criteria: |
+  - [ ] All four screens work against the live backend with no mock.
+  - [ ] Validation matrix shows every R-code and L-code triggered at
+        least once, with the correct error envelope.
+  - [ ] Parity report: 10/10 rows match.
+  - [ ] LGPD log redaction confirmed (sample log line with redacted
+        account number).

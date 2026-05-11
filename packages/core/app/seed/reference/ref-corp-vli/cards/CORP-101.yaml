@@ -1,0 +1,56 @@
+code: CORP-101
+phase_code: phase-1-discovery
+title: SSIS package analysis (10-section deliverable)
+type: Task
+story_points: 5
+priority: High
+status: ready
+human_gate: true
+skills:
+  - corp-ssis-analyzer
+depends_on: []
+parallel_with: []
+
+human_gate_checklist: |
+  Before CORP-102 / 103 / 104 start:
+  - [ ] Section 1 business flow reviewed with operations.
+  - [ ] Section 9 blockers list has explicit owners.
+  - [ ] All connection managers resolved (no DSN-only / expression-only).
+  - [ ] Disabled-task audit has zero UNKNOWN.
+
+inputs:
+  - kind: external
+    path: legacy/CORP_fdCargasDescargasVagoes.dtsx
+    label: SSIS package XML (read-only)
+  - kind: skill_resource
+    path: .agents/skills/corp-ssis-analyzer/SKILL.md
+    label: Analyzer playbook
+  - kind: skill_resource
+    path: .agents/skills/corp-ssis-analyzer/resources/extraction-checklist.md
+    label: Extraction checklist
+  - kind: skill_resource
+    path: .agents/skills/corp-ssis-analyzer/resources/disabled-task-audit.md
+    label: Disabled-task decision framework
+
+context: |
+  First card in the migration. All subsequent cards depend on this
+  one's outputs.
+
+task: |
+  Produce the full 10-section analysis of the SSIS package. Write to
+  `discovery/CORP-101-ssis-analysis.md`. Every connection manager
+  resolved to server + database + auth + role. Every disabled task
+  classified (no UNKNOWN). Section 9 lists migration blockers with
+  named owners.
+
+outputs: |
+  - `discovery/CORP-101-ssis-analysis.md` with all 10 sections present.
+  - Connection-manager map appendix.
+  - Disabled-task audit appendix.
+
+acceptance_criteria: |
+  - [ ] All 10 sections present and non-empty.
+  - [ ] Every DTS:ConnectionManager has server, database, auth, role.
+  - [ ] No disabled task remains UNKNOWN.
+  - [ ] SQL in Section 5 quoted verbatim from SqlStatementSource.
+  - [ ] Section 9 blockers list includes explicit owners.

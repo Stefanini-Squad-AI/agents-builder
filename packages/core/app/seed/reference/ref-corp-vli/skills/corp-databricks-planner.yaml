@@ -1,0 +1,83 @@
+slug: corp-databricks-planner
+name: CORP Databricks Migration Planner
+description: |
+  Create Databricks migration plans for legacy ETL workloads including
+  SSIS packages, stored-procedure pipelines, and SQL-heavy warehouse
+  loads. Output: medallion architecture, execution mode design, notebook
+  breakdown, Delta strategy, control tables, cutover sequencing. Use when
+  the user wants a migration plan, architecture design, notebook
+  breakdown, or cutover plan.
+kind: procedure
+body: |
+  # Databricks Migration Planner
+
+  ## Output order (always)
+
+  1. Migration intent — what, target state, success, biggest risk.
+  2. Concept mapping — every SSIS concept to its Databricks equivalent.
+  3. Connectivity design — per-connection access method + secrets + network.
+  4. Execution mode design — full vs incremental as separate Workflow paths.
+  5. Medallion architecture — Bronze / Silver / Gold definitions.
+  6. Notebook breakdown — one concern per notebook.
+  7. Control table migration — mdExecucoes etc. -> Delta config tables.
+  8. Risk register — carried forward + migration-specific.
+  9. Phased delivery plan.
+
+  ## Concept mapping (canonical)
+
+  | SSIS | Databricks |
+  |---|---|
+  | Package | Workflow Job |
+  | Execute SQL Task | Notebook Task |
+  | Precedence Constraint | Task Dependency |
+  | Expression-based branch | If/Else Task |
+  | Package variable | Job Parameter |
+  | Staging table | Bronze Delta table |
+  | Fact table | Gold Delta table |
+  | Control table | Delta config table |
+  | Physical delete + insert | Delta MERGE |
+  | Soft delete UPDATE | Delta MERGE `whenNotMatchedBySource` (DBR 12.2+) |
+
+  ## Execution-mode rule
+
+  Never collapse two modes into one notebook with an `if/else` inside.
+  Keep them as separate task paths in the Workflow DAG so each can be
+  monitored, retried, and debugged independently.
+
+  Bronze ingestion runs as a single task BEFORE the If/Else branch
+  (shared by both modes). The branch applies only to the Gold load.
+
+  `06_soft_delete_missing_source` (using `whenNotMatchedBySource`)
+  executes ONLY in the full-reload path. Running it in incremental
+  mode would mark every record outside the incremental window as
+  logically deleted — silent catastrophic data loss. Enforce via
+  `depends_on` in the DAG; never via runtime check inside the notebook.
+
+  ## Medallion definitions
+
+  - **Bronze**: one table per source table; incremental by DT_ALTERACAO
+    or equivalent; schema-on-read; full reload overwrites.
+  - **Silver**: UNION across sources; deduplicated; cross-source conflict
+    resolved; natural keys only (no surrogate keys yet); persistent —
+    each run does `mode("overwrite")` (safe because Silver is always
+    fully rebuilt from Bronze within the same run).
+  - **Gold**: surrogate keys via broadcast joins; soft-delete flag
+    maintained; Delta MERGE for incremental; truncate-and-insert for
+    full reload; partitioned by derived `partition_month DATE`
+    computed as `DATE_TRUNC('month', operation_date)`. **Never** partition
+    on the raw DATETIME column.
+
+  ## Architecture decision record (always state this)
+
+  > Why Workflows + Delta MERGE over DLT:
+  > This package has branching control logic, full vs incremental modes,
+  > explicit soft-delete operations, and cancellation routines. DLT is
+  > optimized for append-heavy streaming pipelines with built-in
+  > expectations. The mutation-heavy, mode-switching nature of this
+  > package fits Workflows + Delta MERGE better. DLT remains an option
+  > for future refactoring after the migration is stable and reconciled.
+
+  ## When to pull in sibling skills
+
+  - For MERGE patterns -> `corp-delta-merge`.
+  - For reconciliation -> `corp-reconciler`.

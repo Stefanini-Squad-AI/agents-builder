@@ -1,0 +1,19 @@
+phases:
+  - code: phase-1-reports
+    name: Relatorios e Exportacoes
+    description: |
+      Consolidated monthly hours + approval-summary exports for gestor /
+      admin. xlsx output via the existing `xlsx` package. Filter by month
+      and (optionally) by area.
+
+  - code: phase-2-notifications
+    name: Notificacoes por Email
+    description: |
+      Transactional emails for rejection and vacation events. All fire-
+      and-forget — an SMTP failure never blocks the DB write.
+
+  - code: phase-3-quality
+    name: Qualidade e Rastreabilidade
+    description: |
+      AuditLog wired into approval paths + admin-only audit endpoint.
+      Plus the duplicate-route bug fix.

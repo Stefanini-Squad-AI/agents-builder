@@ -1,0 +1,44 @@
+# Tech panorama picks. Item slugs reference the seeded catalog.
+
+languages:
+  - { item: java,       role: target }
+  - { item: typescript, role: target }
+  - { item: sql,        role: target }
+
+backend_framework:
+  - { item: spring-boot, role: target }
+
+frontend_framework:
+  - { item: angular18, role: target }
+
+database:
+  - { item: postgresql, role: target }
+  - { item: db2,        role: legacy }
+
+cloud_infra:
+  - { item: docker,     role: target }
+  - { item: kubernetes, role: optional }
+
+architecture_patterns:
+  - { item: ddd,                 role: target }
+  - { item: clean-architecture,  role: target }
+
+observability:
+  - { item: opentelemetry,    role: target }
+  - { item: structured-logging, role: target }
+
+security:
+  - { item: oauth2,            role: target }
+  - { item: lgpd,              role: target }
+  - { item: azure-key-vault-sec, role: target }
+
+testing:
+  - { item: junit,             role: target }
+  - { item: testcontainers,    role: target }
+  - { item: openapi-contract,  role: target }
+
+legacy_modernized:
+  - { item: cobol-db2-jcl, role: legacy }
+
+sector:
+  - { item: financeiro, role: target }

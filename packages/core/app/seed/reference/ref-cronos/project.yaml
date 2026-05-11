@@ -1,0 +1,27 @@
+# Reference PoC: a SaaS timesheet + approval app (Next.js + NestJS +
+# Prisma + Postgres). Scrubbed adaptation of an enterprise-internal time-
+# tracking tool. Used as a few-shot exemplar for "authoring kind" skills
+# (small CRUD recipes) and for the strict-9 card style applied as
+# phase-VLI in MVP.
+
+slug: ref-cronos
+name: Sample Time-Tracking SaaS
+card_code_prefix: CRN
+card_template: phase_vli
+grouping: phase
+status: draft
+llm_provider: anthropic
+llm_model: claude-sonnet-4-5
+
+objective: |
+  Add reports, email notifications, and an audit log to an existing
+  timesheet-and-approvals SaaS. Stack: Next.js 14 App Router + NestJS +
+  Prisma + Postgres. The codebase is single-flat-module on the backend
+  (no per-feature @Module) and uses custom JWT in localStorage on the
+  frontend (next-auth is installed but unused).
+
+context_md: |
+  Audience: small back-office team. Three roles: colaborador (default),
+  gestor (team lead), admin. Auth role normalization is implicit:
+  backend stores ADMIN/MANAGER/COLLABORATOR, frontend normalizes to
+  admin/gestor/colaborador.

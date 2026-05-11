@@ -1,0 +1,119 @@
+slug: siglm-spring-backend
+name: SIGLM Spring Backend
+description: |
+  Scaffold and extend the Spring Boot 3 + Java 17 backend with enterprise
+  defaults: layered package structure (controller / service / repository /
+  domain / dto / config / exception), OpenAPI via springdoc, Actuator
+  health, @RestControllerAdvice with a standardized error envelope, MDC
+  CorrelationId filter, Flyway migrations for Postgres, Bean Validation,
+  /api/v1 versioning, and Testcontainers integration tests. Use when
+  creating or modifying the Spring backend, adding an endpoint, configuring
+  error handling, adding a Flyway migration, or wiring a service that ports
+  COBOL business rules.
+kind: authoring
+body: |
+  # SIGLM Spring Backend
+
+  All changes under `backend/` must satisfy the project's enterprise
+  defaults. This skill codifies the minimum viable layout.
+
+  ## Package layout
+
+  ```
+  backend/src/main/java/br/sample/siglm/
+    SiglmApplication.java
+    api/v1/         <- controllers (HTTP only, no business logic)
+    service/        <- business logic, ports of COBOL rules
+    repository/     <- Spring Data JPA interfaces
+    domain/         <- entities mirroring DB tables
+    dto/            <- request / response / error envelopes
+    config/         <- @Configuration: OpenAPI, CorrelationId, Web
+    exception/      <- BusinessRuleException, NotFoundException,
+                       ErrorCode, GlobalExceptionHandler
+  src/main/resources/
+    application.yml
+    db/migration/V001__... V00X__...
+  ```
+
+  **Inviolable**: controllers do not touch business logic. Services do
+  not import `jakarta.servlet.*` nor `org.springframework.web.*`.
+  Repositories do not contain logic.
+
+  ## Canonical error envelope
+
+  ```json
+  {
+    "error": "Violacao de regra de negocio",
+    "code": "REGRA_NEGOCIO",
+    "timestamp": "2026-04-16T12:34:56.789Z",
+    "correlationId": "5f3e-...-a1b2",
+    "path": "/api/v1/parametros-padrao",
+    "details": [
+      { "campo": "vrLimMaximo", "codigoRegra": 1315,
+        "mensagem": "VR-LIM-MAXIMO nao pode ser menor que VR-LIM-MINIMO" }
+    ]
+  }
+  ```
+
+  ErrorCode enum: `VALIDACAO_CAMPO`, `REGRA_NEGOCIO`,
+  `LOOKUP_NAO_ENCONTRADO`, `RECURSO_NAO_ENCONTRADO`, `ESTADO_INVALIDO`,
+  `ERRO_INTERNO`.
+
+  Never return a stack trace. Never leak table/column names.
+
+  ## CorrelationId filter (MDC)
+
+  ```java
+  @Component
+  @Order(Ordered.HIGHEST_PRECEDENCE)
+  public class CorrelationIdFilter extends OncePerRequestFilter {
+      public static final String HEADER = "X-Correlation-Id";
+      public static final String MDC_KEY = "correlationId";
+      // read or generate, put in MDC, mirror to response, remove on finally
+  }
+  ```
+
+  Logging pattern includes `%X{correlationId:-}` so every line is taggable
+  back to a request.
+
+  ## Flyway conventions
+
+  - Migrations are **immutable** once committed; Flyway refuses to re-run a
+    modified file. Add a new V### instead.
+  - Naming: `V00X__<verb>_<object>.sql`.
+  - Every table includes `COMMENT ON TABLE` and per-column `COMMENT ON
+    COLUMN` citing the original DB2 source.
+
+  ## Service port pattern (for the 15 + 5 rules)
+
+  ```java
+  @Service
+  @RequiredArgsConstructor
+  public class ParametroPadraoValidator {
+      // ... dependencies ...
+      public ValidationResult validar(ParametroPadraoRequest req) {
+          List<ErrorDetail> erros = new ArrayList<>();
+          validarObrigatorio(req.getSgServico(), "sgServico", 1301, erros);
+          // R-1302..R-1315 ...
+          if (erros.isEmpty()) lookupFks(req, erros);  // L-1600..L-1640
+          return new ValidationResult(erros);
+      }
+  }
+  ```
+
+  **Never** abort validation on the first failure — accumulate all errors
+  so the row error report is complete (mirrors the PoC's row-level error
+  model).
+
+  ## Testing baseline (per endpoint)
+
+  - 1 happy-path integration test (Testcontainers Postgres).
+  - 1 negative test triggering a specific rule code.
+  - Unit tests on services with Mockito.
+
+  ## When to pull in sibling skills
+
+  - Rule-by-rule detail -> `siglm-cobol-to-rules`.
+  - Frontend wiring -> `siglm-angular-screen`.
+  - Lot state machine -> `siglm-import-lifecycle`.
+  - Project-wide context / glossary -> `siglm-context`.

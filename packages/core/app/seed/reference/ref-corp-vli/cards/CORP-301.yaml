@@ -1,0 +1,64 @@
+code: CORP-301
+phase_code: phase-3-silver
+title: Silver notebooks per stream + +/-7h cross-company dedup
+type: Story
+story_points: 13
+priority: High
+status: ready
+human_gate: true
+skills:
+  - corp-databricks-planner
+  - corp-delta-merge
+  - corp-rule-extractor
+depends_on:
+  - CORP-202
+parallel_with: []
+
+human_gate_checklist: |
+  Phase 3 sign-off:
+  - [ ] Per-stream row counts within +/- 1 percent of profiling-derived
+        expectations.
+  - [ ] Spark UI confirms BroadcastHashJoin or SortMergeJoin on the
+        +/-7h dedup (NOT CartesianProduct).
+  - [ ] +/-7h tie-break winner documented per the CORP-102 SME sign-off.
+
+inputs:
+  - kind: artifact
+    path: discovery/CORP-102-rule-catalog.md
+    label: Rule catalog with verbatim dedup SQL
+  - kind: skill_resource
+    path: .agents/skills/corp-delta-merge/SKILL.md
+    label: Delta merge designer (range-join + timezone sections)
+
+context: |
+  Silver is the canonical model. UNION + dedup + cross-source conflict
+  resolution. Persistent (overwrite mode). The +/-7h dedup is the
+  trickiest mechanic — it MUST be in UTC and MUST use range-join binSize.
+
+task: |
+  1. Three notebooks: `03_silver_vli_carga.py`, `03_silver_vale_carga.py`,
+     `03_silver_vale_descarga.py`.
+  2. Per stream: select Bronze columns, apply per-stream filters (from
+     CORP-102), `ROW_NUMBER` dedup with the partition + order keys
+     quoted verbatim from CORP-102, persist `mode("overwrite")`.
+  3. UNION step in a separate notebook: load the three Silver tables,
+     apply the +/-7h conflict resolution. Before the join, set
+     `spark.databricks.optimizer.rangeJoin.binSize = 7200` and broadcast
+     the smaller side. Tie-break per the CORP-102 sign-off; conflicts
+     where the rule is ambiguous get written with `cdv_sn_conflito='S'`
+     and `cdv_sn_exclusao_logica=NULL`.
+  4. Verify in the Spark UI that the join plan is SortMergeJoin or
+     BroadcastHashJoin, NOT CartesianProduct.
+
+outputs: |
+  - Three per-stream Silver notebooks.
+  - One UNION + conflict notebook.
+  - Sample Spark UI query-plan screenshot attached to the card.
+
+acceptance_criteria: |
+  - [ ] All timestamps UTC throughout Silver.
+  - [ ] `rangeJoin.binSize` set before the +/-7h join.
+  - [ ] Spark UI confirms non-cross-join.
+  - [ ] Ambiguous-conflict records written with `cdv_sn_conflito='S'`,
+        never dropped.
+  - [ ] Row counts within +/-1 percent of profiling expectations.

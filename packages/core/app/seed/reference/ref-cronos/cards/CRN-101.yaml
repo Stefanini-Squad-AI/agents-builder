@@ -1,0 +1,45 @@
+code: CRN-101
+phase_code: phase-1-reports
+title: Monthly hours report by collaborator and activity
+type: Story
+story_points: 5
+priority: High
+status: ready
+human_gate: false
+skills:
+  - cronos-add-feature
+  - cronos-role-access
+depends_on: []
+parallel_with:
+  - CRN-102
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/cronos-add-feature/SKILL.md
+    label: Add-feature full-stack chain
+
+context: |
+  The /reports page currently exports only the authenticated colaborador's
+  own hours. Managers need a consolidated monthly view for their team for
+  auditing.
+
+task: |
+  Add a "Relatorio Consolidado" tab visible only to gestor/admin.
+  Filter UI: MonthPickerInput (required) + Area Select (optional).
+  Backend: `GET /api/analytics/consolidated-report` with role assertion.
+  Frontend: xlsx export one row per TimeEntry with columns Colaborador,
+  Matricula, Area, Codigo Atividade, Descricao Atividade, Data, Horas,
+  Status. Empty results -> Mantine yellow notification (no file download).
+
+outputs: |
+  - `backend/src/analytics/analytics.service.ts` (new method).
+  - `backend/src/analytics/analytics.controller.ts` (new endpoint).
+  - `frontend/src/services/api.ts` (new method).
+  - `frontend/src/app/reports/page.tsx` (new tab, gated by isGestor).
+
+acceptance_criteria: |
+  - [ ] Tab visible on /reports for gestor + admin only; colaborador gets 403.
+  - [ ] Filter UI: month/year required; area dropdown populated from /api/areas.
+  - [ ] Excel columns match the spec exactly.
+  - [ ] Empty result -> color: yellow notification, no download.
+  - [ ] Gestor scope: only sees their subordinates; admin sees all areas.

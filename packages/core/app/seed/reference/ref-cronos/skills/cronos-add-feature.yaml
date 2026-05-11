@@ -1,0 +1,129 @@
+slug: cronos-add-feature
+name: Cronos Add Full-Stack Feature
+description: |
+  End-to-end workflow for adding a new feature touching Prisma schema +
+  NestJS endpoint + frontend page in Cronos. Use when adding a new
+  domain entity, new module, new page with backend data, or any feature
+  that requires changes in both backend and frontend.
+kind: authoring
+body: |
+  # Add Full-Stack Feature
+
+  Every new feature follows this chain:
+
+  ```
+  Prisma model -> NestJS module (controller + service + DTOs) ->
+    app.module.ts -> frontend api.ts -> React Query hook ->
+    Next.js page -> app-features.ts
+  ```
+
+  Skip any step that doesn't apply (e.g. no new model if reusing data).
+
+  ## Step 1 — Prisma schema
+
+  Edit `backend/prisma/schema.prisma`. Then:
+
+  ```
+  cd backend
+  npx prisma generate
+  npx prisma db push
+  ```
+
+  ## Step 2 — NestJS module
+
+  ```
+  backend/src/<feature>/
+    <feature>.controller.ts
+    <feature>.service.ts
+  ```
+
+  DTOs live in `backend/src/common/dtos/`. Controller pattern (mirror
+  `vacations.controller.ts`):
+
+  ```typescript
+  @Controller('api/<feature>')
+  export class FeatureController {
+    constructor(
+      private featureService: FeatureService,
+      private usersService: UsersService,
+    ) {}
+
+    private getUserIdFromHeader(auth: string): string {
+      const token = auth?.replace('Bearer ', '');
+      if (!token) throw new UnauthorizedException('Missing token');
+      return this.usersService.validateToken(token).sub;
+    }
+
+    @Get()
+    async findAll(@Headers('authorization') auth: string) {
+      const userId = this.getUserIdFromHeader(auth);
+      return this.featureService.findAll(userId);
+    }
+  }
+  ```
+
+  Service: inject `PrismaService` directly — no repository layer in
+  this project.
+
+  ## Step 3 — Wire into app.module.ts
+
+  Add controller AND service to `backend/src/app.module.ts`:
+
+  ```typescript
+  controllers: [..., FeatureController],
+  providers:   [..., FeatureService],
+  ```
+
+  **Do NOT create a per-feature `@Module`** — single flat module is the
+  project's convention.
+
+  ## Step 4 — Frontend API client
+
+  Add method to `frontend/src/services/api.ts` inside `ApiClient`. Path
+  is **relative to /api base** — do NOT include `/api` in the path
+  string (the double-prefix gotcha):
+
+  ```typescript
+  async getFeatureData(token?: string) {
+    const client = token ? new ApiClient(token).client : this.client;
+    const response = await client.get('/feature');
+    return response.data;
+  }
+  ```
+
+  ## Step 5 — React Query hook (preferred for pages with server data)
+
+  ```typescript
+  export function useFeatureData() {
+    const { token } = useAuth();
+    return useQuery({
+      queryKey: ['feature', token],
+      queryFn: () => new ApiClient(token!).getFeatureData(token!),
+      enabled: !!token,
+    });
+  }
+  ```
+
+  ## Step 6 — Next.js page
+
+  Auth-guarded with the standard pattern from `cronos-frontend-conventions`.
+
+  ## Step 7 — Register in app-features.ts
+
+  ```typescript
+  {
+    key: 'feature-key',
+    label: 'Feature Label',
+    href: '/route',
+    section: 'rotina',
+    availableFor: ['colaborador', 'gestor', 'admin'],
+    icon: IconName,
+  }
+  ```
+
+  This controls nav visibility.
+
+  ## When to pull in sibling skills
+
+  - For approve/reject flows -> `cronos-approval-workflow`.
+  - For role-gating an endpoint or page -> `cronos-role-access`.

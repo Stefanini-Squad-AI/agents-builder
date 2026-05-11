@@ -1,0 +1,69 @@
+slug: cronos-debug-api-contract
+name: Cronos Debug API Contract
+description: |
+  Diagnose and fix mismatches between frontend API calls and backend
+  endpoints. Use when an API call returns 404, 401, 403, wrong data, or
+  CORS errors, or when the user mentions that a request is failing, an
+  endpoint does not exist, or data is not loading.
+kind: procedure
+body: |
+  # Debug API Contract
+
+  ## How paths work in this project
+
+  Frontend `API_BASE_URL` is `http://localhost:3000/api`.
+  Backend controllers are declared as `@Controller('api/<resource>')`.
+
+  **The `/api` prefix appears TWICE — once in the base URL, once in the
+  controller.** This is intentional and not a bug.
+
+  | Frontend call in api.ts | Resolves to | Backend controller path |
+  |---|---|---|
+  | `client.get('/vacations/my')` | `http://localhost:3000/api/vacations/my` | `@Controller('api/vacations')` + `@Get('my')` |
+  | `client.get('/api/vacations/my')` | `http://localhost:3000/api/api/vacations/my` | **404** |
+
+  ## Diagnostic checklist
+
+  1. **Path construction**:
+     - Open `frontend/src/services/api.ts` — find the method.
+     - Open the matching backend controller.
+     - Full URL = `BASE_URL` + method path string (do NOT include `/api`).
+
+  2. **Authorization header**:
+     - All protected endpoints call `getUserIdFromHeader(auth)`.
+     - Frontend must pass `token` to the ApiClient.
+     - Missing token -> 401 UnauthorizedException.
+
+  3. **Role assertion**:
+     - Endpoints that call `assertAdminOrManagerRole(userId)` return 403
+       for colaboradores.
+
+  4. **CORS**:
+     - Backend allows origins from `CORS_ORIGIN` env var (comma-separated).
+     - Default frontend port is 3001. Mismatched ports -> CORS error.
+
+  5. **API debug logs**:
+     - Set `NEXT_PUBLIC_API_DEBUG=true` in frontend `.env.local`. Logs
+       every request and response via the Axios interceptors.
+
+  ## Known inconsistencies in this codebase
+
+  | Issue | Detail |
+  |---|---|
+  | `next-auth` unused | Installed in package.json but auth is custom JWT in localStorage |
+  | `/admin/acess-requests` typo | Page exists with missing `c`; should redirect (see card CRN-302) |
+  | `AuditLog` model unused | Defined in Prisma but no service writes to it (see CRN-301) |
+
+  ## Quick fix table
+
+  | Symptom | Likely cause | Fix |
+  |---|---|---|
+  | 404 on valid endpoint | Path double-prefixed with /api | Remove /api from string in api.ts |
+  | 401 on authenticated | Token not passed | `new ApiClient(token).method(token)` |
+  | 403 on manager endpoint | Role assertion failing | Confirm role is `MANAGER` or `ADMIN` in DB |
+  | CORS error | Wrong frontend port | Run on 3001 or update CORS_ORIGIN |
+
+  ## When to pull in sibling skills
+
+  - Confirm role gating is intended -> `cronos-role-access`.
+  - Add a brand-new endpoint -> `cronos-add-feature`.

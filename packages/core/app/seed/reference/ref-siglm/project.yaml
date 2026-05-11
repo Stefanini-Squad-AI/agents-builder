@@ -1,0 +1,26 @@
+# Reference PoC: legacy COBOL+DB2 -> Angular + Spring Boot + PostgreSQL.
+# Scrubbed adaptation of a banking-limits modernization project. Used as a
+# few-shot exemplar for the LLM prompts.
+
+slug: ref-siglm
+name: Sample Banking Limits Modernization
+card_code_prefix: SIGLM
+card_template: phase_vli
+grouping: phase
+status: draft
+llm_provider: anthropic
+llm_model: claude-sonnet-4-5
+
+objective: |
+  Modernize a legacy COBOL+DB2 financial-limits management system into an
+  Angular frontend backed by a Spring Boot service on PostgreSQL, while
+  preserving every business rule from the legacy batch — 15 field
+  validations + 5 FK lookups + a versioned upsert pattern that never
+  truncates the production table.
+
+context_md: |
+  Domain: retail-banking transaction limits ("Parametros Padroes"). The
+  legacy system is a daily batch in COBOL writing to DB2 z/OS. The PoC
+  ships an Angular SPA with a mock HTTP layer first, then a Spring Boot
+  backend that takes over via a useMock=false flag without changing the
+  frontend contract.

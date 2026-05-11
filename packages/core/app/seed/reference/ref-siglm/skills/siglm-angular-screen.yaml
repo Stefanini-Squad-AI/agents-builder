@@ -1,0 +1,106 @@
+slug: siglm-angular-screen
+name: SIGLM Angular Screen
+description: |
+  Add or modify a screen in the Angular 18 frontend following established
+  conventions — module layout, service pattern with URL constants in
+  app.api.ts, Angular Material + ngx-toastr + ngx-spinner usage, Keycloak
+  guards, reactive forms, and pt-BR user messages. Use when the user asks
+  to create a new tela, add a component under src/app/view, build a form,
+  wire up a new endpoint call, or modify parametrizacoes screens.
+kind: authoring
+body: |
+  # SIGLM Angular Screen Authoring
+
+  Target: the Angular 18 SPA with Material, Bootstrap, Keycloak, ngx-toastr,
+  ngx-spinner, xlsx.
+
+  ## Directory convention
+
+  | Layer | Path | Naming |
+  |---|---|---|
+  | Component | `src/app/view/<area>/<feature>/` | `<verb>-<feature>.component.{ts,html,css}` |
+  | Service | `src/app/core/<area>/` | `<area>-<feature>.service.ts`, `@Injectable({providedIn:'root'})` |
+  | Endpoint constants | `src/app/app.api.ts` | `export const NOME = \`${API_CONTEXT}/v1/...\`` |
+  | Mock data | `src/app/core/mock/mock-data.ts` | `MOCK_<NAME>` |
+  | Mock route | `src/app/core/mock/mock-api.interceptor.ts` | entry in MOCK_MAP |
+
+  `API_CONTEXT` is `environment.apiUrl + "/parametros"`. All URLs follow
+  `/parametros/v1/<resource>`.
+
+  ## Screen skeleton
+
+  ```typescript
+  @Component({
+    selector: 'app-minha-feature',
+    templateUrl: './minha-feature.component.html',
+  })
+  export class MinhaFeatureComponent implements OnInit {
+    form!: FormGroup;
+    constructor(
+      public spinner: NgxSpinnerService,
+      public toastr: ToastrService,
+      public service: MinhaFeatureService,
+    ) {}
+    ngOnInit() {
+      this.form = new FormGroup({
+        servicos: new FormControl('', [Validators.required]),
+      });
+    }
+    salvar() {
+      this.spinner.show();
+      this.service.salvar(this.form.value).subscribe({
+        next: () => { this.spinner.hide();
+          this.toastr.success('Parametrizacao salva com sucesso!'); },
+        error: () => this.spinner.hide(),
+      });
+    }
+  }
+  ```
+
+  ## Service skeleton
+
+  Never inline URLs. Always add the constant to `app.api.ts` first.
+
+  ```typescript
+  @Injectable({ providedIn: 'root' })
+  export class MinhaFeatureService {
+    constructor(private http: HttpClient) {}
+    salvar(dto: any): Observable<any> {
+      return this.http.post<any>(MINHA_FEATURE, dto).pipe(
+        catchError(ErrorHandler.handlerError),
+      );
+    }
+  }
+  ```
+
+  ## Mandatory pt-BR strings (copy verbatim)
+
+  | Situation | Message |
+  |---|---|
+  | Save success | `Parametrizacao de Parametro Padrao salva com sucesso!` |
+  | Required filter missing | `Preencha os campos obrigatorios!` |
+  | Mixed service groups | `Selecione apenas servicos do mesmo grupo.` |
+
+  ## Business rules enforced by every Parametro Padrao screen
+
+  1. Service filter has 3 groups: Pix / Transferencias (TEV+TED) / Boletos.
+     Block submit if user mixes groups.
+  2. `Valor Limite Minimo`, `Valor Limite Maximo`, `Valor Limite Unitario`
+     are `numeric(6,2)` and obligatory.
+  3. `vrLimiteMaximo >= vrLimiteMinimo` (cross-field validator).
+  4. `vrLimiteUnitario` only obligatory when `nuFaixaHorario in (1, 3)`.
+  5. Delete requires a MatDialog confirm popup and a trash icon per grid row.
+
+  ## Checklist when adding a screen
+
+  - [ ] URL constant added to `src/app/app.api.ts`.
+  - [ ] Service in `src/app/core/<area>/` with `catchError(ErrorHandler.handlerError)`.
+  - [ ] Component in `src/app/view/<area>/<feature>/`.
+  - [ ] Reactive form with `Validators.required` on every required field.
+  - [ ] pt-BR feedback via `ToastrService`.
+  - [ ] Loading state via `NgxSpinnerService.show()/hide()`.
+  - [ ] Mock entry in `mock-api.interceptor.ts` + `MOCK_<NAME>` in mock-data.
+  - [ ] Route registered with Keycloak guard.
+
+  See `siglm-mock-api` (if added later) for mock interceptor details, and
+  `siglm-import-lifecycle` for state-aware UI affordances.

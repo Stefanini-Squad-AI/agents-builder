@@ -1,0 +1,45 @@
+code: CORP-201
+phase_code: phase-2-foundation
+title: Unity Catalog schemas + Delta DDLs (Bronze / Silver / Gold)
+type: Task
+story_points: 5
+priority: High
+status: ready
+human_gate: false
+skills:
+  - corp-databricks-planner
+depends_on:
+  - CORP-102
+parallel_with:
+  - CORP-202
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/corp-databricks-planner/SKILL.md
+    label: Migration planner
+
+context: |
+  Provision the three layers + control schema in Unity Catalog. Every
+  Gold fact table includes a derived `partition_month DATE` GENERATED
+  ALWAYS AS column for partitioning.
+
+task: |
+  1. Three schemas: `bronze`, `silver`, `gold`, plus `config` for the
+     control tables.
+  2. Bronze DDLs: one per source table; preserve original column names.
+  3. Silver DDLs: canonical names; everything UTC.
+  4. Gold DDL: `fd_cargas_descargas_vagoes` with surrogate key columns,
+     `cdv_sn_exclusao_logica`, `cdv_sn_conflito`, and `partition_month
+     DATE GENERATED ALWAYS AS (DATE_TRUNC('month', cdv_dt_operacao))`
+     PARTITIONED BY (partition_month).
+  5. `config.profiling_results` Delta table.
+
+outputs: |
+  - `databricks/schemas/{bronze,silver,gold,config}_ddl.sql`.
+
+acceptance_criteria: |
+  - [ ] All four schemas created in Unity Catalog.
+  - [ ] Bronze tables column-compatible with source.
+  - [ ] Silver tables UTC-only timestamps.
+  - [ ] Gold partitioned on the derived `partition_month`, NOT on the
+        raw DATETIME.

@@ -1,0 +1,40 @@
+code: CRN-202
+phase_code: phase-2-notifications
+title: Email notification on vacation approval and rejection
+type: Story
+story_points: 3
+priority: Medium
+status: ready
+human_gate: true
+skills:
+  - cronos-add-feature
+depends_on:
+  - CRN-201
+parallel_with: []
+
+human_gate_checklist: |
+  Phase 2 sign-off:
+  - [ ] Demo a real rejection email (use a test mailbox).
+  - [ ] Confirm SMTP failure does not block any approval/rejection.
+
+context: |
+  Vacation requests need both approval and rejection emails. Same fire-
+  and-forget contract as CRN-201.
+
+task: |
+  Two triggers in `VacationsService`:
+  - On approve: send "Ferias aprovadas" with date range and total days.
+  - On reject: send "Ferias rejeitadas" with reason (fallback as in CRN-201).
+
+  Both must wrap `sendMail` in try/catch and never re-throw.
+
+outputs: |
+  - `EmailService.sendVacationApprovedEmail`.
+  - `EmailService.sendVacationRejectedEmail`.
+  - VacationsService approve/reject wired.
+
+acceptance_criteria: |
+  - [ ] Approval triggers an email with the date range and total days.
+  - [ ] Rejection triggers an email with the reason (or fallback).
+  - [ ] SMTP failure logs and continues; DB write unaffected.
+  - [ ] Phase 2 human gate walkthrough done.

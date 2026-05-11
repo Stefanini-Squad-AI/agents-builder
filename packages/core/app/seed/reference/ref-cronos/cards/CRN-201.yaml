@@ -1,0 +1,40 @@
+code: CRN-201
+phase_code: phase-2-notifications
+title: Email notification when an apontamento is rejected
+type: Story
+story_points: 3
+priority: Medium
+status: ready
+human_gate: false
+skills:
+  - cronos-add-feature
+depends_on:
+  - CRN-102
+parallel_with:
+  - CRN-202
+
+context: |
+  When a gestor rejects an apontamento, the colaborador receives no
+  email today. They have to refresh the page or wait for a reminder.
+
+task: |
+  Wire `EmailService.sendRejectionNotificationEmail` into the rejection
+  path of `ApprovalsService.rejectSubmission`. Subject:
+  "Apontamento rejeitado - Cronos". Body includes the period (DD/MM/YYYY)
+  and the rejection reason; if reason is empty, fall back to "Nenhum
+  motivo informado pelo gestor".
+
+  CRITICAL: wrap `sendMail` in try/catch and never re-throw — SMTP failure
+  must not block the rejection.
+
+outputs: |
+  - `EmailService.sendRejectionNotificationEmail` method.
+  - ApprovalsService.rejectSubmission updated to await + log on failure.
+
+acceptance_criteria: |
+  - [ ] Rejecting an apontamento triggers an email.
+  - [ ] Empty reason falls back to the canonical message.
+  - [ ] SMTP failure logs an error but the rejection still completes
+        (DB row reflects the rejection).
+  - [ ] No re-throw from the email path (verified by a test that mocks
+        the transporter to throw).

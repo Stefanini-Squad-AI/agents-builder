@@ -1,0 +1,101 @@
+slug: siglm-import-lifecycle
+name: SIGLM Import Lifecycle
+description: |
+  Implement and enforce the seven-state batch import lifecycle (Iniciado,
+  Aguardando Aprovacao, Aprovado, Aguardando Execucao, Em Andamento,
+  Finalizado, plus Cancelado / Processado Parcialmente as terminal
+  alternatives). Use when the user asks about lot states, import-batch
+  approval, async processing, GLMTBC01 transitions, or how a row error
+  rolls up to the lot level.
+kind: procedure
+body: |
+  # SIGLM Import Lifecycle
+
+  Authoritative state machine for the batch import. Codifies the
+  GLMTBC01 transitions and how row-level errors aggregate to lot state.
+
+  ## States
+
+  ```
+  Iniciado
+     |
+     v
+  Aguardando Aprovacao  ---->  Cancelado (terminal, before Aprovado)
+     |
+     v
+  Aprovado
+     |
+     v
+  Aguardando Execucao
+     |
+     v
+  Em Andamento  --->  Erro no Processamento (FA1, terminal)
+     |          --->  Processado Parcialmente (FA2, terminal w/ errors)
+     v
+  Finalizado (terminal, no errors)
+  ```
+
+  Allowed transitions (any others throw `EstadoInvalidoException` with
+  ErrorCode `ESTADO_INVALIDO`):
+
+  | From | To |
+  |---|---|
+  | Iniciado | Aguardando Aprovacao |
+  | Aguardando Aprovacao | Aprovado |
+  | Aguardando Aprovacao | Cancelado |
+  | Aprovado | Aguardando Execucao |
+  | Aguardando Execucao | Em Andamento |
+  | Em Andamento | Finalizado |
+  | Em Andamento | Processado Parcialmente |
+  | Em Andamento | Erro no Processamento |
+
+  ## Row-error rollup
+
+  - 0 row errors -> `Finalizado`.
+  - >0 row errors but >0 success -> `Processado Parcialmente`.
+  - 0 success (every row failed) -> `Erro no Processamento`.
+
+  Each row that fails sets `DS_ERRO_PROCESSO_REGISTRO` with the rule
+  code (R-1301..R-1315, L-1600..L-1640) + pt-BR message. Stagings live in
+  `GLMTBC02_CARGA_PRMTO_PDRO_PIX` (Pix) or equivalent — never write
+  rejected rows directly to `GLMTB013`.
+
+  ## Service contract
+
+  ```java
+  public interface ImportacaoLifecycleService {
+      LoteImportacao iniciar(String filename, byte[] csv);
+      LoteImportacao aprovar(UUID loteId, String approverUserId);
+      LoteImportacao cancelar(UUID loteId, String userId, String motivo);
+      LoteImportacao executar(UUID loteId);    // async — returns immediately
+      LoteImportacao status(UUID loteId);
+      byte[] exportarErrosCsv(UUID loteId);
+  }
+  ```
+
+  - `iniciar` parses the CSV, writes rows to staging, transitions to
+    Aguardando Aprovacao. Synchronous; rejects malformed CSV early.
+  - `aprovar` / `cancelar` only valid in Aguardando Aprovacao.
+  - `executar` posts a job to the async runner; controller returns 202.
+    Polling clients check `status`.
+
+  ## Idempotency rules
+
+  - Approving an already-approved lot returns the lot, doesn't error.
+  - Cancelling a lot past Aprovado returns 409 with code `ESTADO_INVALIDO`.
+  - Calling `executar` twice on the same lot is a no-op (idempotency-key
+    via lot id).
+
+  ## Required audit log entries
+
+  Every state transition writes one row to `audit_log`:
+  `{ entity: 'LoteImportacao', entity_id, action: 'TRANSITION',
+     old: <state>, new: <state>, actor: <user_id>, at: <ts>,
+     reason: <optional> }`.
+
+  ## When to pull in sibling skills
+
+  - For the rule-port catalog -> `siglm-cobol-to-rules`.
+  - Backend layout / error envelope -> `siglm-spring-backend`.
+  - UI affordances when a lot is in a specific state (e.g. show "Aprovar"
+    only when in Aguardando Aprovacao) -> `siglm-angular-screen`.

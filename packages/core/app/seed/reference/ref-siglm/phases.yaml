@@ -1,0 +1,30 @@
+# Four-phase delivery. Each phase ends with a Demo card (human_gate=true).
+
+phases:
+  - code: phase-0-quality-gates
+    name: Quality Gates Transversais
+    description: |
+      Cross-cutting gates that block merge/demo when open: CI, contract
+      sync between mock and backend OpenAPI, final security/docs review.
+
+  - code: phase-1-frontend-mock
+    name: Frontend + Mock
+    description: |
+      Angular SPA with all four target screens running on top of a mock
+      HTTP interceptor. No backend yet. Shipping this phase proves the UI
+      contract before the backend is built.
+
+  - code: phase-2-backend-rules-postgres
+    name: Backend + Rules + Postgres
+    description: |
+      Spring Boot 3 on PostgreSQL with every legacy validation rule
+      ported. OpenAPI exposed. The frontend flips useMock=false at the
+      end of the phase and the system runs end-to-end.
+
+  - code: phase-3-lifecycle-async
+    name: Async Import Lifecycle
+    description: |
+      Asynchronous batch import with manual approval, the full state
+      machine (Iniciado -> Aguardando Aprovacao -> Aprovado -> Em
+      Andamento -> Finalizado / Cancelado / Processado Parcialmente),
+      and CSV export of per-row errors.

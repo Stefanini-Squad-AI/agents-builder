@@ -1,0 +1,113 @@
+slug: corp-rule-extractor
+name: CORP ETL Business Rule Extractor
+description: |
+  Extract and normalize ETL business rules from SQL, SSIS tasks, or
+  notebooks into a two-level structured output: a high-level rule-groups
+  summary for business sign-off, and a detailed rule catalog for
+  engineering implementation. Use when migration depends on preserving
+  deduplication, soft-delete, conflict resolution, cancellation, or
+  processing-window semantics.
+kind: analyzer
+body: |
+  # ETL Business Rule Extractor
+
+  Every ETL pipeline encodes business decisions that were never written
+  down anywhere else. The SQL is the only documentation. This skill makes
+  that implicit knowledge explicit at two levels.
+
+  ## Section 1 — Rule groups summary (high level)
+
+  ```
+  RULE GROUPS IDENTIFIED
+  ----
+  Source selection rules     (N)
+  Deduplication rules        (N)
+  Cross-source conflict rules (N)
+  Validity / soft-delete rules (N)
+  Processing window rules    (N)
+  Dimension lookup rules     (N)
+  Audit and control rules    (N)
+  ----
+  TOTAL: N rules across N groups
+  N require business sign-off
+  ```
+
+  ## Section 2 — Detailed catalog (low level)
+
+  One entry per rule:
+
+  ```
+  ----
+  Rule ID:      DEDUP-001 (or FILTER-001 / CONFLICT-001 etc.)
+  Rule name:    short descriptive name
+  Category:     from groups above
+  Task:         exact DTS:ObjectName
+  Evidence:     verbatim SQL or expression fragment
+  ----
+  Business description: plain language, no SQL
+  Technical mechanism:  HOW it works (ROW_NUMBER, anti-join, etc.)
+  Inputs:               tables, columns, variables read
+  Output effect:        what changes in the data
+  Priority / tie-break: which side wins on conflict, or "unknown — needs SME"
+  Migration recommendation: PySpark pattern / Delta MERGE clause
+  Open questions:       ambiguities for SMEs
+  Sign-off required:    YES / NO
+  ```
+
+  A rule entry without an Evidence fragment is a HYPOTHESIS, not a rule.
+  Mark it REQUIRES MANUAL EXTRACTION (Script Tasks, DFT components).
+
+  ## Where rules hide
+
+  | Task type | Where to look |
+  |---|---|
+  | Execute SQL | The SQL itself (`SQLTask:SqlStatementSource`) |
+  | Data Flow (Microsoft.Pipeline) | OLE DB Source SqlCommand, Conditional Split FriendlyExpression, Derived Column FriendlyExpression, Lookup join + no-match behavior |
+  | Script Task | Code is in C# / VB.NET; emit placeholder + ReadOnly / ReadWrite variables list |
+  | Expression variable | `DTS:Expression` verbatim |
+  | Precedence constraint with `DTS:EvalOp="3"` | The boolean expression — branching rule |
+
+  ## Ambiguity flags
+
+  Always raise as an open question when:
+  - A code-comment disagrees with the code itself.
+  - A rule was added in change history with no rationale.
+  - A filter excludes data based on a code not documented anywhere.
+  - A fallback sentinel (e.g. -2, 'NAO ENCONTRADO') has no docs.
+  - A disabled task overlaps with an active task (relationship unclear).
+
+  ## Rules
+
+  - Separate business intent from technical mechanism in every entry.
+  - Rules that appear in disabled tasks are still cataloged (mark INACTIVE).
+  - Rules that changed over time get two entries (old + current) + the
+    change date.
+  - Evidence MUST be verbatim. Paraphrasing is forbidden.
+resources:
+  - filename: rule-catalog-template.md
+    language: markdown
+    content: |
+      # Rule Catalog (blank entry template)
+
+      Copy one block per rule.
+
+      ```
+      ----
+      Rule ID:      [e.g. DEDUP-001]
+      Rule name:    [short, <= 6 words]
+      Category:     [Source selection / Deduplication / Cross-source conflict /
+                     Validity / Processing window / Dimension lookup / Audit and control]
+      Task:         [exact DTS:ObjectName]
+      Evidence:     [verbatim SQL or expression]
+      Status:       [ACTIVE / INACTIVE (disabled task) / REQUIRES MANUAL EXTRACTION]
+      ----
+      Business description: [plain language; no SQL]
+      Technical mechanism:  [reference operators from Evidence]
+      Inputs: { Tables:..., Columns:..., Variables:... }
+      Output effect:        [what changes]
+      Priority/tie-break:   [who wins or "unknown — needs SME"]
+      Migration recommendation: [PySpark / Delta MERGE / Spark SQL]
+      Open questions:       [SME items]
+      Sign-off required:    YES / NO
+      ----
+      ```

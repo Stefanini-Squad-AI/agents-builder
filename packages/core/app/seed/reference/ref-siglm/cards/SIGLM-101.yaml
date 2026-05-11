@@ -1,0 +1,50 @@
+code: SIGLM-101
+phase_code: phase-1-frontend-mock
+title: Promote frontend to standalone module + mock HTTP interceptor
+type: Story
+story_points: 5
+priority: High
+status: ready
+human_gate: false
+skills:
+  - siglm-context
+  - siglm-angular-screen
+depends_on:
+  - SIGLM-001
+parallel_with: []
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/siglm-angular-screen/SKILL.md
+    label: Angular screen authoring conventions
+
+context: |
+  The legacy Angular code is currently bundled inside the larger app. To
+  ship phase 1 (mock-only frontend) we need it as a standalone module with
+  its own `environment.useMock` flag and a mock HTTP interceptor that
+  serves the four target screens without a backend.
+
+task: |
+  1. Promote `frontend/` to a standalone Angular workspace; pin Angular 18.
+  2. `environment.ts` exposes `useMock: true` and `apiUrl: '/parametros'`.
+  3. Wire `mock-api.interceptor.ts` with a `MOCK_MAP` keyed by URL prefix.
+  4. Seed `mock-data.ts` with sample Parametros Padroes (>= 30 rows
+     covering Pix + TEV + Boleto groups).
+  5. Add four route stubs: listar / incluir / excluir-em-lote / importar.
+  6. Wire the Keycloak guard on every parametrizacoes route (mock token
+     is fine in this phase).
+
+outputs: |
+  - `frontend/src/environments/environment.ts` with useMock + apiUrl.
+  - `frontend/src/app/core/mock/mock-api.interceptor.ts`.
+  - `frontend/src/app/core/mock/mock-data.ts` (>= 30 sample rows).
+  - Four route stubs render without 404s.
+
+acceptance_criteria: |
+  - [ ] `npm start` serves the SPA at localhost:4200 with no backend running.
+  - [ ] All four routes load (listar / incluir / excluir / importar).
+  - [ ] Interceptor returns mock data for all known endpoints; unknown
+        endpoints log a clear console warning.
+  - [ ] Toggling `useMock=false` and running without backend produces a
+        helpful error in toastr (not a silent 0 result).
+  - [ ] `npm run lint` and `npm test -- --watch=false` both pass in CI.

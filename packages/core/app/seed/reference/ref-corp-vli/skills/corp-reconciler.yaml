@@ -1,0 +1,88 @@
+slug: corp-reconciler
+name: CORP ETL Migration Reconciler
+description: |
+  Compare legacy ETL output against the Databricks migration with full
+  evidence traceability. Produces a three-level reconciliation:
+  structural column mapping, quantitative pass/fail comparison, and
+  discrepancy traceability chains linking each delta back to specific
+  tasks and notebooks in both systems. Use when validating a parallel
+  run, investigating a reconciliation failure, or producing sign-off
+  evidence for cutover.
+kind: analyzer
+body: |
+  # ETL Migration Reconciler
+
+  ## Guiding principle
+
+  A reconciliation report is evidence, not just a number. Every
+  discrepancy needs a traceability chain back to specific artifacts in
+  both systems.
+
+  ## Section 1 — Structural reconciliation (high level)
+
+  Column mapping table BEFORE comparing data. Flag every type change
+  (INT -> LONG, DATETIME -> TIMESTAMP, DECIMAL -> DOUBLE). Explain
+  whether the change affects numeric comparisons.
+
+  ## Section 2 — Quantitative reconciliation (mid level)
+
+  Paired queries covering the same reference period. Always break down
+  by company, year+month, and active vs soft-deleted SEPARATELY.
+
+  Never compare total row counts without separating soft-deleted — this
+  is the most common reconciliation mistake for packages with logical
+  deletion.
+
+  Tolerance framework (default):
+  - Row count delta < 0.1 percent: PASS.
+  - Weight aggregate delta < 0.5 percent: PASS.
+  - Anything outside tolerance: FAIL (cutover blocker).
+
+  ## Section 3 — Traceability chain for discrepancies
+
+  For every FAIL, and optionally for notable PASS rows with non-zero
+  deltas:
+
+  ```
+  Company:    VLI
+  Period:     2024-10
+  Metric:     registros_ativos
+  Legacy:     14,832
+  Databricks: 14,819
+  Delta:      -13 (-0.088 percent) -> PASS
+
+  Legacy source path: Task ESQL_..., tables UNIFER..., filters ..., target ...
+  Databricks source path: ingestion -> silver notebook -> gold notebook
+
+  Ranked hypotheses:
+    1. Timing gap (runs at different timestamps; window slipped).
+    2. +/-7h dedup floating-point edge case at the boundary.
+    3. Case-sensitive vs case-insensitive station code matching.
+  ```
+
+  Every non-zero delta gets a traceability chain even if within tolerance.
+
+  ## Section 4 — Sign-off evidence package
+
+  Output filename: `reconciliation_<nm_fluxo>_<YYYYMMDD_HHMMSS>.md`.
+  Timestamp is the Databricks workflow run start time in UTC.
+
+  Header captures: package name, reference period, legacy run id +
+  timestamp, Databricks run id + timestamp. Body: metrics checked,
+  tolerance, discrepancies (in vs out of tolerance), open items, sign-off
+  lines for Data Engineering + Business Owner.
+
+  ## Rules
+
+  - Never compare aggregates without confirming the reference period is
+    identical on both sides.
+  - Always compare soft-deleted records separately from active records.
+  - Flag DECIMAL vs DOUBLE precision differences before any numeric
+    comparison.
+  - A passing reconciliation is evidence for cutover, not a guarantee —
+    state this explicitly in the sign-off package.
+
+  ## When to pull in sibling skills
+
+  - For MERGE / soft-delete edge cases driving the delta -> `corp-delta-merge`.
+  - For the planning context -> `corp-databricks-planner`.

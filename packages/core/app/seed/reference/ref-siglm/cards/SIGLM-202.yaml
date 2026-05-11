@@ -1,0 +1,73 @@
+code: SIGLM-202
+phase_code: phase-2-backend-rules-postgres
+title: Port 15 field validators + 5 FK lookups from the COBOL batch
+type: Story
+story_points: 13
+priority: High
+status: ready
+human_gate: false
+skills:
+  - siglm-context
+  - siglm-cobol-to-rules
+  - siglm-spring-backend
+depends_on:
+  - SIGLM-201
+parallel_with: []
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/siglm-cobol-to-rules/SKILL.md
+    label: COBOL -> rules translation playbook
+  - kind: skill_resource
+    path: .agents/skills/siglm-cobol-to-rules/resources/rule-catalog-template.md
+    label: Rule catalog template
+  - kind: skill_resource
+    path: .agents/skills/siglm-cobol-to-rules/resources/lookup-checklist.md
+    label: FK lookup checklist
+  - kind: external
+    path: input/legacy/GLMPA013.cbl
+    label: Legacy COBOL source (read-only)
+
+context: |
+  The heart of the modernization. Every input row going to GLMTB013 must
+  pass the same 15 field validations and the same 5 FK lookups the COBOL
+  batch enforces today. This card produces both the rule catalog (so
+  business owners can sign off) and the Java port.
+
+task: |
+  1. Read GLMPA013.cbl. Produce `analysis/rule-catalog.md` using the
+     template, one entry per validation R-1301..R-1315 and per lookup
+     L-1600..L-1640.
+  2. Implement `ParametroPadraoValidator` in `service/`. Methods:
+     `validarObrigatorio`, `validarNumericoNaoZero`, `validarIndicador`,
+     `validarTipoPessoa`, `validarTitularidade`, `validarLimitesCross`.
+  3. Implement `LookupValidator` with the 5 FK methods.
+  4. Accumulate every error; never short-circuit.
+  5. Translate sentinels: `'01.01.0001'` -> `LocalDate.of(1,1,1)` semantic;
+     `'9999-12-31'` -> "open-ended".
+  6. Implement `S/N -> 1/2` transform once, reuse for both indicators.
+  7. Feature flag `siglm.validation.strict-situacao-ativa=false` matches
+     current legacy behavior (situacao check commented out).
+  8. Unit tests (JUnit + Mockito) for every R-code and every L-code:
+     one positive + one negative per rule.
+
+outputs: |
+  - `analysis/rule-catalog.md` (20+ entries).
+  - `service/ParametroPadraoValidator.java`.
+  - `service/LookupValidator.java`.
+  - `domain/ParametroPadrao.java`, `domain/lookup/*.java`.
+  - `repository/*.java` (Spring Data JPA interfaces).
+  - Flyway V00X migrations for GLMTB013 + lookup tables.
+  - 40+ unit tests; coverage >= 90% on the validator package.
+
+acceptance_criteria: |
+  - [ ] Every R-1301..R-1315 has a documented entry + at least 1 positive
+        + 1 negative unit test.
+  - [ ] Every L-1600..L-1640 has a documented entry + at least 1 positive
+        + 1 negative unit test.
+  - [ ] Cross-field check R-1315 (max >= min) ships and is tested.
+  - [ ] Validator accumulates errors (never aborts on the first failure).
+  - [ ] Pre-cadastro and titularidade S/N -> 1/2 transform is unit-tested
+        and applied exactly once on the input boundary.
+  - [ ] Feature flag `strict-situacao-ativa` defaults to false; setting
+        true switches behavior with a separate test class.

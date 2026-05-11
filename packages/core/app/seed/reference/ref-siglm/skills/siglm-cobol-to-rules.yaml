@@ -1,0 +1,146 @@
+slug: siglm-cobol-to-rules
+name: SIGLM COBOL -> Rules
+description: |
+  Extract business rules from the legacy COBOL batch (primeira carga of
+  GLMTB013) and translate them into neutral specs, Java, or TypeScript —
+  covering 15 field validations, 5 FK lookups, S/N -> 1/2 transformations,
+  the 'NULL' literal handling, constraint values A and 3 (V003), the
+  sequence-based upsert pattern, and the DELETE safety lock (V002). Use
+  when the user asks about COBOL logic, opens the .cbl file, needs to
+  replicate mainframe validations in another language, or wants to catalog
+  business rules into a spec document.
+kind: analyzer
+body: |
+  # SIGLM COBOL -> Rules
+
+  Target: a 1,200-line COBOL/LE + DB2 batch that does the first mass load
+  of `GLMTB013`. This skill lets the agent read the COBOL fluently enough
+  to pick out the business rules and emit a neutral rule catalog or a
+  Java/TypeScript port that preserves every legacy behavior.
+
+  ## COBOL patterns the agent must recognize
+
+  | Pattern | Meaning | Typical translation |
+  |---|---|---|
+  | `DECIMAL-POINT IS COMMA` | pt-BR decimal separator | parse with pt-BR locale |
+  | `PIC 9(16)V99` | 18-digit number, 2 implicit decimals | `BigDecimal` (Java) |
+  | `PIC X(1)` S/N | textual sim/nao indicator | enum, not boolean |
+  | `REDEFINES` | reinterpret bytes as another type | read as string, test, then convert |
+  | `EXEC SQL ... WITH UR` | DB2 uncommitted-read | Postgres READ COMMITTED |
+  | `PERFORM 9999-ABEND` | terminate batch fatal | throw exception, mark row error, continue |
+
+  ## Processing flow (skeleton)
+
+  ```
+  0000-PRINCIPAL
+    |- MOVE 'N' TO LK-IC-DELETE           <- SAFETY LOCK (do not remove)
+    |- 1000-INICIALIZAR
+    |- PERFORM 2000-PROCESSAR UNTIL EOF
+    |    |- 1300-CONSISTE-REGISTRO        <- 15 validations
+    |    |    |- 1301..1315  field checks
+    |    |    |- 1600/1610/1620/1630/1640 FK lookups
+    |    |    |- transforms (S->1, N->2, 'NULL'->0)
+    |    |- 2100..2500  versioned upsert
+    `- 9000-FINALIZAR
+  ```
+
+  ## Rule catalog template (output format)
+
+  When the user asks "extract the rules from the COBOL", emit one block
+  per validation:
+
+  ```
+  Rule R-<id> — <short name>
+    Source:      GLMPA013.cbl, section <NNNN-NAME>, lines <x>-<y>
+    Field:       <FD013-FIELD> -> <DB column>
+    Condition:   <prose>
+    On failure:  ABEND in legacy; in PoC, record DS_ERRO_PROCESSO_REGISTRO
+                 and continue.
+    Transform:  <if any>
+    Depends on:  <other rules / lookups>
+    Version:     V001 / V002 / V003
+  ```
+
+  ## Validation catalog (15 rules)
+
+  | Code | Field | Rule | On fail |
+  |---|---|---|---|
+  | 1301 | SG-SERVICO | Not space, not LOW-VALUES | ABEND |
+  | 1302 | NU-FAIXA-HORARIO | Numeric, non-zero | ABEND |
+  | 1303 | SG-SEG-CANAL | Not space/LOW-VALUES | ABEND |
+  | 1304 | SG-SEG-NEGOC | Not space/LOW-VALUES | ABEND |
+  | 1305 | NU-NIVEL-CONF | Numeric, non-zero | ABEND |
+  | 1306 | NU-PRODUTO | Numeric, non-zero | ABEND |
+  | 1308 | IC-PRE-CADASTRO | S/N -> 1/2 | ABEND |
+  | 1309 | IC-TP-PES-CTA-ORI | Must be F or J | ABEND |
+  | 1310 | IC-TP-PES-CTA-DES | F, J, or A (V003) | ABEND |
+  | 1311 | IC-TIT-ENTRE-CTA | 1, 2, or 3 (V003) | ABEND |
+  | 1312 | NU-BANCO-BOLETO | 'NULL' -> 0, then numeric | ABEND |
+  | 1313 | VR-LIM-MINIMO | 'NULL' -> 0, then numeric | ABEND |
+  | 1314 | VR-LIM-MAXIMO | Numeric | ABEND |
+  | 1315 | cross | VR-MAXIMO >= VR-MINIMO | ABEND |
+
+  ## Upsert pattern (translation sketch)
+
+  ```java
+  @Transactional
+  public void upsertParametroPadrao(ParametroPadrao novo) {
+      repo.findByChaveNatural(novo.chave()).ifPresent(p -> {
+          p.setDtFimValidade(LocalDate.now().minusDays(1));
+          repo.save(p);
+      });
+      long seq = sequenceDao.nextVal("GLMSQ013_NU_SQNCL_PRMTO_PDRO");
+      novo.setNuSqnclPrmtoPdro(seq);
+      novo.setDtInicioValidade(LocalDate.now());
+      novo.setDtFimValidade(LocalDate.of(9999, 12, 31));
+      repo.save(novo);
+  }
+  ```
+
+  ## Workflow for porting one rule
+
+  - [ ] 1. Locate the exact COBOL block (section + line range).
+  - [ ] 2. Identify REDEFINES / PIC clauses; pick the matching Java type.
+  - [ ] 3. Preserve transforms (S/N -> 1/2, 'NULL' -> 0).
+  - [ ] 4. In place of ABEND, log a row-level error and continue.
+  - [ ] 5. Preserve date sentinels (`01.01.0001`, `9999-12-31`).
+  - [ ] 6. Use the sequence by name, not a SERIAL column.
+  - [ ] 7. Cite V002/V003 in code comments when applicable.
+  - [ ] 8. Write at least one negative test (rule triggers).
+
+  See `siglm-spring-backend` for where the port plugs into the service
+  layer, and `siglm-import-lifecycle` for how rule failures affect the
+  batch state.
+resources:
+  - filename: rule-catalog-template.md
+    language: markdown
+    content: |
+      # Rule catalog (template)
+
+      Copy one block per validation. Keep prose in pt-BR.
+
+      ```
+      Rule R-<id> — <name>
+        Source:     GLMPA013.cbl section <NNNN>, lines <x>-<y>
+        Field:      <FD013-FIELD> -> <DB column>
+        Condition:  <prose>
+        On failure: row-level error (legacy ABEND replaced)
+        Transform:  <if any>
+        Version:    V001 / V002 / V003
+        Notes:      <gotchas>
+      ```
+  - filename: lookup-checklist.md
+    language: markdown
+    content: |
+      # FK Lookup checklist (5 lookups)
+
+      - [ ] 1600 GLMTB015 — Faixa horaria x Servico
+      - [ ] 1610 GLMTB005 — Segmento canal
+      - [ ] 1620 GLMTB017 — Segmento negocio
+      - [ ] 1630 GLMTBP04 — Nivel confiabilidade (+ situacao + validade)
+      - [ ] 1640 GLMTB004 — Produto x propriedade (conditional)
+
+      Every lookup must:
+      - Use the same chave as the COBOL section (don't widen it).
+      - Treat missing FK as a row error, not a batch failure.
+      - Skip the situacao check when strict-situacao-ativa=false.

@@ -1,0 +1,42 @@
+business_problem: |
+  Managers need a single Excel file per month with consolidated hours for
+  their team. Today they extract this manually from the database. There
+  is also no traceability for who approved or rejected a submission, and
+  no email notification when a submission is rejected.
+
+success_definition: |
+  - Gestor and admin can export a monthly Excel report from /reports with
+    role-scoped data.
+  - Approve/reject events on TimesheetSubmission and AccessRequest write
+    AuditLog rows automatically.
+  - Rejection of an apontamento triggers a transactional email; SMTP
+    failure never blocks the primary DB operation.
+
+users_and_actors: |
+  - colaborador: the default role, sees own submissions only.
+  - gestor: team leads; can approve/reject their team and export reports
+    scoped to their subordinates.
+  - admin: full access; can read the audit log.
+  - SMTP relay: fire-and-forget transactional emails (never blocks).
+
+must_preserve: |
+  - The custom JWT in localStorage flow (next-auth stays unused).
+  - Single flat NestJS module (no per-feature @Module split).
+  - The `/api` prefix double-pattern (both the base URL and the
+    @Controller include /api/) — debugging skill must document this.
+
+must_change: |
+  - AuditLog model is defined but never written; wire approve/reject
+    paths to populate it.
+  - Existing /admin/acess-requests typo route must redirect to the
+    correctly spelled /admin/access-requests.
+
+compliance: |
+  - LGPD: collaborator names + emails appear in audit logs. Retention
+    policy must be documented (defer to a P3 audit).
+
+known_gaps: |
+  - assertAdminRole helper does not exist on UsersService; only
+    assertAdminOrManagerRole does. Add it when first needed.
+  - The existing `next-auth` package is installed but unused; do not
+    accidentally start using it.

@@ -1,0 +1,46 @@
+code: SIGLM-102
+phase_code: phase-1-frontend-mock
+title: Demo Phase 1 — all four screens running on mock interceptor
+type: Demo
+story_points: 2
+priority: High
+status: ready
+human_gate: true
+skills:
+  - siglm-context
+depends_on:
+  - SIGLM-101
+parallel_with: []
+
+human_gate_checklist: |
+  Before opening Phase 2:
+  - [ ] Walk through each of the four screens live with the user, mock only.
+  - [ ] Confirm pt-BR copy on success/error messages matches the
+        requirement PDFs.
+  - [ ] Capture screenshot of each screen for the project README.
+  - [ ] Confirm the mock interceptor covers every endpoint that Phase 2
+        backend will need to implement (count: 8 endpoints minimum).
+
+context: |
+  Phase 1 demo gate. Until this card passes, the team does not start the
+  Spring backend.
+
+task: |
+  1. Run the SPA against the mock interceptor.
+  2. Walk through:
+     a. Listar Parametros Padroes (filter + grid + xlsx export).
+     b. Incluir (form with cross-field validators).
+     c. Excluir em lote (multi-select + confirm dialog).
+     d. Importar (CSV upload + dummy progress).
+  3. Update the project README with screenshots + the list of mock
+     endpoints that Phase 2 must implement.
+
+outputs: |
+  - Updated README with screenshots and endpoint inventory.
+  - Demo sign-off captured in the project tracker.
+
+acceptance_criteria: |
+  - [ ] User signs off in writing (PR or doc) before the human gate clears.
+  - [ ] Endpoint inventory has at least 8 entries with method + path +
+        sample request + sample response.
+  - [ ] README screenshots show the working four screens.

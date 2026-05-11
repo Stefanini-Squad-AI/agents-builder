@@ -1,0 +1,49 @@
+code: CRN-302
+phase_code: phase-3-quality
+title: Fix duplicate route /admin/acess-requests (typo)
+type: Bug
+story_points: 1
+priority: Low
+status: ready
+human_gate: true
+skills:
+  - cronos-debug-api-contract
+depends_on:
+  - CRN-301
+parallel_with: []
+
+human_gate_checklist: |
+  Phase 3 sign-off:
+  - [ ] Browse to the typo route and confirm redirect.
+  - [ ] Confirm AuditLog rows now appear after every approve/reject.
+  - [ ] Confirm GET /api/audit-log returns 403 for non-admin.
+
+context: |
+  Two pages coexist: `/admin/access-requests` (correct, functional) and
+  `/admin/acess-requests` (typo, broken). Bookmarks/links pointing at the
+  typo land on the wrong page.
+
+task: |
+  Replace the contents of `frontend/src/app/admin/acess-requests/page.tsx`
+  with a client-side redirect to the correct route. Keeps the file in
+  the tree (avoids breaking the App Router scan) while making the route
+  harmless.
+
+  ```typescript
+  'use client';
+  import { useEffect } from 'react';
+  import { useRouter } from 'next/navigation';
+  export default function AcessRequestsRedirect() {
+    const router = useRouter();
+    useEffect(() => router.replace('/admin/access-requests'), [router]);
+    return null;
+  }
+  ```
+
+outputs: |
+  - `frontend/src/app/admin/acess-requests/page.tsx` replaced with redirect.
+
+acceptance_criteria: |
+  - [ ] Navigating to /admin/acess-requests redirects to /admin/access-requests.
+  - [ ] The correct page continues to load normally.
+  - [ ] No new lint errors.

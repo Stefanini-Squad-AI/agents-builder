@@ -1,0 +1,53 @@
+code: SIGLM-201
+phase_code: phase-2-backend-rules-postgres
+title: Bootstrap Spring Boot 3 + Flyway + OpenAPI + error envelope
+type: Story
+story_points: 5
+priority: High
+status: ready
+human_gate: false
+skills:
+  - siglm-context
+  - siglm-spring-backend
+depends_on:
+  - SIGLM-102
+parallel_with: []
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/siglm-spring-backend/SKILL.md
+    label: Spring backend conventions
+
+context: |
+  Phase 2 starts. Goal: a Spring Boot service that, by the end of the
+  phase, replaces the mock interceptor without changing the frontend
+  contract. This card stands up the skeleton.
+
+task: |
+  1. `backend/` Maven project, Spring Boot 3.3.x, Java 17.
+  2. Package layout per `siglm-spring-backend` skill: api/v1 / service /
+     repository / domain / dto / config / exception.
+  3. `OpenApiConfig` exposing `/v3/api-docs` and `/swagger-ui.html`.
+  4. `CorrelationIdFilter` populating MDC, mirroring on response, removing
+     on finally.
+  5. `GlobalExceptionHandler` with the canonical error envelope.
+  6. Flyway baseline migration: `V001__create_schema_glm.sql` only
+     (`CREATE SCHEMA IF NOT EXISTS glm`).
+  7. `application.yml` reads DB from `SPRING_DATASOURCE_URL` env var.
+  8. Dockerfile multi-stage (build + runtime) producing a JRE-Alpine image.
+
+outputs: |
+  - `backend/pom.xml`, package skeleton under `br/sample/siglm/`.
+  - `application.yml` + `application-dev.yml`.
+  - `db/migration/V001__create_schema_glm.sql`.
+  - `Dockerfile` (multi-stage).
+
+acceptance_criteria: |
+  - [ ] `mvn -B -ntp verify` passes in CI.
+  - [ ] `docker compose up` (with backend service added) starts the API on
+        port 8080; `/actuator/health` returns 200 with both `db` and `app`
+        green.
+  - [ ] Swagger UI loads at `/swagger-ui.html` with the API title visible.
+  - [ ] A handcrafted 404 endpoint returns the canonical error envelope
+        with `code: RECURSO_NAO_ENCONTRADO`.
+  - [ ] Every log line carries `correlationId` (or empty placeholder).

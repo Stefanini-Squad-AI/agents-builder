@@ -1,0 +1,85 @@
+slug: cronos-role-access
+name: Cronos Role-Based Access
+description: |
+  Apply role-based access control. Use when restricting a backend endpoint
+  to specific roles, adding role checks to a frontend page, gating a nav
+  item by role, or when the user mentions gestor, admin, colaborador,
+  permissions, or access control.
+kind: authoring
+body: |
+  # Role-Based Access
+
+  | Role string in DB | Normalized in FE | Backend helper |
+  |---|---|---|
+  | `ADMIN` / `admin` | `'admin'` | `assertAdminOrManagerRole` |
+  | `MANAGER` / `gestor` | `'gestor'` | `assertAdminOrManagerRole` |
+  | `COLLABORATOR` / `colaborador` | `'colaborador'` | no assertion needed |
+
+  ## Backend token extraction (every controller)
+
+  ```typescript
+  private getUserIdFromHeader(auth: string): string {
+    const token = auth?.replace('Bearer ', '');
+    if (!token) throw new UnauthorizedException('Missing token');
+    return this.usersService.validateToken(token).sub;
+  }
+  ```
+
+  ## Restricting to manager or admin
+
+  ```typescript
+  const userId = this.getUserIdFromHeader(auth);
+  await this.usersService.assertAdminOrManagerRole(userId);
+  ```
+
+  Throws `ForbiddenException` automatically.
+
+  ## Restricting to admin only
+
+  No `assertAdminRole` helper exists yet. Add it when first needed:
+
+  ```typescript
+  async assertAdminRole(userId: string): Promise<void> {
+    const u = await this.findById(userId);
+    if (u.role.name.toLowerCase() !== 'admin') {
+      throw new ForbiddenException('Admin access required');
+    }
+  }
+  ```
+
+  ## Frontend reading the role
+
+  ```typescript
+  const { user, isGestor, isAdmin } = useAuth();
+  // isGestor: true for gestor AND admin
+  // isAdmin: true only for admin
+  ```
+
+  ## Gating a nav item
+
+  Edit `app-features.ts`:
+
+  ```typescript
+  availableFor: ['gestor', 'admin'],  // hides from colaborador
+  ```
+
+  `getVisibleFeatures(role)` drives the navigation shell.
+
+  ## Gating content inside a page
+
+  ```typescript
+  if (!isGestor) return <div>Acesso restrito</div>;
+  ```
+
+  ## Redirecting unauthorized users
+
+  ```typescript
+  useEffect(() => {
+    if (!isLoading && user && !isAdmin) router.replace('/dashboard');
+  }, [isLoading, user, isAdmin, router]);
+  ```
+
+  ## When to pull in sibling skills
+
+  - To add a brand-new gated feature end-to-end -> `cronos-add-feature`.
+  - To gate an approval flow specifically -> `cronos-approval-workflow`.

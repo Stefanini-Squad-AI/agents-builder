@@ -1,0 +1,46 @@
+code: CORP-401
+phase_code: phase-4-gold
+title: Gold fact load — Delta MERGE incremental + full overwrite branches
+type: Story
+story_points: 8
+priority: High
+status: ready
+human_gate: false
+skills:
+  - corp-databricks-planner
+  - corp-delta-merge
+depends_on:
+  - CORP-301
+parallel_with:
+  - CORP-402
+
+inputs:
+  - kind: skill_resource
+    path: .agents/skills/corp-delta-merge/SKILL.md
+    label: MERGE patterns
+
+context: |
+  Two separate Workflow tasks behind an If/Else on `processamento_full`.
+  Never collapse into one notebook. Bronze ingestion (CORP-202) is
+  pre-branch; this card only handles Gold load.
+
+task: |
+  1. Notebook `04_gold_merge_incremental.py` (Pattern 1 from
+     corp-delta-merge): MERGE into `gold.fd_cargas_descargas_vagoes`
+     on the business key, set `cdv_dt_alteracao_registro`. Set taskValue
+     `gold_row_count_after`.
+  2. Notebook `04_gold_full_reload.py` (Pattern 2): overwrite with
+     `mode("overwrite")` keeping schema. Assert COUNT > 0.
+  3. Workflow: If/Else task on `processamento_full == "1"` selecting
+     which gold task to run.
+
+outputs: |
+  - Two Gold notebooks (incremental + full reload).
+  - Workflow YAML snippet with the If/Else branch wired.
+
+acceptance_criteria: |
+  - [ ] Incremental MERGE matches on the exact business key from CORP-102.
+  - [ ] Full reload preserves schema (overwriteSchema=false).
+  - [ ] `gold_row_count_after` taskValue set in both notebooks.
+  - [ ] Workflow visualization shows the If/Else and a single Bronze
+        task feeding both Gold paths.
