@@ -29,7 +29,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.base import Base, UuidPkMixin
-from app.domain.enums import LlmProvider, LlmRunKind, LlmRunStatus, values_csv
+from app.enums import LlmProvider, LlmRunKind, LlmRunStatus, values_csv
 
 if TYPE_CHECKING:
     from app.domain.projects import Project

@@ -10,9 +10,13 @@ from __future__ import annotations
 from logging.config import fileConfig
 
 from alembic import context
-from app.domain import Base
+from app.domain import Base, register_models
 from app.settings import get_settings
 from sqlalchemy import engine_from_config, pool
+
+# Eagerly load every ORM module so its classes register on Base.metadata.
+# (Lives behind a function in app.domain to keep import of the package light.)
+register_models()
 
 config = context.config
 

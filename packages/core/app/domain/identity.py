@@ -14,7 +14,7 @@ from sqlalchemy import CheckConstraint, DateTime, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.base import Base, UuidPkMixin
-from app.domain.enums import UserRole, values_csv
+from app.enums import UserRole, values_csv
 
 if TYPE_CHECKING:
     from app.domain.projects import Project

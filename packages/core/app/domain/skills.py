@@ -21,7 +21,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.base import Base, TimestampsMixin, UuidPkMixin
-from app.domain.enums import SkillKind, SkillResourceLanguage, values_csv
+from app.enums import SkillKind, SkillResourceLanguage, values_csv
 
 if TYPE_CHECKING:
     from app.domain.backlog import CardSkill

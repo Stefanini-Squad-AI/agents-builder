@@ -25,7 +25,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.base import Base, TimestampsMixin, UuidPkMixin
-from app.domain.enums import (
+from app.enums import (
     CardDepRelation,
     CardInputKind,
     CardStatus,

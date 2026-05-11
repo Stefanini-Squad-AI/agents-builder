@@ -30,7 +30,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.base import Base, UuidPkMixin
-from app.domain.enums import TechChoiceRole, TechChoiceSource, values_csv
+from app.enums import TechChoiceRole, TechChoiceSource, values_csv
 
 if TYPE_CHECKING:
     from app.domain.projects import Project

@@ -1,8 +1,12 @@
-"""Domain enums, stored as plain TEXT in Postgres with CHECK constraints.
+"""Cross-cutting enums used by ORM models, Pydantic schemas, and validators.
 
-Choosing TEXT + CHECK (over Postgres native ENUM types) keeps schema migrations
-cheap: adding a value is a CHECK constraint swap, not an `ALTER TYPE`. Python
-side still gets typed enums via `StrEnum`.
+Lives at the top of `app/` (not inside `app/domain/`) so importing one enum
+does NOT pull in SQLAlchemy via `app.domain.__init__` / `app.domain.base`.
+Schemas, validators, prompts, and exporters all import from here directly.
+
+All enums are `StrEnum`s and are stored in Postgres as plain `TEXT` with a
+CHECK constraint emitted by `values_csv(enum_cls)`. This avoids the
+`ALTER TYPE` pain of native Postgres ENUMs.
 """
 
 from __future__ import annotations
@@ -139,7 +143,6 @@ class UserRole(StrEnum):
     READONLY = "readonly"
 
 
-# Helper to render IN-list for CHECK constraints
 def values_csv(enum_cls: type[StrEnum]) -> str:
     """Return `'a','b','c'` for use inside a SQL CHECK constraint."""
     return ", ".join(f"'{m.value}'" for m in enum_cls)
