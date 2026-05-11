@@ -64,7 +64,10 @@ desktop.ini
 
 # Logs
 *.log
+*.err
 logs/
+uvicorn.log
+uvicorn.err
 
 # Local SQLite (if ever used)
 *.sqlite
