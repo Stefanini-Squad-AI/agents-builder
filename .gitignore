@@ -76,3 +76,6 @@ uvicorn.err
 
 # Docker
 .docker/
+
+worker.log
+worker.err
