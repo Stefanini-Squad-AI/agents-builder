@@ -9,6 +9,8 @@ authors = [{ name = "Agents Workshop" }]
 # The CLI depends on the core package via the uv workspace.
 # Additional deps (typer, rich) land at Step 0.6.
 dependencies = [
+    "rich>=15.0.0",
+    "typer>=0.25.1",
     "workshop-core",
 ]
 
@@ -22,6 +24,5 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["workshop"]
 
-# The `workshop` console script is wired in Step 0.6 once __main__:app exists.
-# [project.scripts]
-# workshop = "workshop.__main__:app"
+[project.scripts]
+workshop = "workshop.__main__:app"
