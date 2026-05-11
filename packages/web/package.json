@@ -1,0 +1,14 @@
+{
+  "name": "workshop-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Next.js 14 web UI for Agents Workshop (scaffolded in Step 2.1)",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "echo 'Web UI scaffolding lands in Step 2.1' && exit 1",
+    "build": "echo 'Web UI scaffolding lands in Step 2.1' && exit 1",
+    "start": "echo 'Web UI scaffolding lands in Step 2.1' && exit 1"
+  }
+}

@@ -1,0 +1,70 @@
+# Agents Workshop — uv workspace root.
+#
+# This is a "virtual" workspace: the root itself is not a buildable package.
+# The two real packages live under packages/{core,cli}. Shared dev tooling
+# (ruff, mypy) is configured here so it applies to both members uniformly.
+
+[tool.uv.workspace]
+members = ["packages/core", "packages/cli"]
+
+# Shared dependency-groups (PEP 735) for all workspace members.
+# Each member may also declare its own additional dev deps.
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.7",
+    "mypy>=1.13",
+]
+
+# -------------------------------------------------------------------
+# Ruff — lint + format
+# -------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["packages/core/app", "packages/cli/workshop"]
+extend-exclude = [".venv", "data", "node_modules"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # bugbear
+    "UP",   # pyupgrade
+    "N",    # pep8-naming
+    "RUF",  # ruff-specific
+    "ASYNC",
+    "SIM",  # simplify
+    "C4",   # comprehensions
+]
+ignore = [
+    "E501",  # line length handled by formatter
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+# -------------------------------------------------------------------
+# Mypy — strict mode across all workspace code
+# -------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["packages/core/app", "packages/cli/workshop"]
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = "packages/core:packages/cli"
+
+# -------------------------------------------------------------------
+# Pytest
+# -------------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --strict-config"
+testpaths = ["packages/core/tests", "packages/cli/tests"]
+# asyncio_mode = "auto"   # re-enable in Step 0.4 alongside pytest-asyncio dep
