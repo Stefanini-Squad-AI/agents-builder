@@ -52,6 +52,8 @@ ignore = [
 "packages/cli/tests/**" = ["B008"]
 # FastAPI's idiomatic Depends() pattern is identical.
 "packages/core/app/api/**" = ["B008"]
+# Generic dataclasses use Generic[T] — PEP 695 syntax conflicts with @dataclass.
+"packages/core/app/llm/base.py" = ["UP046"]
 
 [tool.ruff.format]
 quote-style = "double"
