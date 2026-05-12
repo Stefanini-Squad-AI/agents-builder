@@ -5,7 +5,7 @@ Public re-exports for the rest of the codebase:
     from app.llm import (
         ChatMessage, ChatPrompt, ChatResult,
         LLMProvider, ProviderNotConfigured,
-        DummyProvider,
+        DummyProvider, LLMService,
     )
 """
 
@@ -17,6 +17,7 @@ from app.llm.base import (
     ProviderNotConfigured,
 )
 from app.llm.dummy import DummyProvider
+from app.llm.service import LLMService
 
 __all__ = [
     "ChatMessage",
@@ -24,5 +25,6 @@ __all__ = [
     "ChatResult",
     "DummyProvider",
     "LLMProvider",
+    "LLMService",
     "ProviderNotConfigured",
 ]

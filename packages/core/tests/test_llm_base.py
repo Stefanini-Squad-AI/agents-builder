@@ -129,7 +129,8 @@ def test_dummy_tokens_are_positive() -> None:
 def test_dummy_provider_name_and_model() -> None:
     provider = DummyProvider()
     result = provider.chat(_prompt(SimpleSchema))
-    assert result.provider_name == "dummy"
+    # provider_name uses a DB-valid LlmProvider enum value; model is test-only.
+    assert result.provider_name == "anthropic"
     assert result.model == "dummy-1.0"
 
 

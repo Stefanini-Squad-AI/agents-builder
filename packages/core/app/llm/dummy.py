@@ -43,7 +43,9 @@ class DummyProvider(LLMProvider):
         fake_tokens_out: Override the simulated completion-token count.
     """
 
-    provider_name = "dummy"
+    # Uses "anthropic" so LlmRun rows written in tests pass the DB CHECK constraint.
+    # The model name "dummy-1.0" is intentionally not in the pricing table (cost → None).
+    provider_name = "anthropic"
     model_name = "dummy-1.0"
 
     def __init__(
