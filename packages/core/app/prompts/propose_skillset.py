@@ -257,4 +257,112 @@ Generate 5-10 skills that comprehensively address the project objective."""
   "coverage_notes": "Covers event-driven architecture and comprehensive system observability",
   "gaps": ["Data governance policies", "Real-time ML inference"]
 }
+```
+
+**Example 6: Enterprise Java Platform**
+*Objective: Build scalable enterprise application using Spring Boot with comprehensive testing*
+
+```json
+{
+  "skills": [
+    {
+      "slug": "spring-boot-service-architect",
+      "name": "Spring Boot Service Architect",
+      "description": "Design and implement enterprise-grade Spring Boot applications with JPA, Spring Security, and REST APIs. Use when building Java microservices or monolithic enterprise applications.",
+      "kind": "authoring",
+      "rationale": "Spring ecosystem provides robust foundation for enterprise Java applications with proven patterns",
+      "sibling_refs": ["junit-test-strategist", "mysql-data-designer"]
+    },
+    {
+      "slug": "junit-test-strategist",
+      "name": "JUnit Test Strategy Designer",
+      "description": "Implement comprehensive testing strategies using JUnit 5, TestContainers, and contract testing. Use when establishing testing practices for Java applications.",
+      "kind": "procedure",
+      "rationale": "Enterprise applications require thorough testing at unit, integration, and contract levels",
+      "sibling_refs": ["spring-boot-service-architect", "performance-test-designer"]
+    },
+    {
+      "slug": "mysql-data-designer",
+      "name": "MySQL Database Designer",
+      "description": "Design normalized database schemas, implement efficient queries, and manage MySQL performance tuning. Use when working with relational data in enterprise applications.",
+      "kind": "authoring",
+      "rationale": "Relational databases require careful schema design and query optimization for enterprise scale",
+      "sibling_refs": ["spring-boot-service-architect", "database-migration-manager"]
+    }
+  ],
+  "coverage_notes": "Covers enterprise Java development, comprehensive testing, and relational database design",
+  "gaps": ["Spring Cloud patterns", "Database sharding strategies"]
+}
+```
+
+**Example 7: Automotive IoT System**
+*Objective: Build real-time vehicle telemetry and fleet management system*
+
+```json
+{
+  "skills": [
+    {
+      "slug": "dotnet-realtime-processor",
+      "name": ".NET Real-Time Data Processor",
+      "description": "Build high-performance real-time data processing using .NET 9, SignalR, and Azure Service Bus. Use when processing streaming IoT data or real-time analytics.",
+      "kind": "authoring",
+      "rationale": "Automotive telemetry requires low-latency processing of high-volume sensor data streams",
+      "sibling_refs": ["automotive-domain-modeler", "iot-device-manager"]
+    },
+    {
+      "slug": "automotive-domain-modeler",
+      "name": "Automotive Domain Context Modeler",
+      "description": "Model automotive business domains - vehicle diagnostics, fleet operations, maintenance scheduling, and regulatory compliance (CARB, Euro standards). Use when working with automotive data and workflows.",
+      "kind": "context",
+      "rationale": "Automotive industry has specific regulations, standards, and operational patterns that must be understood",
+      "sibling_refs": ["dotnet-realtime-processor", "vehicle-diagnostics-analyzer"]
+    },
+    {
+      "slug": "iot-device-manager",
+      "name": "IoT Device Lifecycle Manager",
+      "description": "Manage IoT device provisioning, firmware updates, security certificates, and telemetry collection. Use when building connected vehicle or industrial IoT systems.",
+      "kind": "procedure",
+      "rationale": "IoT devices require careful lifecycle management for security, reliability, and maintainability",
+      "sibling_refs": ["dotnet-realtime-processor", "edge-computing-orchestrator"]
+    }
+  ],
+  "coverage_notes": "Covers automotive sector, .NET development, IoT device management, and real-time processing",
+  "gaps": ["Edge AI deployment", "Vehicle-to-everything (V2X) communication"]
+}
+```
+
+**Example 8: Telecom Network Management**
+*Objective: Build network monitoring and optimization platform for telecom infrastructure*
+
+```json
+{
+  "skills": [
+    {
+      "slug": "flask-api-architect",
+      "name": "Flask REST API Architect",
+      "description": "Design and implement scalable REST APIs using Flask, SQLAlchemy, and pytest. Use when building Python web services or data processing APIs.",
+      "kind": "authoring",
+      "rationale": "Python Flask provides flexible foundation for data-heavy APIs with strong ecosystem support",
+      "sibling_refs": ["telecom-network-modeler", "pytest-automation-designer"]
+    },
+    {
+      "slug": "telecom-network-modeler",
+      "name": "Telecom Network Domain Modeler",
+      "description": "Model telecom network operations - cell tower management, spectrum allocation, SLA monitoring, and regulatory compliance (FCC, ITU standards). Use when working with telecom infrastructure and operations.",
+      "kind": "context",
+      "rationale": "Telecom networks have complex regulatory requirements and specialized operational patterns",
+      "sibling_refs": ["flask-api-architect", "network-performance-analyzer"]
+    },
+    {
+      "slug": "pytest-automation-designer",
+      "name": "pytest Test Automation Designer",
+      "description": "Implement comprehensive Python testing strategies using pytest, fixtures, mocking, and property-based testing. Use when establishing testing practices for Python applications.",
+      "kind": "procedure",
+      "rationale": "Network management systems require robust testing to ensure reliability and prevent outages",
+      "sibling_refs": ["flask-api-architect", "integration-test-orchestrator"]
+    }
+  ],
+  "coverage_notes": "Covers telecom sector, Flask/Python development, and comprehensive pytest testing strategies",
+  "gaps": ["5G network slicing", "Real-time traffic optimization"]
+}
 ```"""

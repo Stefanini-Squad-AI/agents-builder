@@ -116,7 +116,8 @@ class TestProposeSkillSetPrompt:
         prompt = ProposeSkillSetPrompt.create(context)
         user_content = prompt.messages[0].content
         
-        # Check generic few-shot examples are present
+        # Check generic few-shot examples are present (8 total examples)
+        # Original 5 examples
         assert "banking-domain-context" in user_content
         assert "legacy-cobol-analyzer" in user_content  
         assert "microservices-decomposer" in user_content
@@ -124,12 +125,29 @@ class TestProposeSkillSetPrompt:
         assert "fullstack-feature-architect" in user_content
         assert "event-architecture-designer" in user_content
         
-        # Check example structure covers major domains
+        # Phase 3 additions (3 new examples)
+        assert "spring-boot-service-architect" in user_content
+        assert "junit-test-strategist" in user_content
+        assert "dotnet-realtime-processor" in user_content
+        assert "automotive-domain-modeler" in user_content
+        assert "flask-api-architect" in user_content
+        assert "telecom-network-modeler" in user_content
+        assert "pytest-automation-designer" in user_content
+        
+        # Check example structure covers major domains (8 total)
         assert "Legacy Banking System Modernization" in user_content
         assert "Cloud-Native Microservices Platform" in user_content
         assert "AI-Powered Development Platform" in user_content
         assert "Full-Stack Web Application" in user_content
         assert "Enterprise Data Platform" in user_content
+        assert "Enterprise Java Platform" in user_content
+        assert "Automotive IoT System" in user_content
+        assert "Telecom Network Management" in user_content
+        
+        # Verify old specific examples are NOT present
+        assert "siglm-context" not in user_content
+        assert "corp-legacy-analyzer" not in user_content
+        assert "cronos-ssis-migrator" not in user_content
         
     def test_system_prompt_guidelines(self) -> None:
         """Test that system prompt includes proper guidelines."""
