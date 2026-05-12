@@ -41,10 +41,20 @@ class Settings(BaseSettings):
     workshop_default_provider: Literal["anthropic", "openai", "ollama", "bedrock"] = "anthropic"
     workshop_default_model: str = "claude-sonnet-4-5"
     workshop_temperature: float = 0.20
+    llm_enable_reasoning: bool = False
 
+    # Anthropic settings
     anthropic_api_key: str | None = None
+    anthropic_model: str = "claude-3-5-sonnet-20241022"
+
+    # OpenAI settings
     openai_api_key: str | None = None
+    openai_model: str = "gpt-4o"
+    openai_base_url: str | None = None  # For Azure OpenAI or other compatible APIs
+
+    # Ollama settings
     ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2"
 
     # -------------------------------------------------------------------
     # AWS / Bedrock (all optional — boto3 credential chain applies when absent)
