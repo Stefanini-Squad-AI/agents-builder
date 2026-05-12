@@ -37,6 +37,7 @@ class LlmProvider(StrEnum):
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
     OLLAMA = "ollama"
+    BEDROCK = "bedrock"
 
 
 class ArtifactKind(StrEnum):

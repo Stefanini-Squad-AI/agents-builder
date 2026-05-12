@@ -38,13 +38,24 @@ class Settings(BaseSettings):
     # OpenAI + Ollama are opt-in: setting their respective key / URL
     # is what enables them at runtime.
     # -------------------------------------------------------------------
-    workshop_default_provider: Literal["anthropic", "openai", "ollama"] = "anthropic"
+    workshop_default_provider: Literal["anthropic", "openai", "ollama", "bedrock"] = "anthropic"
     workshop_default_model: str = "claude-sonnet-4-5"
     workshop_temperature: float = 0.20
 
     anthropic_api_key: str | None = None
     openai_api_key: str | None = None
     ollama_base_url: str = "http://localhost:11434"
+
+    # -------------------------------------------------------------------
+    # AWS / Bedrock (all optional — boto3 credential chain applies when absent)
+    # -------------------------------------------------------------------
+    aws_region: str = "us-east-2"
+    aws_access_key_id: str | None = None
+    aws_secret_access_key: str | None = None
+    aws_session_token: str | None = None
+    aws_profile: str | None = None
+    # Default Bedrock model — Claude 3.5 Sonnet v2 in us-east-2
+    bedrock_model_id: str = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 
     # -------------------------------------------------------------------
     # Storage
