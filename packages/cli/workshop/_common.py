@@ -1,8 +1,5 @@
-"""Shared CLI helpers: repo discovery, project resolution, subprocess wrappers.
-
-Intentionally minimal in Step 0.6 — only what the wired commands (`init`,
-`db migrate`) actually need. Helpers for the still-stubbed commands land
-alongside their implementations in later steps.
+"""Shared CLI helpers: repo discovery, project resolution, subprocess wrappers,
+and a lightweight HTTP client that talks to the running API server.
 """
 
 from __future__ import annotations
@@ -11,10 +8,61 @@ import os
 import subprocess
 from pathlib import Path
 
+import httpx
 import typer
 from rich.console import Console
 
 console = Console()
+
+# Default API base URL — overridden by the NEXT_PUBLIC_API_URL env var or
+# by calling `api_base()` with an explicit value from --api-url flags.
+_DEFAULT_API_BASE = "http://localhost:8000"
+
+
+def api_base() -> str:
+    """Return the API server base URL, respecting NEXT_PUBLIC_API_URL if set."""
+    return os.environ.get("NEXT_PUBLIC_API_URL", _DEFAULT_API_BASE).rstrip("/")
+
+
+def api_get(path: str, *, timeout: float = 10.0) -> httpx.Response:
+    """GET `path` against the running API. Raises on non-2xx."""
+    url = f"{api_base()}{path}"
+    try:
+        r = httpx.get(url, timeout=timeout)
+    except httpx.ConnectError:
+        console.print(
+            f"[red]Cannot reach API server at {api_base()}.[/red] "
+            "Is `uvicorn app.main:app` running?"
+        )
+        raise typer.Exit(1) from None
+    if not r.is_success:
+        console.print(f"[red]API error {r.status_code}:[/red] {r.text}")
+        raise typer.Exit(1)
+    return r
+
+
+def api_post(
+    path: str,
+    *,
+    json: object | None = None,
+    files: httpx._types.RequestFiles | None = None,
+    data: dict[str, str] | None = None,
+    timeout: float = 30.0,
+) -> httpx.Response:
+    """POST `path` against the running API. Raises on non-2xx."""
+    url = f"{api_base()}{path}"
+    try:
+        r = httpx.post(url, json=json, files=files, data=data, timeout=timeout)
+    except httpx.ConnectError:
+        console.print(
+            f"[red]Cannot reach API server at {api_base()}.[/red] "
+            "Is `uvicorn app.main:app` running?"
+        )
+        raise typer.Exit(1) from None
+    if not r.is_success:
+        console.print(f"[red]API error {r.status_code}:[/red] {r.text}")
+        raise typer.Exit(1)
+    return r
 
 
 def find_repo_root(start: Path | None = None) -> Path:

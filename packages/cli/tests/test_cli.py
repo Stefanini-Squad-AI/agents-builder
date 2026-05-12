@@ -59,7 +59,6 @@ def test_version_flag() -> None:
         ["dag", "--project", "x"],
         ["qa", "list", "--project", "x"],
         ["tech", "list", "--project", "x"],
-        ["artifact", "list", "--project", "x"],
     ],
 )
 def test_stubs_exit_cleanly(argv: list[str]) -> None:
@@ -67,6 +66,16 @@ def test_stubs_exit_cleanly(argv: list[str]) -> None:
     result = runner.invoke(app, argv)
     assert result.exit_code == 0, f"argv={argv} stdout={result.stdout}"
     assert "Stub" in result.stdout or "not implemented" in result.stdout
+
+
+def test_artifact_list_requires_live_api() -> None:
+    """artifact list is now a real command — it exits non-zero when the API is
+    unreachable (no Uvicorn running in unit-test context)."""
+    result = runner.invoke(app, ["artifact", "list", "--project", "x"])
+    # Exit 1 with a clear 'Cannot reach API' message — not a stub.
+    assert result.exit_code == 1
+    assert "Stub" not in result.stdout
+    assert "Cannot reach" in result.stdout or "API error" in result.stdout
 
 
 def test_db_subcommand_help() -> None:

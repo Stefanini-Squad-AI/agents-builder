@@ -1,9 +1,4 @@
-"""FastAPI application factory.
-
-Step 0.3: only the /health endpoint is exposed. Domain routers land in later
-steps (projects, skills, cards, exports, etc.). The factory pattern lets us
-build a fresh app instance per-test without import-time side effects.
-"""
+"""FastAPI application factory."""
 
 from __future__ import annotations
 
@@ -15,6 +10,8 @@ from fastapi import FastAPI
 
 from app import health
 from app.api import artifacts as artifacts_api
+from app.api import projects as projects_api
+from app.api import tech as tech_api
 from app.logging import configure_logging
 from app.settings import get_settings
 
@@ -47,6 +44,8 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    app.include_router(projects_api.router)
+    app.include_router(tech_api.router)
     app.include_router(artifacts_api.router)
 
     @app.get("/health", tags=["meta"])

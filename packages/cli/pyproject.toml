@@ -9,6 +9,7 @@ authors = [{ name = "Agents Workshop" }]
 # The CLI depends on the core package via the uv workspace.
 # Additional deps (typer, rich) land at Step 0.6.
 dependencies = [
+    "httpx>=0.28.0",
     "rich>=15.0.0",
     "typer>=0.25.1",
     "workshop-core",
