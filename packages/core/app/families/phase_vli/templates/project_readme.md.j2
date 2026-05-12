@@ -1,0 +1,69 @@
+# {{ project.name }}
+
+## Objective
+
+{{ project.objective }}
+
+## Context
+
+{{ project.context_md | default('_Project context will be populated during discovery._', true) }}
+
+## Project Structure
+
+This project follows the **Phase-based VLI template family**, organizing work into sequential phases with explicit dependencies and human gates.
+
+### Phases
+
+{% for phase in phases | sort(attribute='order_no') %}
+#### Phase {{ phase.order_no }}: [{{ phase.name }}](phase-{{ phase.order_no }}-{{ phase.name | lower | replace(' ', '-') }}/README.md)
+
+{{ phase.description_md | default('_Phase description pending._', true) }}
+
+**Cards in this phase:**
+{% for card in all_cards | selectattr('phase_id', 'equalto', phase.id) | sort(attribute='order_no') %}
+- [{{ card.code }}](phase-{{ phase.order_no }}-{{ phase.name | lower | replace(' ', '-') }}/{{ card.code }}-{{ card.title | lower | replace(' ', '-') }}.md) — {{ card.title }}
+{% endfor %}
+
+{% endfor %}
+
+### Skills Library
+
+{% if all_skills %}
+{% for skill in all_skills | sort(attribute='name') %}
+- [{{ skill.name }}](skills/{{ skill.slug }}/SKILL.md) — {{ skill.description }}
+  - **Kind**: {{ skill.kind | title }}
+  - **Trigger phrases**: {{ skill.trigger_phrases | join(', ') }}
+{% endfor %}
+{% else %}
+_No skills have been defined for this project yet._
+{% endif %}
+
+## Quick Start
+
+1. **Review the phases**: Start with Phase 1 and understand the overall flow
+2. **Check dependencies**: Each card shows what it depends on
+3. **Follow the skills**: Cards reference specific skills that guide the work
+4. **Respect human gates**: Some cards require manual review before proceeding
+
+## Project Settings
+
+- **Card prefix**: `{{ project.card_code_prefix }}`
+- **Template family**: `{{ project.card_template }}`
+- **Grouping**: `{{ project.grouping }}`
+- **Status**: `{{ project.status }}`
+
+## Validation
+
+To validate this project structure:
+
+```bash
+workshop validate --project {{ project.slug }}
+```
+
+## Export
+
+To export this project to a different format:
+
+```bash
+workshop export --project {{ project.slug }} --format zip --output ./{{ project.slug }}.zip
+```

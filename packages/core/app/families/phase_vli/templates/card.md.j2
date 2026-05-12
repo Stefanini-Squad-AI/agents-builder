@@ -1,0 +1,89 @@
+# {{ card.code }} — {{ card.title }}
+
+## Context
+
+{{ card.context_md | default('_Context will be added during card drafting._', true) }}
+
+## Skills to invoke
+
+{% if skills_used %}
+{% for skill in skills_used %}
+- [{{ skill.name }}](.agents/skills/{{ skill.slug }}/SKILL.md)
+{% endfor %}
+{% else %}
+_No skills assigned to this card._
+{% endif %}
+
+## Inputs
+
+{% if card.inputs %}
+{% for input in card.inputs %}
+{% if input.kind == 'skill_resource' %}
+- **{{ input.label }}**: [{{ input.path }}](.agents/skills/{{ input.path.split('/')[0] }}/{{ input.path.split('/')[1] }})
+{% elif input.kind == 'project_artifact' %}
+- **{{ input.label }}**: [{{ input.path }}]({{ input.path }})
+{% elif input.kind == 'external_reference' %}
+- **{{ input.label }}**: {{ input.path }}
+{% else %}
+- **{{ input.label }}**: {{ input.path }}
+{% endif %}
+{% endfor %}
+{% else %}
+_No inputs defined for this card._
+{% endif %}
+
+## Task
+
+{{ card.task_md | default('_Task description will be added during card drafting._', true) }}
+
+## Outputs
+
+{{ card.outputs_md | default('_Outputs will be defined during card drafting._', true) }}
+
+## Acceptance criteria
+
+{{ card.acceptance_criteria_md | default('_Acceptance criteria will be defined during card drafting._', true) }}
+
+## Depends on
+
+{% set depends_on_cards = [] %}
+{% for dep in card.deps_out %}
+{% if dep.relation == 'depends_on' %}
+{% set _ = depends_on_cards.append(dep) %}
+{% endif %}
+{% endfor %}
+
+{% if depends_on_cards %}
+{% for dep in depends_on_cards %}
+- [{{ dep.depends_on_card.code }}](../{{ dep.depends_on_card.phase.name | lower | replace(' ', '-') }}/{{ dep.depends_on_card.code }}-{{ dep.depends_on_card.title | lower | replace(' ', '-') }}.md) — {{ dep.depends_on_card.title }}
+{% endfor %}
+{% else %}
+_This card has no dependencies._
+{% endif %}
+
+## Can run in parallel with
+
+{% set parallel_cards = [] %}
+{% for dep in card.deps_out %}
+{% if dep.relation == 'parallel_with' %}
+{% set _ = parallel_cards.append(dep) %}
+{% endif %}
+{% endfor %}
+
+{% if parallel_cards %}
+{% for dep in parallel_cards %}
+- [{{ dep.depends_on_card.code }}](../{{ dep.depends_on_card.phase.name | lower | replace(' ', '-') }}/{{ dep.depends_on_card.code }}-{{ dep.depends_on_card.title | lower | replace(' ', '-') }}.md) — {{ dep.depends_on_card.title }}
+{% endfor %}
+{% else %}
+_This card can run independently of other cards in its phase._
+{% endif %}
+
+## Human gate after this card
+
+{% if card.human_gate %}
+**🚪 Human gate required**
+
+{{ card.human_gate_checklist_md | default('_Checklist will be defined during planning._', true) }}
+{% else %}
+_No human gate required. This card can flow directly to dependent cards._
+{% endif %}

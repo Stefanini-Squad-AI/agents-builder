@@ -1,0 +1,55 @@
+# Phase {{ grouping.order_no }}: {{ grouping.name }}
+
+{{ grouping.description_md | default('_Phase description not yet defined._', true) }}
+
+## Cards in this phase
+
+{% for card in cards | sort(attribute='order_no') %}
+- [{{ card.code }}]({{ card.code }}-{{ card.title | lower | replace(' ', '-') }}.md) — {{ card.title }}
+  {% if card.story_points %}({{ card.story_points }} points){% endif %}
+  {% if card.priority %}**{{ card.priority | title }}**{% endif %}
+{% endfor %}
+
+## Skills referenced
+
+{% if skills_referenced %}
+{% for skill in skills_referenced | unique(attribute='slug') | sort(attribute='name') %}
+- [{{ skill.name }}](../../skills/{{ skill.slug }}/SKILL.md) — {{ skill.description }}
+{% endfor %}
+{% else %}
+_No skills are referenced in this phase._
+{% endif %}
+
+## Dependencies
+
+{% set has_deps = false %}
+{% for card in cards %}
+{% for dep in card.deps_out %}
+{% if dep.relation == 'depends_on' %}
+{% set has_deps = true %}
+- **{{ card.code }}** depends on **{{ dep.depends_on_card.code }}** ({{ dep.depends_on_card.phase.title }})
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{% if not has_deps %}
+_No external dependencies for cards in this phase._
+{% endif %}
+
+## Completion criteria
+
+{% set human_gates = [] %}
+{% for card in cards %}
+{% if card.human_gate %}
+{% set _ = human_gates.append(card) %}
+{% endif %}
+{% endfor %}
+
+{% if human_gates %}
+This phase has {{ human_gates | length }} human gate(s):
+{% for gate_card in human_gates %}
+- **{{ gate_card.code }}**: {{ gate_card.title }}
+{% endfor %}
+{% else %}
+All cards in this phase can flow automatically to the next phase.
+{% endif %}

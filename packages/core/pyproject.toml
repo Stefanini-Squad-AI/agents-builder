@@ -16,6 +16,7 @@ dependencies = [
     "dramatiq[redis]>=2.1.0",
     "fastapi>=0.136.1",
     "httpx>=0.28.1",
+    "jinja2>=3.1.0",
     "markitdown[docx,pdf]>=0.1.5",
     "openai>=1.59.0", 
     "pdfplumber>=0.11.9",
