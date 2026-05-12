@@ -8,12 +8,13 @@ Public API:
     SuggestTechStackPrompt -> Suggest technologies for dimensions
 """
 
+from app.prompts.draft_skillbody import DraftSkillBodyPrompt
 from app.prompts.propose_skillset import ProposeSkillSetPrompt
 
 __all__ = [
+    "DraftSkillBodyPrompt",
     "ProposeSkillSetPrompt",
     # Future prompts will be added here as they're implemented
-    # "DraftSkillBodyPrompt",
     # "ProposeBacklogPrompt",
     # "DraftCardPrompt",
     # "SuggestTechStackPrompt",

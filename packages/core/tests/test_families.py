@@ -7,9 +7,13 @@ from sqlalchemy.orm import selectinload
 from app.db import session_scope
 from app.domain import register_models
 from app.domain.backlog import Card, Phase
+from app.domain import skills as domain_skills  # Add import for skills module
 from app.families import PhaseVliFamily, get_family
 from app.families._base import CardDraftContext
-from app.schemas.views import CardView, PhaseView, ProjectView, SkillView
+from app.llm import DummyProvider
+from app.prompts import DraftSkillBodyPrompt
+from app.schemas.llm_io import DraftedResource, DraftedSkillBody
+from app.schemas.views import CardView, PhaseView, ProjectContext, ProjectView, SkillView
 
 
 class TestTemplateFamilies:
@@ -216,3 +220,171 @@ class TestPhaseVliRendering:
             # For now, we verify structural correctness
             assert len(rendered) > 500  # Should be substantial content
             assert rendered.endswith('\n') or not rendered.endswith(' ')  # No trailing whitespace issues
+
+
+class TestDraftSkillBodyIntegrationWithTemplates:
+    """Integration tests for DraftSkillBodyPrompt with template families and database."""
+    
+    @pytest.mark.integration
+    def test_skill_body_prompt_with_seeded_data(self) -> None:
+        """Test DraftSkillBodyPrompt using real seeded skills and project data."""
+        register_models()
+        
+        with session_scope() as session:
+            # Query a real skill from seeded data
+            skill_query = select(
+                domain_skills.Skill
+            ).where(
+                domain_skills.Skill.slug == "siglm-context"
+            ).options(
+                selectinload(domain_skills.Skill.project)
+            )
+            skill_orm = session.execute(skill_query).scalar_one()
+            
+            # Get sibling skills from same project
+            siblings_query = select(
+                domain_skills.Skill
+            ).where(
+                domain_skills.Skill.project_id == skill_orm.project_id,
+                domain_skills.Skill.id != skill_orm.id
+            )
+            siblings_orm = session.execute(siblings_query).scalars().all()
+            
+            # Convert to view models
+            skill_view = SkillView(
+                id=skill_orm.id,
+                slug=skill_orm.slug,
+                name=skill_orm.name,
+                description=skill_orm.description,
+                kind=skill_orm.kind,
+                body_md=skill_orm.body_md,
+                project_id=skill_orm.project_id,
+            )
+            
+            sibling_views = [
+                SkillView(
+                    id=s.id,
+                    slug=s.slug,
+                    name=s.name,
+                    description=s.description,
+                    kind=s.kind,
+                    body_md=s.body_md,
+                    project_id=s.project_id,
+                ) for s in siblings_orm
+            ]
+            
+            # Create project context
+            project_context = ProjectContext(
+                objective=skill_orm.project.objective
+            )
+            
+            # Create prompt
+            prompt = DraftSkillBodyPrompt.create(skill_view, project_context, sibling_views)
+            
+            # Verify prompt structure
+            assert prompt.system is not None
+            assert len(prompt.messages) == 1
+            assert prompt.response_schema == DraftedSkillBody
+            
+            # Check that skill kind-specific guidance is included
+            if skill_orm.kind == "context":
+                assert "CONTEXT skills should include resources like" in prompt.system
+                assert "Domain glossaries" in prompt.system
+            
+            # Check user message contains project and skill information
+            user_content = prompt.messages[0].content
+            assert skill_orm.slug in user_content
+            assert skill_orm.name in user_content
+            assert skill_orm.project.objective in user_content
+            
+            # Check sibling skills are referenced
+            for sibling in sibling_views:
+                assert sibling.slug in user_content
+            
+            print(f"✓ Created prompt for skill {skill_orm.slug} ({skill_orm.kind})")
+            print(f"  - System prompt: {len(prompt.system)} chars")
+            print(f"  - User message: {len(user_content)} chars")
+            print(f"  - Sibling skills: {len(sibling_views)}")
+
+    @pytest.mark.integration
+    def test_skill_body_generation_end_to_end(self) -> None:
+        """Test complete skill body generation workflow with DummyProvider."""
+        register_models()
+        
+        with session_scope() as session:
+            # Use a simple skill for testing
+            skill_query = select(
+                domain_skills.Skill
+            ).where(
+                domain_skills.Skill.slug == "cronos-role-access"
+            ).options(
+                selectinload(domain_skills.Skill.project)
+            )
+            skill_orm = session.execute(skill_query).scalar_one_or_none()
+            
+            if not skill_orm:
+                pytest.skip("cronos-role-access skill not found in seeded data")
+                
+            # Convert to view model
+            skill_view = SkillView(
+                id=skill_orm.id,
+                slug=skill_orm.slug,
+                name=skill_orm.name,
+                description=skill_orm.description,
+                kind=skill_orm.kind,
+                body_md=skill_orm.body_md,
+                project_id=skill_orm.project_id,
+            )
+            
+            # Create project context
+            project_context = ProjectContext(
+                objective=skill_orm.project.objective
+            )
+            
+            # Create mock LLM response appropriate for the skill kind
+            expected_resource_count = DraftSkillBodyPrompt.get_recommended_resource_count(skill_orm.kind)
+            preferred_languages = DraftSkillBodyPrompt.get_preferred_languages(skill_orm.kind)
+            
+            mock_resources = []
+            if skill_orm.kind == "authoring":
+                mock_resources = [
+                    DraftedResource(
+                        filename="role-check-template.py",
+                        language="python",
+                        content="# Role checking template\ndef check_user_role(user_id: str, required_role: str) -> bool:\n    return True",
+                        purpose="Template for implementing role-based access checks"
+                    ),
+                    DraftedResource(
+                        filename="access-control-guide.md",
+                        language="markdown",
+                        content="# Access Control Implementation\n\n## Steps\n1. Extract user token\n2. Validate role\n3. Apply restrictions",
+                        purpose="Step-by-step guide for implementing access control"
+                    )
+                ]
+            
+            mock_response = DraftedSkillBody(
+                body_md=f"# {skill_orm.name}\n\nThis skill helps implement role-based access control.\n\n## Implementation\n\n```python\n# Example code\npass\n```\n\n## When to pull in sibling skills\n\n- Use other authentication skills when needed",
+                resources=mock_resources,
+                sibling_skills_referenced=[]
+            )
+            
+            # Create provider and execute
+            provider = DummyProvider(fixed_response=mock_response)
+            prompt = DraftSkillBodyPrompt.create(skill_view, project_context, [])
+            result = provider.chat(prompt)
+            
+            # Verify result
+            assert result.parsed is not None
+            assert isinstance(result.parsed, DraftedSkillBody)
+            assert "role-based access control" in result.parsed.body_md
+            assert "When to pull in sibling skills" in result.parsed.body_md
+            
+            if skill_orm.kind == "authoring":
+                assert len(result.parsed.resources) == 2
+                assert any(r.filename.endswith(".py") for r in result.parsed.resources)
+                assert any(r.filename.endswith(".md") for r in result.parsed.resources)
+            
+            print(f"✓ Generated skill body for {skill_orm.slug}")
+            print(f"  - Body length: {len(result.parsed.body_md)} chars")
+            print(f"  - Resources: {len(result.parsed.resources)}")
+            print(f"  - Sibling references: {len(result.parsed.sibling_skills_referenced)}")
