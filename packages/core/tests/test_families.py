@@ -11,8 +11,8 @@ from app.domain import skills as domain_skills  # Add import for skills module
 from app.families import PhaseVliFamily, get_family
 from app.families._base import CardDraftContext
 from app.llm import DummyProvider
-from app.prompts import DraftSkillBodyPrompt, ProposeBacklogPrompt
-from app.schemas.llm_io import DraftedResource, DraftedSkillBody, ProposedBacklog, ProposedCard, ProposedPhase
+from app.prompts import DraftCardPrompt, DraftSkillBodyPrompt, ProposeBacklogPrompt
+from app.schemas.llm_io import DraftedCard, DraftedCardInput, DraftedResource, DraftedSkillBody, ProposedBacklog, ProposedCard, ProposedPhase
 from app.schemas.views import CardView, PhaseView, ProjectContext, ProjectView, SkillView
 
 
@@ -571,3 +571,263 @@ class TestProposeBacklogIntegrationWithTemplates:
             print(f"  - Total cards: {sum(len(phase.cards) for phase in result.parsed.phases)}")
             print(f"  - Critical path length: {len(result.parsed.critical_path_codes)}")
             print(f"  - Rationale: {len(result.parsed.rationale_md)} chars")
+
+
+class TestDraftCardIntegrationWithTemplates:
+    """Integration tests for DraftCardPrompt with template families and seeded data."""
+    
+    @pytest.mark.integration
+    def test_card_draft_with_seeded_data(self) -> None:
+        """Test DraftCardPrompt using real seeded card and project data."""
+        register_models()
+        
+        with session_scope() as session:
+            # Query a real card from seeded data
+            card_query = select(
+                Card
+            ).where(
+                Card.code == "CORP-101"
+            ).options(
+                selectinload(Card.phase).selectinload(Phase.project),
+                selectinload(Card.skills),
+                selectinload(Card.inputs)
+            )
+            card_orm = session.execute(card_query).scalar_one_or_none()
+            
+            if not card_orm:
+                pytest.skip("CORP-101 card not found in seeded data")
+            
+            # Get skills used by this card
+            skill_views = [
+                SkillView(
+                    id=s.id,
+                    slug=s.slug,
+                    name=s.name,
+                    description=s.description,
+                    kind=s.kind,
+                    body_md=s.body_md,
+                    project_id=s.project_id,
+                ) for s in card_orm.skills
+            ]
+            
+            # Convert to view models
+            project_view = ProjectView(
+                id=card_orm.phase.project.id,
+                tenant_id=card_orm.phase.project.tenant_id,
+                owner_user_id=card_orm.phase.project.owner_user_id,
+                slug=card_orm.phase.project.slug,
+                name=card_orm.phase.project.name,
+                objective=card_orm.phase.project.objective,
+                card_code_prefix=card_orm.phase.project.card_code_prefix,
+                card_template=card_orm.phase.project.card_template,
+                grouping=card_orm.phase.project.grouping,
+                status=card_orm.phase.project.status,
+                llm_provider=card_orm.phase.project.llm_provider,
+                llm_model=card_orm.phase.project.llm_model,
+                llm_temperature=card_orm.phase.project.llm_temperature,
+                created_at=card_orm.phase.project.created_at,
+                updated_at=card_orm.phase.project.updated_at,
+            )
+            
+            phase_view = PhaseView(
+                id=card_orm.phase.id,
+                code=card_orm.phase.code,
+                name=card_orm.phase.name,
+                description=card_orm.phase.description,
+                order_no=card_orm.phase.order_no,
+                project_id=card_orm.phase.project_id,
+            )
+            
+            card_view = CardView(
+                id=card_orm.id,
+                code=card_orm.code,
+                title=card_orm.title,
+                phase_id=card_orm.phase_id,
+                type=card_orm.type,
+                story_points=card_orm.story_points,
+                status=card_orm.status,
+                human_gate=card_orm.human_gate,
+                created_at=card_orm.created_at,
+                updated_at=card_orm.updated_at,
+                project_id=card_orm.project_id,
+            )
+            
+            # Create card draft context
+            from app.families._base import CardDraftContext
+            context = CardDraftContext(
+                project=project_view,
+                project_context=f"Project: {project_view.name}\nObjective: {project_view.objective}",
+                phase=phase_view,
+                card=card_view,
+                skills_used=skill_views,
+                sibling_cards_in_phase=[card_view],
+                upstream_cards=[],
+            )
+            
+            # Create prompt using VLI template family
+            template_family = PhaseVliFamily()
+            prompt = DraftCardPrompt.create(context, template_family)
+            
+            # Verify prompt structure
+            assert prompt.system is not None
+            assert len(prompt.messages) == 1
+            assert prompt.response_schema == DraftedCard
+            
+            # Check that VLI-specific guidance and examples are included
+            assert "VLI (phase-based) template" in prompt.system
+            assert "Example 1: Analysis Card" in prompt.system
+            assert "Example 2: Implementation Card" in prompt.system
+            
+            # Check user message contains card and project information
+            user_content = prompt.messages[0].content
+            assert card_orm.code in user_content
+            assert card_orm.title in user_content
+            assert project_view.objective in user_content
+            
+            # Check skills are included
+            for skill in skill_views:
+                assert skill.slug in user_content
+            
+            print(f"✓ Created card draft prompt for {card_orm.code}")
+            print(f"  - Card: {card_orm.title}")
+            print(f"  - Skills: {len(skill_views)}")
+            print(f"  - System prompt: {len(prompt.system)} chars")
+            print(f"  - User message: {len(user_content)} chars")
+
+    @pytest.mark.integration
+    def test_card_draft_generation_end_to_end(self) -> None:
+        """Test complete card drafting workflow with DummyProvider and VLI template."""
+        register_models()
+        
+        with session_scope() as session:
+            # Use SIGLM project for a different example
+            card_query = select(
+                Card
+            ).where(
+                Card.code == "SIGLM-201"
+            ).options(
+                selectinload(Card.phase).selectinload(Phase.project),
+                selectinload(Card.skills)
+            )
+            card_orm = session.execute(card_query).scalar_one_or_none()
+            
+            if not card_orm:
+                pytest.skip("SIGLM-201 card not found in seeded data")
+            
+            # Get skills  
+            skill_views = [
+                SkillView(
+                    id=s.id,
+                    slug=s.slug,
+                    name=s.name,
+                    description=s.description,
+                    kind=s.kind,
+                    body_md=s.body_md,
+                    project_id=s.project_id,
+                ) for s in card_orm.skills
+            ]
+            
+            # Create context (simplified for testing)
+            from app.families._base import CardDraftContext
+            from decimal import Decimal
+            
+            project_view = ProjectView(
+                id=card_orm.phase.project.id,
+                tenant_id=card_orm.phase.project.tenant_id,
+                owner_user_id=card_orm.phase.project.owner_user_id,
+                slug=card_orm.phase.project.slug,
+                name=card_orm.phase.project.name,
+                objective=card_orm.phase.project.objective,
+                card_code_prefix=card_orm.phase.project.card_code_prefix,
+                card_template=card_orm.phase.project.card_template,
+                grouping=card_orm.phase.project.grouping,
+                status=card_orm.phase.project.status,
+                llm_provider=card_orm.phase.project.llm_provider,
+                llm_model=card_orm.phase.project.llm_model,
+                llm_temperature=Decimal(str(card_orm.phase.project.llm_temperature)),
+                created_at=card_orm.phase.project.created_at,
+                updated_at=card_orm.phase.project.updated_at,
+            )
+            
+            phase_view = PhaseView(
+                id=card_orm.phase.id,
+                code=card_orm.phase.code,
+                name=card_orm.phase.name,
+                description=card_orm.phase.description,
+                order_no=card_orm.phase.order_no,
+                project_id=card_orm.phase.project_id,
+            )
+            
+            card_view = CardView(
+                id=card_orm.id,
+                code=card_orm.code,
+                title=card_orm.title,
+                phase_id=card_orm.phase_id,
+                type=card_orm.type,
+                story_points=card_orm.story_points,
+                status=card_orm.status,
+                human_gate=card_orm.human_gate,
+                created_at=card_orm.created_at,
+                updated_at=card_orm.updated_at,
+                project_id=card_orm.project_id,
+            )
+            
+            context = CardDraftContext(
+                project=project_view,
+                project_context=f"Spring Boot backend development for {project_view.objective}",
+                phase=phase_view,
+                card=card_view,
+                skills_used=skill_views,
+                sibling_cards_in_phase=[card_view],
+                upstream_cards=[],
+            )
+            
+            # Create mock LLM response for Spring Boot card
+            mock_response = DraftedCard(
+                context_md="Phase 2 begins the Spring Boot backend implementation. This card establishes the foundational Spring Boot application structure with essential components: OpenAPI documentation, error handling, and database connectivity. The skeleton provides the framework for subsequent development cards.",
+                task_md="1. Create Maven project with Spring Boot 3.3.x and Java 17\\n2. Set up package structure: api/v1, service, repository, domain, dto, config, exception\\n3. Configure OpenAPI with SwaggerUI at /swagger-ui.html\\n4. Implement CorrelationIdFilter for request tracing with MDC\\n5. Create GlobalExceptionHandler with canonical error envelope\\n6. Set up Flyway with baseline migration for GLM schema\\n7. Configure application.yml for database connection via environment variables\\n8. Create multi-stage Dockerfile for containerized deployment",
+                outputs_md="- `backend/pom.xml` with Spring Boot 3.3.x dependencies\\n- Package structure under `br/sample/siglm/` with base classes\\n- `application.yml` and `application-dev.yml` configuration files\\n- `db/migration/V001__create_schema_glm.sql` Flyway migration\\n- `Dockerfile` with optimized multi-stage build for production",
+                acceptance_criteria_md="- [ ] Maven build succeeds with `mvn -B -ntp verify`\\n- [ ] Docker Compose starts backend service on port 8080\\n- [ ] `/actuator/health` returns 200 with database and application status green\\n- [ ] SwaggerUI loads at `/swagger-ui.html` showing API documentation\\n- [ ] Test 404 endpoint returns canonical error envelope with `RECURSO_NAO_ENCONTRADO`\\n- [ ] All log entries include correlationId field or empty placeholder",
+                inputs=[
+                    DraftedCardInput(
+                        kind="skill_resource",
+                        path=".agents/skills/siglm-spring-backend/SKILL.md",
+                        label="Spring Boot backend conventions and patterns"
+                    ),
+                    DraftedCardInput(
+                        kind="skill_resource",
+                        path=".agents/skills/siglm-context/SKILL.md",
+                        label="SIGLM project context and domain knowledge"
+                    )
+                ]
+            )
+            
+            # Create provider and execute
+            provider = DummyProvider(fixed_response=mock_response.model_dump())
+            template_family = PhaseVliFamily()
+            
+            prompt = DraftCardPrompt.create(context, template_family)
+            result = provider.chat(prompt)
+            
+            # Verify result
+            assert result.parsed is not None
+            assert isinstance(result.parsed, DraftedCard)
+            assert "Spring Boot" in result.parsed.context_md
+            assert "Maven project" in result.parsed.task_md
+            assert "pom.xml" in result.parsed.outputs_md
+            assert "- [ ]" in result.parsed.acceptance_criteria_md
+            assert len(result.parsed.inputs) == 2
+            assert all(inp.kind == "skill_resource" for inp in result.parsed.inputs)
+            
+            # Validate the card
+            from app.prompts.draft_card import DraftCardPrompt
+            warnings = DraftCardPrompt.validate_drafted_card(result.parsed, context)
+            assert len(warnings) == 0  # Should be valid
+            
+            print(f"✓ Generated card draft for {card_orm.code}")
+            print(f"  - Context: {len(result.parsed.context_md)} chars")
+            print(f"  - Task: {len(result.parsed.task_md)} chars") 
+            print(f"  - Outputs: {len(result.parsed.outputs_md)} chars")
+            print(f"  - Acceptance criteria: {len(result.parsed.acceptance_criteria_md)} chars")
+            print(f"  - Inputs: {len(result.parsed.inputs)}")
+            print(f"  - Validation warnings: {len(warnings)}")

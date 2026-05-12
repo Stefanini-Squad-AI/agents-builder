@@ -87,56 +87,133 @@ class PhaseVliFamily(TemplateFamily):
 
     def draft_card_prompt(self, context: CardDraftContext) -> ChatPrompt[DraftedCard]:
         """Create LLM prompt for drafting VLI card sections."""
-        system_prompt = """You are an expert technical project manager specializing in breaking down complex software projects into actionable cards.
+        system_prompt = self._build_card_draft_system_prompt()
+        user_message = self._build_card_draft_user_message(context)
 
-Your task is to draft the markdown content for specific sections of a project card. The card follows the VLI (phase-based) template with these sections:
-- Context: Background and rationale for this work
-- Task: Detailed step-by-step instructions
-- Outputs: Specific deliverables expected
-- Acceptance criteria: Measurable completion criteria
+        return ChatPrompt(
+            system=system_prompt,
+            messages=[user_message],
+            response_schema=DraftedCard
+        )
 
-Write clear, actionable content that a developer can follow without ambiguity. Reference the provided skills and inputs appropriately."""
+    def _build_card_draft_system_prompt(self) -> str:
+        """Build system prompt for card drafting with examples."""
+        return f"""You are an expert technical project manager specializing in breaking down complex software projects into actionable cards.
 
-        # Build context about the project and card
-        user_message_parts = [
+**Your Task:**
+Draft detailed markdown content for specific sections of a project card following the VLI (phase-based) template.
+
+**Required Sections:**
+- **Context**: Background, rationale, and how this work fits into the project flow
+- **Task**: Detailed step-by-step instructions that a developer can follow
+- **Outputs**: Specific deliverables, files, and artifacts expected
+- **Acceptance Criteria**: Measurable, testable checkboxes for completion validation
+- **Inputs**: Files, resources, and dependencies needed (skill resources, artifacts, external data)
+
+**Quality Guidelines:**
+- Write actionable, specific instructions (not vague descriptions)
+- Include concrete file paths, naming conventions, and technical details
+- Make acceptance criteria testable from outputs alone
+- Reference skills appropriately for implementation guidance
+- Consider dependencies and build on upstream card outputs
+- Include human gate checklists only when card.human_gate is true
+
+**Input Types:**
+- `skill_resource`: References to .agents/skills/[skill-slug]/resources/[file]
+- `artifact`: Project data in data/projects/[project-slug]/artifacts/
+- `external`: External files, databases, APIs, or legacy systems
+
+{self._get_card_draft_examples()}
+
+Write professional, detailed content that enables successful project execution."""
+
+    def _build_card_draft_user_message(self, context: CardDraftContext) -> ChatMessage:
+        """Build user message with complete card context."""
+        from app.prompts.draft_card import DraftCardPrompt
+
+        # Build context sections
+        parts = [
             f"**Project**: {context.project.name}",
             f"**Objective**: {context.project.objective}",
-            f"**Phase**: {context.phase.title}",
+            f"**Phase**: {context.phase.name}",
             f"**Card**: {context.card.code} — {context.card.title}",
+            f"**Type**: {context.card.type} ({context.card.story_points} story points)",
         ]
 
         if context.project_context:
-            user_message_parts.append(f"**Project Context**:\n{context.project_context}")
+            parts.append(f"**Project Context**:\n{context.project_context}")
 
+        # Skills context
         if context.skills_used:
-            user_message_parts.append("**Skills to use**:")
-            for skill in context.skills_used:
-                user_message_parts.append(f"- {skill.name}: {skill.description}")
+            skills_context = DraftCardPrompt.build_skills_context(context.skills_used)
+            parts.append(skills_context)
 
-        if context.card.inputs:
-            user_message_parts.append("**Inputs available**:")
-            for input_item in context.card.inputs:
-                user_message_parts.append(f"- {input_item.label}: {input_item.path}")
+        # Dependency context
+        dependency_context = DraftCardPrompt.build_dependency_context(context)
+        parts.append(dependency_context)
 
-        if context.upstream_cards:
-            user_message_parts.append("**Upstream cards completed**:")
-            for upstream in context.upstream_cards:
-                user_message_parts.append(f"- {upstream.code}: {upstream.title}")
+        # Human gate note
+        if context.card.human_gate:
+            parts.append("**Note**: This card has human_gate=true - include human_gate_checklist_md")
 
-        if context.sibling_cards_in_phase:
-            user_message_parts.append("**Other cards in this phase**:")
-            for sibling in context.sibling_cards_in_phase:
-                user_message_parts.append(f"- {sibling.code}: {sibling.title}")
+        parts.append("Draft the Context, Task, Outputs, Acceptance Criteria sections and suggest appropriate Inputs for this card.")
 
-        user_message_parts.append("\nDraft the Context, Task, Outputs, and Acceptance Criteria sections for this card.")
+        return ChatMessage(role="user", content="\n\n".join(parts))
 
-        return ChatPrompt(
-            messages=[
-                ChatMessage(role="system", content=system_prompt),
-                ChatMessage(role="user", content="\n\n".join(user_message_parts))
-            ],
-            response_schema=DraftedCard
-        )
+    def _get_card_draft_examples(self) -> str:
+        """Get few-shot examples for card drafting."""
+        return """
+**Example 1: Analysis Card**
+*Card: MIGRATE-101 — Legacy system data analysis*
+
+```json
+{
+  "context_md": "Legacy system contains 15 years of customer data across 8 databases. Current documentation is outdated and business rules are embedded in stored procedures. This analysis provides foundation for migration design.",
+  "task_md": "1. Connect to legacy SQL Server instances using provided credentials\\n2. Execute schema extraction queries for each database\\n3. Document table relationships and foreign key constraints\\n4. Extract business rules from stored procedures and triggers\\n5. Profile data quality (nulls, duplicates, referential integrity)\\n6. Create consolidated data inventory spreadsheet\\n7. Flag potential migration blockers and data issues",
+  "outputs_md": "- `discovery/legacy-schema-analysis.md` with complete table documentation\\n- `discovery/business-rules-inventory.xlsx` categorized by domain\\n- `discovery/data-quality-report.md` with specific issues and counts\\n- `discovery/migration-blockers.md` with risk assessment and owners",
+  "acceptance_criteria_md": "- [ ] All 47 tables documented with column descriptions and constraints\\n- [ ] Business rules extracted and categorized by business domain\\n- [ ] Data quality issues quantified with row counts and percentages\\n- [ ] Migration blockers identified with specific resolution owners\\n- [ ] ERD diagram shows all table relationships correctly",
+  "inputs": [
+    {"kind": "skill_resource", "path": ".agents/skills/legacy-analyzer/SKILL.md", "label": "Legacy analysis methodology"},
+    {"kind": "skill_resource", "path": ".agents/skills/legacy-analyzer/resources/schema-extraction-queries.sql", "label": "SQL queries for schema discovery"},
+    {"kind": "external", "path": "legacy/database-connection-strings.txt", "label": "Database connection details"}
+  ]
+}
+```
+
+**Example 2: Implementation Card**
+*Card: API-201 — User authentication service*
+
+```json
+{
+  "context_md": "Application requires JWT-based authentication with role-based access control. Must integrate with existing Active Directory for user validation and support multiple client applications.",
+  "task_md": "1. Set up JWT library (jsonwebtoken) and configure secret key rotation\\n2. Implement `/auth/login` endpoint with AD integration\\n3. Create middleware for token validation on protected routes\\n4. Add role-based access control with user permissions matrix\\n5. Implement token refresh mechanism with sliding expiration\\n6. Add comprehensive error handling for auth failures\\n7. Create API documentation with authentication examples",
+  "outputs_md": "- `src/auth/auth-service.js` with login and token validation logic\\n- `src/middleware/auth-middleware.js` for route protection\\n- `src/auth/roles.js` with permissions matrix and role definitions\\n- `docs/authentication-api.md` with usage examples and error codes\\n- Unit tests achieving 90%+ coverage for auth logic",
+  "acceptance_criteria_md": "- [ ] Login endpoint validates credentials against Active Directory\\n- [ ] JWT tokens include user roles and expire appropriately\\n- [ ] Protected routes return 401 for invalid/expired tokens\\n- [ ] Role-based access control blocks unauthorized actions\\n- [ ] Token refresh works without requiring re-authentication\\n- [ ] All authentication errors return consistent error format\\n- [ ] API documentation includes working curl examples",
+  "inputs": [
+    {"kind": "skill_resource", "path": ".agents/skills/api-security/SKILL.md", "label": "API security best practices"},
+    {"kind": "skill_resource", "path": ".agents/skills/api-security/resources/jwt-implementation-guide.md", "label": "JWT implementation patterns"},
+    {"kind": "artifact", "path": "data/projects/app/artifacts/AD-001-outputs/user-schema.json", "label": "Active Directory user schema from discovery"}
+  ]
+}
+```
+
+**Example 3: Infrastructure Card**
+*Card: INFRA-101 — Container orchestration setup*
+
+```json
+{
+  "context_md": "Application deployment currently manual and error-prone. Need containerized deployment with orchestration for scalability and reliability. This card establishes the foundation for automated deployments.",
+  "task_md": "1. Create multi-stage Dockerfile optimized for production\\n2. Set up Kubernetes cluster configuration (3 nodes minimum)\\n3. Configure ingress controller with SSL termination\\n4. Implement horizontal pod autoscaling (HPA) rules\\n5. Set up persistent volume claims for database storage\\n6. Configure monitoring with Prometheus and Grafana dashboards\\n7. Create deployment pipeline with health checks",
+  "outputs_md": "- `docker/Dockerfile` with optimized multi-stage build\\n- `k8s/` directory with all Kubernetes manifests\\n- `k8s/ingress.yaml` with SSL and routing configuration\\n- `monitoring/prometheus-config.yaml` with custom metrics\\n- `docs/deployment-guide.md` with step-by-step instructions",
+  "acceptance_criteria_md": "- [ ] Application builds and runs in Docker container locally\\n- [ ] Kubernetes cluster deploys application successfully\\n- [ ] Ingress routes traffic correctly with HTTPS\\n- [ ] HPA scales pods based on CPU usage (tested with load)\\n- [ ] Database persists data across pod restarts\\n- [ ] Monitoring dashboards show key application metrics\\n- [ ] Deployment can be executed by following documentation alone",
+  "human_gate_checklist_md": "Production deployment approval:\\n- [ ] Security team reviewed ingress and network policies\\n- [ ] Database backup strategy confirmed\\n- [ ] Monitoring alerts configured and tested\\n- [ ] Rollback procedure documented and verified",
+  "inputs": [
+    {"kind": "skill_resource", "path": ".agents/skills/container-orchestrator/SKILL.md", "label": "Container orchestration patterns"},
+    {"kind": "skill_resource", "path": ".agents/skills/container-orchestrator/resources/k8s-templates.yaml", "label": "Kubernetes configuration templates"},
+    {"kind": "external", "path": "infrastructure/cluster-specs.json", "label": "Target cluster specifications"}
+  ]
+}
+```"""
 
     def few_shot_card_examples(self) -> list[CardExample]:
         """Provide VLI-specific few-shot examples."""
