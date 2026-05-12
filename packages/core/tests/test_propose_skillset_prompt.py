@@ -116,16 +116,20 @@ class TestProposeSkillSetPrompt:
         prompt = ProposeSkillSetPrompt.create(context)
         user_content = prompt.messages[0].content
         
-        # Check few-shot examples are present
-        assert "siglm-context" in user_content
-        assert "siglm-cobol-analyzer" in user_content  
-        assert "corp-ssis-analyzer" in user_content
-        assert "cronos-add-feature" in user_content
+        # Check generic few-shot examples are present
+        assert "banking-domain-context" in user_content
+        assert "legacy-cobol-analyzer" in user_content  
+        assert "microservices-decomposer" in user_content
+        assert "ai-code-analyzer" in user_content
+        assert "fullstack-feature-architect" in user_content
+        assert "event-architecture-designer" in user_content
         
-        # Check example structure
-        assert "Banking Legacy Modernization" in user_content
-        assert "Data Pipeline Migration" in user_content
-        assert "Full-Stack Feature Development" in user_content
+        # Check example structure covers major domains
+        assert "Legacy Banking System Modernization" in user_content
+        assert "Cloud-Native Microservices Platform" in user_content
+        assert "AI-Powered Development Platform" in user_content
+        assert "Full-Stack Web Application" in user_content
+        assert "Enterprise Data Platform" in user_content
         
     def test_system_prompt_guidelines(self) -> None:
         """Test that system prompt includes proper guidelines."""

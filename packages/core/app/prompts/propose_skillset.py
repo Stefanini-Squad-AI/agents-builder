@@ -118,87 +118,143 @@ Generate 5-10 skills that comprehensively address the project objective."""
 
     @staticmethod
     def _get_few_shot_examples() -> str:
-        """Get few-shot examples from the three reference PoCs."""
-        return """**Example 1: Banking Legacy Modernization (Caixa-2 SIGLM)**
-*Objective: Modernize COBOL-based banking limits system to Java/Angular*
+        """Get generic few-shot examples covering major software development dimensions."""
+        return """**Example 1: Legacy Banking System Modernization**
+*Objective: Modernize COBOL-based financial system to microservices architecture*
 
 ```json
 {
   "skills": [
     {
-      "slug": "siglm-context",
-      "name": "SIGLM Project Context",
-      "description": "Canonical knowledge base for banking limits modernization - architecture, domain glossary, DB2->Postgres mapping, COBOL conventions. Use when user asks about banking limits, legacy systems, or domain concepts.",
+      "slug": "banking-domain-context",
+      "name": "Banking Domain Context",
+      "description": "Canonical knowledge base for financial systems - regulatory requirements, transaction processing patterns, data models, and legacy integration patterns. Use when working with financial data, compliance requirements, or banking workflows.",
       "kind": "context",
-      "rationale": "Banking domain is complex with many legacy conventions that need centralized documentation",
-      "sibling_refs": ["siglm-cobol-analyzer"]
+      "rationale": "Financial domain has complex regulations and business rules that need centralized documentation",
+      "sibling_refs": ["legacy-cobol-analyzer", "microservices-decomposer"]
     },
     {
-      "slug": "siglm-cobol-analyzer",
-      "name": "SIGLM COBOL -> Rules",
-      "description": "Extract business rules from legacy COBOL batch programs and translate to neutral specs. Use when analyzing GLMTB013, GLMTBC01, or other COBOL source files for rule extraction.",
+      "slug": "legacy-cobol-analyzer",
+      "name": "Legacy COBOL Business Rules Extractor",
+      "description": "Extract business logic from legacy COBOL programs and translate to modern specifications. Use when analyzing mainframe code for modernization or business rule documentation.",
       "kind": "analyzer",
-      "rationale": "COBOL programs contain embedded business logic that must be extracted before modernization",
-      "sibling_refs": ["siglm-context", "siglm-spring-backend"]
+      "rationale": "Legacy systems contain decades of business logic that must be preserved during modernization",
+      "sibling_refs": ["banking-domain-context", "microservices-decomposer"]
     }
   ],
-  "coverage_notes": "Covers domain context and legacy code analysis for banking modernization",
-  "gaps": ["Frontend component patterns", "Database migration procedures"]
+  "coverage_notes": "Covers financial domain knowledge and legacy code analysis for modernization projects",
+  "gaps": ["Cloud deployment patterns", "Security compliance automation"]
 }
 ```
 
-**Example 2: Data Pipeline Migration (VLI CORP)**
-*Objective: Migrate SSIS ETL packages to Databricks Delta Lake*
+**Example 2: Cloud-Native Microservices Platform**
+*Objective: Build scalable e-commerce platform using microservices and Kubernetes*
 
 ```json
 {
   "skills": [
     {
-      "slug": "corp-ssis-analyzer",
-      "name": "CORP SSIS Package Analyzer",
-      "description": "Analyze SSIS packages (.dtsx XML) to produce business flow summary, data flow diagram, and task inventory. Use when provided with SSIS .dtsx files for migration assessment.",
+      "slug": "microservices-decomposer",
+      "name": "Microservices Architecture Designer",
+      "description": "Analyze monolithic applications and design microservices architecture using DDD patterns. Use when breaking down large applications or designing service boundaries.",
       "kind": "analyzer",
-      "rationale": "SSIS packages are complex XML with embedded logic that needs systematic analysis",
-      "sibling_refs": ["corp-databricks-planner"]
+      "rationale": "Microservices require careful domain modeling and service boundary definition",
+      "sibling_refs": ["cloud-deployment-orchestrator", "observability-implementer"]
     },
     {
-      "slug": "corp-databricks-planner",
-      "name": "CORP Databricks Migration Planner",
-      "description": "Plan migration of ETL workflows to Databricks notebooks and Delta tables. Use after SSIS analysis to design target architecture.",
+      "slug": "cloud-deployment-orchestrator",
+      "name": "Cloud Deployment Orchestrator",
+      "description": "Design and implement cloud-native deployment pipelines using Docker, Kubernetes, and CI/CD. Use when deploying microservices to cloud platforms.",
       "kind": "procedure",
-      "rationale": "Migration requires careful planning of data flows, transformations, and scheduling",
-      "sibling_refs": ["corp-ssis-analyzer", "corp-delta-merge"]
+      "rationale": "Cloud deployments require orchestration of multiple services with proper scaling and monitoring",
+      "sibling_refs": ["microservices-decomposer", "observability-implementer"]
     }
   ],
-  "coverage_notes": "Covers SSIS analysis and Databricks migration planning for ETL modernization",
-  "gaps": ["Data quality validation", "Performance optimization strategies"]
+  "coverage_notes": "Covers microservices design and cloud deployment for scalable applications",
+  "gaps": ["Message queue integration", "Data consistency patterns"]
 }
 ```
 
-**Example 3: Full-Stack Feature Development (Enel Cronos)**
-*Objective: Add role-based access control to NestJS/Angular application*
+**Example 3: AI-Powered Development Platform**
+*Objective: Create intelligent code analysis and generation system*
 
 ```json
 {
   "skills": [
     {
-      "slug": "cronos-add-feature",
-      "name": "Cronos Add Full-Stack Feature",
-      "description": "End-to-end workflow for adding features touching Prisma schema + NestJS endpoint + Angular frontend. Use when adding new domain entities, modules, or data-driven pages.",
-      "kind": "authoring",
-      "rationale": "Full-stack features require coordinated changes across multiple layers with consistent patterns",
-      "sibling_refs": ["cronos-frontend-conventions", "cronos-role-access"]
+      "slug": "ai-code-analyzer",
+      "name": "AI-Powered Code Analyzer",
+      "description": "Use LLMs to analyze codebases, extract patterns, generate documentation, and suggest improvements. Use when analyzing legacy systems or generating technical documentation.",
+      "kind": "analyzer",
+      "rationale": "AI can process large codebases faster than manual analysis and identify complex patterns",
+      "sibling_refs": ["intelligent-test-generator", "code-quality-auditor"]
     },
     {
-      "slug": "cronos-frontend-conventions",
-      "name": "Cronos Frontend Conventions",
-      "description": "Angular component patterns, routing structure, and UI conventions for Cronos project. Use when creating new Angular components, pages, or updating frontend architecture.",
-      "kind": "context",
-      "rationale": "Consistent frontend patterns improve maintainability and developer experience",
-      "sibling_refs": ["cronos-add-feature"]
+      "slug": "intelligent-test-generator",
+      "name": "Intelligent Test Suite Generator",
+      "description": "Generate comprehensive test suites using AI analysis of code paths and business logic. Use when adding test coverage or validating complex business rules.",
+      "kind": "authoring",
+      "rationale": "AI can identify edge cases and generate tests that humans might miss",
+      "sibling_refs": ["ai-code-analyzer", "code-quality-auditor"]
     }
   ],
-  "coverage_notes": "Covers full-stack development patterns and frontend conventions",
-  "gaps": ["Authentication integration", "API testing procedures"]
+  "coverage_notes": "Covers AI-driven development tools and intelligent automation",
+  "gaps": ["Model deployment pipelines", "Real-time code suggestions"]
+}
+```
+
+**Example 4: Full-Stack Web Application**
+*Objective: Build modern React/Node.js application with authentication and real-time features*
+
+```json
+{
+  "skills": [
+    {
+      "slug": "fullstack-feature-architect",
+      "name": "Full-Stack Feature Architect",
+      "description": "Design and implement end-to-end features spanning React frontend, Node.js backend, and PostgreSQL database. Use when adding new user-facing functionality.",
+      "kind": "authoring",
+      "rationale": "Modern web apps require coordinated changes across multiple technology layers",
+      "sibling_refs": ["api-security-implementer", "realtime-communication-designer"]
+    },
+    {
+      "slug": "api-security-implementer",
+      "name": "API Security & Auth Implementer",
+      "description": "Implement OAuth2, JWT, role-based access control, and API security best practices. Use when adding authentication or securing API endpoints.",
+      "kind": "procedure",
+      "rationale": "Security must be implemented consistently across all application entry points",
+      "sibling_refs": ["fullstack-feature-architect", "compliance-auditor"]
+    }
+  ],
+  "coverage_notes": "Covers modern web development and security implementation",
+  "gaps": ["Performance optimization", "Monitoring and alerting"]
+}
+```
+
+**Example 5: Enterprise Data Platform**
+*Objective: Build event-driven data processing platform with real-time analytics*
+
+```json
+{
+  "skills": [
+    {
+      "slug": "event-architecture-designer",
+      "name": "Event-Driven Architecture Designer",
+      "description": "Design event streaming architectures using Apache Kafka, event sourcing, and CQRS patterns. Use when building real-time data processing or reactive systems.",
+      "kind": "authoring",
+      "rationale": "Event-driven systems require careful design of event schemas and processing pipelines",
+      "sibling_refs": ["data-pipeline-orchestrator", "observability-implementer"]
+    },
+    {
+      "slug": "observability-implementer",
+      "name": "Observability Stack Implementer",
+      "description": "Implement comprehensive monitoring, logging, and tracing using OpenTelemetry, Prometheus, and Grafana. Use when adding observability to distributed systems.",
+      "kind": "procedure",
+      "rationale": "Distributed systems require sophisticated monitoring to diagnose issues and ensure reliability",
+      "sibling_refs": ["event-architecture-designer", "performance-optimizer"]
+    }
+  ],
+  "coverage_notes": "Covers event-driven architecture and comprehensive system observability",
+  "gaps": ["Data governance policies", "Real-time ML inference"]
 }
 ```"""
