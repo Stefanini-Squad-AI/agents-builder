@@ -161,50 +161,185 @@ Write clear, actionable content that a developer can follow without ambiguity. R
 
     def propose_backlog_prompt(self, context: BacklogProposalContext) -> ChatPrompt[ProposedBacklog]:
         """Create LLM prompt for proposing a phase-based backlog."""
-        system_prompt = """You are an expert project manager specializing in phase-based software delivery.
-
-Your task is to create a structured backlog of phases and cards based on the project objective and available skills. Follow these principles:
-
-**Phase Structure:**
-- Phases should flow logically (Discovery → Design → Implementation → Testing → Deployment)
-- Each phase should have 3-7 cards maximum
-- Dependencies should respect phase order (no forward-phase dependencies)
-- Consider human gates at phase boundaries
-
-**Card Design:**
-- Each card should be achievable in 1-5 days
-- Cards should reference appropriate skills from the available set
-- Use specific, actionable titles
-- Consider both analysis and implementation work
-
-**Dependencies:**
-- Cards within a phase can run in parallel unless explicitly dependent
-- Cross-phase dependencies should be clear and necessary
-- Avoid creating unnecessary bottlenecks
-
-Generate a realistic backlog that can deliver the project objective."""
-
-        user_message_parts = [
-            f"**Project**: {context.project.name}",
-            f"**Objective**: {context.project.objective}",
-        ]
-
-        if context.project_context:
-            user_message_parts.append(f"**Context**: {context.project_context}")
-
-        user_message_parts.append("**Available Skills:**")
-        for skill in context.proposed_skills:
-            user_message_parts.append(f"- {skill.name} ({skill.kind}): {skill.description}")
-
-        user_message_parts.append("\nCreate a phase-based backlog with 3-7 phases, each containing 3-7 cards. Focus on delivering the objective efficiently.")
+        system_prompt = self._build_backlog_system_prompt()
+        user_message = self._build_backlog_user_message(context)
 
         return ChatPrompt(
-            messages=[
-                ChatMessage(role="system", content=system_prompt),
-                ChatMessage(role="user", content="\n\n".join(user_message_parts))
-            ],
+            system=system_prompt,
+            messages=[user_message],
             response_schema=ProposedBacklog
         )
+
+    def _build_backlog_system_prompt(self) -> str:
+        """Build system prompt for backlog proposal with diverse examples."""
+        return f"""You are an expert project manager specializing in phase-based software delivery.
+
+**Your Task:**
+Create a structured backlog of phases and cards based on the project objective and available skills.
+
+**Phase Structure Guidelines:**
+- Adapt phase count (2-7) and names to fit the project objective
+- Common patterns: Discovery → Design → Implementation → Testing → Deployment
+- For data projects: Analysis → Foundation → Implementation → Validation → Cutover
+- For web apps: Planning → Backend → Frontend → Integration → Launch
+- Each phase should have 2-6 cards maximum for manageability
+
+**Card Design Guidelines:**
+- Each card represents 1-5 days of focused work
+- Reference appropriate skills from the available skill set
+- Use specific, actionable titles that describe deliverables
+- Include both discovery/analysis and implementation work as needed
+- Assign realistic story points (1-8, with 5 being average)
+
+**Dependency Guidelines:**
+- Phases should flow logically (no backward dependencies)
+- Cards within a phase can run in parallel unless explicitly dependent
+- Cross-phase dependencies should be clear and necessary
+- Avoid creating unnecessary bottlenecks in the critical path
+
+**Code Format:**
+- Use project-appropriate prefixes: PROJECT-XYZ where X=phase, YZ=card number
+- Example: For "BANKING" project, use BANKING-101, BANKING-102, BANKING-201, etc.
+
+{self._get_diverse_backlog_examples()}
+
+Generate a realistic, deliverable backlog that addresses the full project objective."""
+
+    def _build_backlog_user_message(self, context: BacklogProposalContext) -> ChatMessage:
+        """Build user message with project context and skills."""
+        from app.prompts.propose_backlog import ProposeBacklogPrompt
+
+        skills_summary = ProposeBacklogPrompt.format_skills_summary(context.proposed_skills)
+
+        content = f"""**Project Context:**
+{context.project_context}
+
+**Available Skills:**
+{skills_summary}
+
+Please create a phase-based backlog that leverages these skills to deliver the project objective efficiently. Consider the project type and adapt the phase structure accordingly."""
+
+        return ChatMessage(role="user", content=content)
+
+    def _get_diverse_backlog_examples(self) -> str:
+        """Provide diverse few-shot examples for different project types."""
+        return """
+**Example 1: Data Migration Project**
+*Objective: Migrate SSIS data pipeline to cloud platform*
+
+```json
+{
+  "phases": [
+    {
+      "code": "phase-1-discovery",
+      "name": "Discovery & Analysis",
+      "description": "Analyze existing systems and extract migration requirements",
+      "cards": [
+        {
+          "code": "MIGRATE-101",
+          "title": "SSIS package analysis and rule extraction",
+          "type": "Task",
+          "story_points": 5,
+          "skill_slugs": ["ssis-analyzer", "rule-extractor"],
+          "depends_on_codes": [],
+          "short_scope_summary": "Complete technical analysis of legacy SSIS packages with business rule documentation."
+        }
+      ]
+    },
+    {
+      "code": "phase-2-foundation",
+      "name": "Platform Foundation",
+      "description": "Set up target platform and data models",
+      "cards": [
+        {
+          "code": "MIGRATE-201",
+          "title": "Cloud platform setup and schemas",
+          "type": "Story",
+          "story_points": 8,
+          "skill_slugs": ["cloud-architect", "data-modeler"],
+          "depends_on_codes": ["MIGRATE-101"],
+          "short_scope_summary": "Provision cloud resources and implement target data schemas based on analysis."
+        }
+      ]
+    }
+  ],
+  "rationale_md": "Two-phase approach separates analysis from implementation for reduced risk and clear handoff points.",
+  "critical_path_codes": ["MIGRATE-101", "MIGRATE-201"]
+}
+```
+
+**Example 2: Web Application Project**
+*Objective: Build customer portal with authentication*
+
+```json
+{
+  "phases": [
+    {
+      "code": "phase-1-planning",
+      "name": "Planning & Design",
+      "description": "Define requirements and system architecture",
+      "cards": [
+        {
+          "code": "PORTAL-101",
+          "title": "API design and authentication strategy",
+          "type": "Task",
+          "story_points": 3,
+          "skill_slugs": ["api-architect", "auth-designer"],
+          "depends_on_codes": [],
+          "short_scope_summary": "Design REST API contracts and OAuth2 authentication flow for customer portal."
+        }
+      ]
+    },
+    {
+      "code": "phase-2-backend",
+      "name": "Backend Development",
+      "description": "Implement core API and business logic",
+      "cards": [
+        {
+          "code": "PORTAL-201",
+          "title": "Customer API implementation",
+          "type": "Story",
+          "story_points": 5,
+          "skill_slugs": ["api-builder", "database-designer"],
+          "depends_on_codes": ["PORTAL-101"],
+          "short_scope_summary": "Build customer management APIs with database integration and authentication middleware."
+        }
+      ]
+    }
+  ],
+  "rationale_md": "Backend-first approach ensures solid foundation before frontend development begins.",
+  "critical_path_codes": ["PORTAL-101", "PORTAL-201"]
+}
+```
+
+**Example 3: Platform Enhancement Project**
+*Objective: Add real-time monitoring to existing system*
+
+```json
+{
+  "phases": [
+    {
+      "code": "phase-1-integration",
+      "name": "Monitoring Integration",
+      "description": "Integrate monitoring capabilities with existing system",
+      "cards": [
+        {
+          "code": "MONITOR-101",
+          "title": "Observability stack implementation",
+          "type": "Story",
+          "story_points": 8,
+          "skill_slugs": ["observability-implementer", "metrics-designer"],
+          "depends_on_codes": [],
+          "human_gate": true,
+          "short_scope_summary": "Deploy Prometheus, Grafana, and OpenTelemetry with custom dashboards and alerts."
+        }
+      ]
+    }
+  ],
+  "rationale_md": "Single-phase delivery for focused enhancement with human gate for production deployment approval.",
+  "critical_path_codes": ["MONITOR-101"]
+}
+```"""
 
     def validate_card(self, card: CardView, project: ProjectView) -> list[ValidationIssue]:
         """Validate a card according to VLI rules."""

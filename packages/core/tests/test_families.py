@@ -11,8 +11,8 @@ from app.domain import skills as domain_skills  # Add import for skills module
 from app.families import PhaseVliFamily, get_family
 from app.families._base import CardDraftContext
 from app.llm import DummyProvider
-from app.prompts import DraftSkillBodyPrompt
-from app.schemas.llm_io import DraftedResource, DraftedSkillBody
+from app.prompts import DraftSkillBodyPrompt, ProposeBacklogPrompt
+from app.schemas.llm_io import DraftedResource, DraftedSkillBody, ProposedBacklog, ProposedCard, ProposedPhase
 from app.schemas.views import CardView, PhaseView, ProjectContext, ProjectView, SkillView
 
 
@@ -388,3 +388,186 @@ class TestDraftSkillBodyIntegrationWithTemplates:
             print(f"  - Body length: {len(result.parsed.body_md)} chars")
             print(f"  - Resources: {len(result.parsed.resources)}")
             print(f"  - Sibling references: {len(result.parsed.sibling_skills_referenced)}")
+
+
+class TestProposeBacklogIntegrationWithTemplates:
+    """Integration tests for ProposeBacklogPrompt with template families and seeded data."""
+    
+    @pytest.mark.integration
+    def test_backlog_proposal_with_seeded_skills(self) -> None:
+        """Test ProposeBacklogPrompt using real seeded skills from a project."""
+        register_models()
+        
+        with session_scope() as session:
+            # Query all skills from a seeded project
+            project_query = select(
+                domain_skills.Skill.project
+            ).where(
+                domain_skills.Skill.slug == "siglm-context"
+            ).options(
+                selectinload(domain_skills.Skill.project)
+            )
+            project_orm = session.execute(project_query).scalar_one().project
+            
+            # Get all skills from this project
+            skills_query = select(
+                domain_skills.Skill
+            ).where(
+                domain_skills.Skill.project_id == project_orm.id
+            )
+            skills_orm = session.execute(skills_query).scalars().all()
+            
+            # Convert to view models
+            skill_views = [
+                SkillView(
+                    id=s.id,
+                    slug=s.slug,
+                    name=s.name,
+                    description=s.description,
+                    kind=s.kind,
+                    body_md=s.body_md,
+                    project_id=s.project_id,
+                ) for s in skills_orm
+            ]
+            
+            # Create project context string
+            project_context_str = f"Project: {project_orm.name}\nObjective: {project_orm.objective}"
+            
+            # Create prompt using VLI template family
+            template_family = PhaseVliFamily()
+            prompt = ProposeBacklogPrompt.create(project_context_str, skill_views, template_family)
+            
+            # Verify prompt structure
+            assert prompt.system is not None
+            assert len(prompt.messages) == 1
+            assert prompt.response_schema == ProposedBacklog
+            
+            # Check that VLI-specific guidance is included
+            assert "phase-based software delivery" in prompt.system
+            assert "Example 1: Data Migration Project" in prompt.system
+            assert "Example 2: Web Application Project" in prompt.system
+            
+            # Check user message contains project and skills
+            user_content = prompt.messages[0].content
+            assert project_orm.objective in user_content or "Project" in user_content
+            
+            # Check skills are included
+            for skill in skill_views[:3]:  # Check first few skills
+                assert skill.slug in user_content
+            
+            print(f"✓ Created backlog prompt for project {project_orm.slug}")
+            print(f"  - Skills available: {len(skill_views)}")
+            print(f"  - System prompt: {len(prompt.system)} chars")
+            print(f"  - User message: {len(user_content)} chars")
+
+    @pytest.mark.integration 
+    def test_backlog_generation_end_to_end(self) -> None:
+        """Test complete backlog generation workflow with DummyProvider and VLI template."""
+        register_models()
+        
+        with session_scope() as session:
+            # Use CORP project with VLI-style structure
+            project_query = select(
+                domain_skills.Skill.project
+            ).where(
+                domain_skills.Skill.slug == "corp-ssis-analyzer"
+            ).options(
+                selectinload(domain_skills.Skill.project)
+            )
+            project_orm = session.execute(project_query).scalar_one_or_none()
+            
+            if not project_orm:
+                pytest.skip("corp-ssis-analyzer skill not found in seeded data")
+                
+            project_orm = project_orm.project
+                
+            # Get a few skills from this project
+            skills_query = select(
+                domain_skills.Skill
+            ).where(
+                domain_skills.Skill.project_id == project_orm.id
+            ).limit(3)
+            skills_orm = session.execute(skills_query).scalars().all()
+            
+            # Convert to view models  
+            skill_views = [
+                SkillView(
+                    id=s.id,
+                    slug=s.slug,
+                    name=s.name,
+                    description=s.description,
+                    kind=s.kind,
+                    body_md=s.body_md,
+                    project_id=s.project_id,
+                ) for s in skills_orm
+            ]
+            
+            # Create mock LLM response in VLI style
+            mock_response = ProposedBacklog(
+                phases=[
+                    ProposedPhase(
+                        code="phase-1-discovery",
+                        name="Discovery & Analysis",
+                        description="Analyze existing SSIS packages and extract business rules",
+                        cards=[
+                            ProposedCard(
+                                code="CORP-101",
+                                title="SSIS Package Analysis",
+                                type="Task",
+                                story_points=5,
+                                skill_slugs=["corp-ssis-analyzer"],
+                                depends_on_codes=[],
+                                short_scope_summary="Complete technical analysis of legacy SSIS packages with business rule extraction."
+                            )
+                        ]
+                    ),
+                    ProposedPhase(
+                        code="phase-2-foundation",
+                        name="Platform Foundation",
+                        description="Set up Databricks platform and data models", 
+                        cards=[
+                            ProposedCard(
+                                code="CORP-201",
+                                title="Databricks Platform Setup",
+                                type="Story",
+                                story_points=8,
+                                skill_slugs=["corp-databricks-planner"],
+                                depends_on_codes=["CORP-101"],
+                                short_scope_summary="Provision Unity Catalog schemas and implement Delta table structures."
+                            )
+                        ]
+                    )
+                ],
+                rationale_md="Two-phase approach separates analysis from implementation for reduced risk and clear handoff points.",
+                critical_path_codes=["CORP-101", "CORP-201"]
+            )
+            
+            # Create provider and execute
+            provider = DummyProvider(fixed_response=mock_response.model_dump())
+            template_family = PhaseVliFamily()
+            
+            project_context_str = f"Migrate SSIS data pipeline to Databricks using {project_orm.objective}"
+            prompt = ProposeBacklogPrompt.create(project_context_str, skill_views, template_family)
+            result = provider.chat(prompt)
+            
+            # Verify result
+            assert result.parsed is not None
+            assert isinstance(result.parsed, ProposedBacklog)
+            assert len(result.parsed.phases) == 2
+            assert result.parsed.phases[0].code == "phase-1-discovery"
+            assert result.parsed.phases[1].code == "phase-2-foundation"
+            
+            # Verify cards structure
+            assert len(result.parsed.phases[0].cards) == 1
+            assert result.parsed.phases[0].cards[0].code == "CORP-101"
+            assert "corp-ssis-analyzer" in result.parsed.phases[0].cards[0].skill_slugs
+            
+            # Verify dependencies
+            assert "CORP-101" in result.parsed.phases[1].cards[0].depends_on_codes
+            assert result.parsed.critical_path_codes == ["CORP-101", "CORP-201"]
+            
+            print(f"✓ Generated backlog for {project_orm.slug}")
+            print(f"  - Phases: {len(result.parsed.phases)}")
+            print(f"  - Total cards: {sum(len(phase.cards) for phase in result.parsed.phases)}")
+            print(f"  - Critical path length: {len(result.parsed.critical_path_codes)}")
+            print(f"  - Rationale: {len(result.parsed.rationale_md)} chars")

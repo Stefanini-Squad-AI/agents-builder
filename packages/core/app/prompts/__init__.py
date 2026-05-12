@@ -9,13 +9,14 @@ Public API:
 """
 
 from app.prompts.draft_skillbody import DraftSkillBodyPrompt
+from app.prompts.propose_backlog import ProposeBacklogPrompt
 from app.prompts.propose_skillset import ProposeSkillSetPrompt
 
 __all__ = [
     "DraftSkillBodyPrompt",
+    "ProposeBacklogPrompt",
     "ProposeSkillSetPrompt",
     # Future prompts will be added here as they're implemented
-    # "ProposeBacklogPrompt",
     # "DraftCardPrompt",
     # "SuggestTechStackPrompt",
 ]
