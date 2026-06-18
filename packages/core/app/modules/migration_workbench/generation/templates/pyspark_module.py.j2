@@ -1,0 +1,86 @@
+# Databricks notebook source
+{%- if include_docstring_header %}
+# MAGIC %md
+# MAGIC # {{ package_name }}
+# MAGIC
+# MAGIC **Source**: SSIS package `{{ package_name }}`
+# MAGIC **Strategy**: PySpark
+# MAGIC **Generated**: {{ generated_at }}
+{%- endif %}
+
+# COMMAND ----------
+
+dbutils.widgets.text("catalog", "{{ target_catalog }}", "Unity Catalog")
+dbutils.widgets.text("schema", "{{ target_schema }}", "Target Schema")
+dbutils.widgets.text("run_date", "", "Run Date")
+
+catalog = dbutils.widgets.get("catalog")
+schema = dbutils.widgets.get("schema")
+run_date = dbutils.widgets.get("run_date")
+
+spark.sql(f"USE CATALOG {catalog}")
+spark.sql(f"USE SCHEMA {schema}")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Connections (translated from SSIS Connection Managers)
+
+# COMMAND ----------
+
+# TODO: Replace placeholder connection refs with Unity Catalog tables / secrets
+{%- for conn in connections %}
+# - {{ conn.name }} ({{ conn.connection_type }}){% if conn.server %} -> {{ conn.server }}/{{ conn.database }}{% endif %}
+{%- endfor %}
+
+# COMMAND ----------
+{%- for task in tasks %}
+
+# MAGIC %md
+# MAGIC ### {{ task.name }} ({{ task.task_type }})
+{%- if include_comments and task.description %}
+# MAGIC
+# MAGIC {{ task.description }}
+{%- endif %}
+
+# COMMAND ----------
+
+{% if task.sql_statement -%}
+# Translated from Execute SQL Task
+spark.sql("""
+{{ task.sql_statement | trim }}
+""")
+{%- elif task.task_type == 'Script Task' -%}
+# TODO: Port SSIS Script Task to PySpark
+# Original script code is in the SSIS package XML and requires manual review.
+raise NotImplementedError("Script Task '{{ task.name }}' needs manual port")
+{%- elif task.task_type == 'Data Flow Task' -%}
+# Data Flow Task: rebuild as Spark DataFrame chain
+# Sources -> Transformations -> Destinations
+# TODO: Replace with concrete logic from analysis
+df = spark.read.format("delta").load("<source_path>")
+df = df  # apply transformations here
+df.write.format("delta").mode("overwrite").saveAsTable("<target_table>")
+{%- else -%}
+# TODO: Implement {{ task.task_type }} '{{ task.name }}'
+pass
+{%- endif %}
+
+# COMMAND ----------
+{%- endfor %}
+{%- if include_validation_cells %}
+
+# MAGIC %md
+# MAGIC ## Validation
+
+# COMMAND ----------
+
+# Add row-count assertions and data-quality checks
+# Example:
+#   assert spark.table(f"{catalog}.{schema}.target").count() > 0
+pass
+
+# COMMAND ----------
+
+dbutils.notebook.exit("ok")
+{%- endif %}

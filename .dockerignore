@@ -1,0 +1,74 @@
+# Agents Workshop — Docker build exclusions
+# This file must be at repo root (where docker-compose.yml is)
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv
+ENV
+.mypy_cache
+.pytest_cache
+.ruff_cache
+*.egg-info
+dist
+build
+
+# Node.js
+node_modules
+.next
+.turbo
+coverage
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+api.log
+uvicorn.log
+
+# Local data (mounted as volume instead)
+data/projects/*
+!data/projects/.gitkeep
+
+# Test files
+tests
+**/tests
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+playwright-report
+test-results
+e2e
+
+# Documentation (not needed in container)
+docs
+*.md
+!packages/core/README.md
+!packages/cli/README.md
+!packages/web/README.md
+
+# Docker files (avoid recursion)
+Dockerfile*
+
+# Environment files (secrets passed via env vars)
+.env
+.env.*
+!.env.example

@@ -27,7 +27,8 @@ class DraftSkillBodyPrompt:
     def create(
         skill: SkillView,
         project_context: ProjectContext,
-        sibling_skills: list[SkillView]
+        sibling_skills: list[SkillView],
+        identified_gaps: list[str] | None = None,
     ) -> ChatPrompt:
         """Create a prompt for drafting a skill body.
 
@@ -35,13 +36,16 @@ class DraftSkillBodyPrompt:
             skill: The skill to draft body content for
             project_context: Full project context for relevant information
             sibling_skills: Other skills in the project for cross-referencing
+            identified_gaps: Coverage gaps surfaced by ProposeSkillSet. The
+                draft will be asked to address gaps that are naturally adjacent
+                to this skill's scope. Pass None or [] when there are no gaps.
 
         Returns:
             ChatPrompt configured for skill body drafting
         """
         system_prompt = DraftSkillBodyPrompt._build_system_prompt(skill.kind)
         user_message = DraftSkillBodyPrompt._build_user_message(
-            skill, project_context, sibling_skills
+            skill, project_context, sibling_skills, identified_gaps or []
         )
 
         return ChatPrompt(
@@ -72,6 +76,18 @@ Generate the markdown body content (below YAML frontmatter) and appropriate reso
 **Resource Guidelines for {skill_kind.upper()} skills:**
 {resource_guidance}
 
+**IMPORTANT - Resource Format:**
+Each resource MUST have exactly these fields:
+- `filename`: A descriptive filename with extension (e.g., "analysis_checklist.md", "profiling_queries.sql")
+- `language`: One of: "markdown", "sql", "yaml", "python", "plain"
+- `content`: The full content of the resource file (keep concise, max 500 words per resource)
+- `purpose`: One sentence explaining why this resource exists
+
+**IMPORTANT - Be Concise:**
+- Limit body_md to 800-1200 words
+- Include 2-3 resources maximum
+- Focus on actionable, practical content
+
 **Cross-References:**
 - Reference sibling skills by slug in the body when relevant
 - List sibling skill slugs you reference in `sibling_skills_referenced`
@@ -81,6 +97,7 @@ Generate the markdown body content (below YAML frontmatter) and appropriate reso
 - `body_md`: Complete markdown content (no YAML frontmatter)
 - `resources`: List of helpful resources following the kind-specific patterns
 - `sibling_skills_referenced`: Actual slugs mentioned in the body
+- `addressed_gaps`: Verbatim titles from the "Identified Coverage Gaps" block (if any) that this body genuinely addresses. Leave empty when none apply — do not pad.
 
 Be specific and practical. Developers should be able to follow your guidance immediately."""
 
@@ -139,7 +156,8 @@ Focus on ensuring consistent execution of multi-step processes."""
     def _build_user_message(
         skill: SkillView,
         project_context: ProjectContext,
-        sibling_skills: list[SkillView]
+        sibling_skills: list[SkillView],
+        identified_gaps: list[str],
     ) -> ChatMessage:
         """Build the user message with skill and context information."""
 
@@ -154,8 +172,21 @@ Focus on ensuring consistent execution of multi-step processes."""
         # Get compact project context
         project_summary = render_project_context_compact(project_context)
 
+        # Optional gaps block: only inject when gaps exist, to avoid pulling
+        # the model toward generic content when there's nothing to address.
+        gaps_block = ""
+        if identified_gaps:
+            bullet_list = "\n".join(f"- {g}" for g in identified_gaps)
+            gaps_block = f"""
+
+**Identified Coverage Gaps (project-wide):**
+These gaps were flagged when the skill set was proposed. If any gap is
+naturally adjacent to THIS skill's scope, address it in the body (and only
+then). Do not force coverage of unrelated gaps — leave those to other skills.
+{bullet_list}"""
+
         content = f"""**Project Context:**
-{project_summary}
+{project_summary}{gaps_block}
 
 **Skill to Draft:**
 - **Slug**: `{skill.slug}`

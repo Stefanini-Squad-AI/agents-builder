@@ -1021,7 +1021,8 @@ Next.js App Router. No multi-tenant chrome in MVP. Routes:
 |---|---|
 | `/` | Project list + "New project" |
 | `/projects/new` | Wizard: 1) Identity & objective · 2) Q&A · 3) Tech panorama · 4) Artifacts |
-| `/projects/[slug]` | Overview, status, next-step CTA |
+| `/projects/[slug]` | Overview, status, setup progress card, next-step CTA |
+| `/projects/[slug]/setup` | **Setup Wizard**: 1) Artifacts · 2) Q&A · 3) Tech panorama · 4) Review |
 | `/projects/[slug]/qa` | 7-question editor; required fields marked |
 | `/projects/[slug]/tech` | Per-dimension cards; chips for choices; "Suggest with AI" / "Add custom" / "Mark TBD" actions |
 | `/projects/[slug]/artifacts` | Drop-zone upload, status badges, retry button |
@@ -1066,6 +1067,45 @@ Step 4 — Artifacts (optional)
                 ▼
 Project created → /projects/[slug]
 ```
+
+### 12.3 Setup wizard flow (existing projects)
+
+For existing projects that need to complete discovery, `/projects/[slug]/setup` provides a guided 4-step wizard:
+
+```
+Step 1 — Artifacts (optional)
+  • Drag & drop upload zone (PDF, DOCX, MD, code files)
+  • Auto-detect kind from extension
+  • Status badges (pending → extracting → extracted → failed)
+  • Retry button for failed extractions
+  • Continue allowed regardless of status
+                ▼
+Step 2 — Q&A (required: first 3)
+  • 3 required questions (business_problem, success_definition, users_and_actors)
+  • 4 optional questions (must_preserve, must_change, compliance, known_gaps)
+  • Auto-save on blur; manual save button
+  • Progress bar with completion %
+  • Cannot proceed without required questions
+                ▼
+Step 3 — Tech panorama (optional)
+  • Accordion layout for 13 dimensions
+  • Chip selection with role dropdown (Target/Legacy/Optional/Avoid/TBD)
+  • Search/filter across all items
+  • Coverage progress bar
+  • Continue allowed at any state
+                ▼
+Step 4 — Review
+  • Summary cards for artifacts, Q&A, tech choices
+  • Readiness check via /api/projects/{slug}/qa/readiness
+  • "Continue to Skills" button (disabled if not ready)
+                ▼
+Skills page → /projects/[slug]/skills
+```
+
+The project detail page (`/projects/[slug]`) shows a **Setup Progress** card with:
+- Completion percentage and progress bar
+- Status icons for artifacts, Q&A, tech
+- "Continue Setup" or "Review Setup" button
 
 ---
 

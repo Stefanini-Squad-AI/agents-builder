@@ -28,6 +28,12 @@ from app.extractors.csv_extractor import CsvExtractor
 from app.extractors.docx_extractor import DocxExtractor
 from app.extractors.markdown_extractor import MarkdownExtractor
 from app.extractors.pdf_extractor import PdfExtractor
+from app.extractors.schema_dump_extractor import (
+    SchemaDumpExtractor,
+    parse_schema_dump,
+    parse_schema_dump_from_json,
+)
+from app.extractors.ssis_extractor import SSISExtractor
 
 # Order: structured formats first; CodeExtractor last as it covers many
 # extensions and would shadow more specific extractors if placed earlier.
@@ -36,6 +42,7 @@ EXTRACTORS: list[Extractor] = [
     CsvExtractor(),
     PdfExtractor(),
     DocxExtractor(),
+    SSISExtractor(),  # SSIS packages before generic code extractor
     CodeExtractor(),
 ]
 
@@ -65,6 +72,10 @@ __all__ = [
     "ExtractionResult",
     "Extractor",
     "NoExtractorError",
+    "SchemaDumpExtractor",
+    "SSISExtractor",
+    "parse_schema_dump",
+    "parse_schema_dump_from_json",
     "select_extractor",
     "truncate_markdown",
 ]

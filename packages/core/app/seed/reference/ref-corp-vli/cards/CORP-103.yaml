@@ -1,0 +1,81 @@
+code: CORP-103
+phase_code: phase-1-discovery
+title: Business rules catalog extraction
+type: Task
+story_points: 8
+priority: High
+status: draft
+human_gate: true
+skills:
+  - corp-ssis-analyzer
+  - corp-rule-extractor
+  - corp-business-rules-discoverer
+depends_on:
+  - CORP-101
+parallel_with:
+  - CORP-102
+
+human_gate_checklist: |
+  Before Phase 2 begins:
+  - [ ] All rules have at least E2 evidence (no E4-only rules)
+  - [ ] Critical rules identified and flagged
+  - [ ] Open questions list reviewed with SME
+  - [ ] Business stakeholders reviewed rule groups summary
+  - [ ] No "UNKNOWN" classifications remain
+
+inputs:
+  - kind: external
+    path: discovery/CORP-101-ssis-analysis.md
+    label: SSIS analysis output (prerequisite)
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-discoverer/SKILL.md
+    label: Rules discoverer methodology
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-discoverer/resources/rule-catalog-template.md
+    label: Rule entry template
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-discoverer/resources/extraction-patterns.yaml
+    label: Code patterns reference
+  - kind: skill_resource
+    path: .agents/skills/corp-rule-extractor/SKILL.md
+    label: ETL rule extractor (specialized)
+  - kind: skill_resource
+    path: .agents/skills/corp-rule-extractor/resources/rule-catalog-template.md
+    label: ETL rule template
+
+context: |
+  With the SSIS package fully analyzed (CORP-101), we now extract every
+  business rule with traceable evidence. This catalog becomes the source
+  of truth for validating the Databricks migration.
+
+  Rules are grouped into: Source selection, Deduplication, Cross-source
+  conflict, Validity/soft-delete, Processing window, Dimension lookup,
+  and Audit/control categories.
+
+task: |
+  1. Review CORP-101 analysis output, especially Section 5 (SQL-level).
+  2. For each SQL task, extract rules using patterns from 
+     `extraction-patterns.yaml`.
+  3. Document each rule using `rule-catalog-template.md` format.
+  4. Assign rule IDs: BR-{CAT}-{NNN} (e.g., BR-DEDUP-001, BR-FILTER-002).
+  5. Classify evidence quality (E1-E4) for every rule.
+  6. Flag rules requiring SME clarification.
+  7. Create rule groups summary for business review.
+  8. Write catalog to `discovery/CORP-103-business-rules-catalog.md`.
+
+outputs: |
+  - `discovery/CORP-103-business-rules-catalog.md` with:
+    - Rule groups summary (Section 1)
+    - Detailed rule entries (Section 2)
+  - `discovery/CORP-103-rules-open-questions.md` for SME review
+  - `discovery/CORP-103-rules-summary.xlsx` (optional, for business)
+
+acceptance_criteria: |
+  - [ ] Every SQL from CORP-101 Section 5 has extracted rules
+  - [ ] All rules have assigned IDs following BR-{CAT}-{NNN} pattern
+  - [ ] All rules have at least E2 evidence (E3/E4 flagged for SME)
+  - [ ] Rule groups summary includes counts and sign-off requirements
+  - [ ] Deduplication rules specify partition and order keys
+  - [ ] Temporal rules document exact window values
+  - [ ] Cross-source conflict rules specify priority/tie-break
+  - [ ] Open questions list is complete with specific questions

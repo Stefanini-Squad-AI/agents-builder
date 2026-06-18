@@ -8,8 +8,6 @@ card_code_prefix: SIGLM
 card_template: phase_vli
 grouping: phase
 status: draft
-llm_provider: anthropic
-llm_model: claude-sonnet-4-5
 
 objective: |
   Modernize a legacy COBOL+DB2 financial-limits management system into an

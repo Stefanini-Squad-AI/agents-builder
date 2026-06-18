@@ -8,9 +8,20 @@ service runs out-of-the-box on a fresh checkout (`docker compose up -d` plus
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.defaults import (
+    DEFAULT_LLM_MODEL,
+    DEFAULT_LLM_PROVIDER,
+    DEFAULT_LLM_TEMPERATURE,
+)
+
+# Absolute path to packages/core/data — ensures both API and worker use the same location
+_PACKAGES_CORE_DIR = Path(__file__).resolve().parent.parent
+_DEFAULT_DATA_DIR = str(_PACKAGES_CORE_DIR / "data")
 
 
 class Settings(BaseSettings):
@@ -38,9 +49,9 @@ class Settings(BaseSettings):
     # OpenAI + Ollama are opt-in: setting their respective key / URL
     # is what enables them at runtime.
     # -------------------------------------------------------------------
-    workshop_default_provider: Literal["anthropic", "openai", "ollama", "bedrock"] = "anthropic"
-    workshop_default_model: str = "claude-sonnet-4-5"
-    workshop_temperature: float = 0.20
+    workshop_default_provider: Literal["anthropic", "openai", "ollama", "bedrock"] = DEFAULT_LLM_PROVIDER.value  # type: ignore[assignment]
+    workshop_default_model: str = DEFAULT_LLM_MODEL
+    workshop_temperature: float = DEFAULT_LLM_TEMPERATURE
     llm_enable_reasoning: bool = False
 
     # Anthropic settings
@@ -70,12 +81,20 @@ class Settings(BaseSettings):
     # -------------------------------------------------------------------
     # Storage
     # -------------------------------------------------------------------
-    workshop_data_dir: str = "./data"
+    workshop_data_dir: str = _DEFAULT_DATA_DIR
 
     # -------------------------------------------------------------------
     # Web client (used to wire CORS in a later step)
     # -------------------------------------------------------------------
     next_public_api_url: str = "http://localhost:8000"
+
+    # -------------------------------------------------------------------
+    # Encryption (for MCP secrets at rest)
+    # -------------------------------------------------------------------
+    # Base64-encoded 32-byte key for Fernet encryption.
+    # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+    # If not set, MCP secrets are stored as plain JSON (not recommended for production).
+    workshop_encryption_key: str | None = None
 
     # -------------------------------------------------------------------
     # Logging

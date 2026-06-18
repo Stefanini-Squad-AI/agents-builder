@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migração de ETL com Agentes — Visão de Negócio</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #a855f7;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-2: #283447;
+            --surface-hover: #334155;
+            --border: #334155;
+            --border-soft: #283447;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --danger: #ef4444;
+            --biz: #38bdf8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+        }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        /* --- Header --------------------------------------------------- */
+        header.hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 60%, #1e293b 100%);
+            border-bottom: 1px solid var(--border-soft);
+            padding: 4.5rem 1.5rem 3.5rem;
+            text-align: center;
+        }
+        header.hero .eyebrow {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            color: #c7d2fe;
+            font-size: 0.78rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            margin-bottom: 1.25rem;
+        }
+        header.hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        header.hero p.lead {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 760px;
+            margin: 0 auto 1.5rem;
+        }
+        header.hero .meta {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            letter-spacing: 0.05em;
+        }
+
+        /* --- Section -------------------------------------------------- */
+        section { padding: 3.5rem 0; border-bottom: 1px solid var(--border-soft); }
+        section:last-of-type { border-bottom: 0; }
+        .section-eyebrow {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--biz);
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+        }
+        h2 {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            margin-bottom: 0.6rem;
+            color: var(--text);
+        }
+        .section-sub {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 800px;
+            margin-bottom: 2.2rem;
+        }
+        h3 { font-size: 1.2rem; margin-bottom: 0.6rem; color: var(--text); }
+
+        /* --- Cards / grid -------------------------------------------- */
+        .grid { display: grid; gap: 1rem; }
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.4rem 1.3rem;
+        }
+        .card.accent { border-left: 3px solid var(--primary); }
+        .card.warning { border-left: 3px solid var(--warning); }
+        .card.success { border-left: 3px solid var(--success); }
+        .card.info { border-left: 3px solid var(--info); }
+
+        .card h3 { display: flex; align-items: center; gap: 0.5rem; }
+        .card .icon {
+            width: 36px; height: 36px;
+            background: rgba(99,102,241,0.15);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+        .card p { color: var(--text-muted); font-size: 0.95rem; }
+        .card .big-num {
+            font-size: 2.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 0.3rem;
+        }
+        .card .label {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* --- Pain vs gain table -------------------------------------- */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .compare-table th, .compare-table td {
+            padding: 0.95rem 1.1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-soft);
+            font-size: 0.95rem;
+        }
+        .compare-table th {
+            background: var(--surface-2);
+            color: var(--text);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+        }
+        .compare-table td.metric { color: var(--text); font-weight: 500; width: 28%; }
+        .compare-table td.old { color: var(--text-muted); }
+        .compare-table td.new { color: #c7d2fe; font-weight: 500; }
+        .compare-table tr:last-child td { border-bottom: 0; }
+
+        /* --- Pipeline diagram ---------------------------------------- */
+        .pipeline {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            overflow-x: auto;
+        }
+        .pipeline-track {
+            display: grid;
+            grid-template-columns: repeat(11, minmax(120px, 1fr));
+            gap: 0.5rem;
+            min-width: 1100px;
+        }
+        .pipeline-step {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.9rem 0.65rem;
+            text-align: center;
+            position: relative;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .pipeline-step:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .pipeline-step .num {
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            width: 28px; height: 28px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        .pipeline-step .name {
+            font-size: 0.82rem;
+            color: var(--text);
+            font-weight: 500;
+            line-height: 1.3;
+        }
+        .pipeline-step .deliv {
+            display: block;
+            margin-top: 0.4rem;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            line-height: 1.3;
+        }
+
+        /* --- HITL levels --------------------------------------------- */
+        .hitl-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .hitl-level {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.2rem 1.1rem;
+            position: relative;
+        }
+        .hitl-level .nivel {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            padding: 0.25rem 0.55rem;
+            border-radius: 4px;
+            margin-bottom: 0.7rem;
+        }
+        .hitl-level.n1 .nivel { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
+        .hitl-level.n2 .nivel { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.4); }
+        .hitl-level.n3 .nivel { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.4); }
+        .hitl-level.n4 .nivel { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+        .hitl-level h4 { font-size: 1rem; margin-bottom: 0.45rem; color: var(--text); }
+        .hitl-level p { font-size: 0.88rem; color: var(--text-muted); }
+
+        /* --- Quote/highlight ----------------------------------------- */
+        .quote {
+            background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 100%);
+            border: 1px solid rgba(99,102,241,0.3);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            padding: 1.8rem 2rem;
+            font-size: 1.2rem;
+            color: var(--text);
+            font-style: italic;
+            line-height: 1.5;
+        }
+        .quote::before { content: '\201C'; font-size: 2.5rem; color: var(--primary); line-height: 0; vertical-align: -0.4em; margin-right: 0.3rem; }
+
+        /* --- Persona / audience -------------------------------------- */
+        .persona-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.55rem;
+            border-radius: 4px;
+            background: rgba(56,189,248,0.15);
+            color: var(--biz);
+            border: 1px solid rgba(56,189,248,0.35);
+            margin-bottom: 0.65rem;
+        }
+
+        /* --- Differentiator section ---------------------------------- */
+        .diff-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        @media (min-width: 720px) {
+            .diff-row { grid-template-columns: 200px 1fr 1fr; align-items: center; }
+        }
+        .diff-row + .diff-row { margin-top: 0.7rem; }
+        .diff-label {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+        .diff-cell {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+        .diff-cell.ours {
+            border-left: 3px solid var(--success);
+            color: var(--text);
+        }
+        .diff-header {
+            display: grid;
+            grid-template-columns: 200px 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 0.6rem;
+            padding: 0 1rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+        @media (max-width: 720px) { .diff-header { display: none; } }
+
+        /* --- Outcome ladder ------------------------------------------ */
+        .ladder {
+            list-style: none;
+            counter-reset: ladder;
+            display: flex; flex-direction: column;
+            gap: 0.7rem;
+        }
+        .ladder li {
+            counter-increment: ladder;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 1rem 1.2rem 1rem 3.5rem;
+            position: relative;
+        }
+        .ladder li::before {
+            content: counter(ladder);
+            position: absolute;
+            left: 1rem; top: 50%;
+            transform: translateY(-50%);
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.95rem;
+        }
+        .ladder li strong { color: var(--text); display: block; margin-bottom: 0.2rem; }
+        .ladder li span { color: var(--text-muted); font-size: 0.92rem; }
+
+        /* --- Footer / CTA -------------------------------------------- */
+        footer {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+        footer h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            margin-bottom: 0.8rem;
+            background: linear-gradient(135deg, #fff 0%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        footer p { color: var(--text-muted); max-width: 600px; margin: 0 auto 1.5rem; }
+        footer .next-steps {
+            display: inline-flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        footer .next-steps span {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        footer .sig {
+            margin-top: 2rem;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            letter-spacing: 0.06em;
+        }
+
+        /* --- Print --------------------------------------------------- */
+        @media print {
+            body { background: white; color: #0f172a; }
+            .card, .pipeline, .hitl-level, .quote, .diff-cell, .ladder li { background: white; border-color: #cbd5e1; color: #0f172a; }
+            section { page-break-inside: avoid; padding: 1.5rem 0; }
+            header.hero, footer { background: #1e1b4b; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="hero">
+    <div class="container">
+        <span class="eyebrow">Visão de Negócio · Português (BR)</span>
+        <h1>Migração de ETL com Agentes de IA</h1>
+        <p class="lead">Modernizar o portfólio de ETL legado em meses, com governança humana em cada decisão crítica — e transformando cada projeto em ativos reaproveitáveis para o próximo.</p>
+        <p class="meta">Apresentação para patrocinador · stakeholders de negócio · liderança técnica</p>
+    </div>
+</header>
+
+<!-- 1. O PROBLEMA -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Contexto · O Problema de Hoje</div>
+        <h2>Toda grande empresa carrega um portfólio de ETL legado que cresceu sem governança</h2>
+        <p class="section-sub">Pacotes SSIS, jobs COBOL, scripts proprietários — rotinas que movem dados críticos entre sistemas, acumuladas ao longo de décadas, com três características incômodas em comum:</p>
+
+        <div class="grid grid-3">
+            <div class="card warning">
+                <h3><span class="icon">👤</span> Conhecimento concentrado</h3>
+                <p>Em poucas pessoas — muitas já fora da empresa. Cada saída leva contexto que ninguém recupera.</p>
+            </div>
+            <div class="card warning">
+                <h3><span class="icon">📄</span> Documentação ausente</h3>
+                <p>Quando existe, está desatualizada. O que está em produção é a única fonte da verdade — e ela é opaca.</p>
+            </div>
+            <div class="card warning">
+                <h3><span class="icon">💸</span> Custo crescente</h3>
+                <p>Licenças, hardware, especialistas raros, janelas de manutenção apertadas. A conta sobe todo ano.</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 2.2rem;">
+            <h3 style="color: var(--text); margin-bottom: 1rem;">Os dois caminhos tradicionais — e por que falham</h3>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3>Reescrever manualmente</h3>
+                    <p><strong style="color:#fca5a5">Caro, lento, arriscado.</strong> Anos de projeto. O conhecimento se perde de novo durante a migração porque as pessoas que sabiam do legado não são as que escrevem o novo.</p>
+                </div>
+                <div class="card">
+                    <h3>Conversores automáticos puros</h3>
+                    <p><strong style="color:#fca5a5">Código tecnicamente roda — sem garantia de equivalência.</strong> Não entendem regra de negócio. Não validam paridade. Não documentam. Geram dívida nova.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. A PROPOSTA -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Solução · A Proposta</div>
+        <h2>Um copiloto especializado em migração ETL — IA acelera, humano decide</h2>
+        <p class="section-sub">A proposta combina o melhor dos dois caminhos: <strong>velocidade da automação</strong> com <strong>governança humana em cada decisão crítica</strong>. O assistente faz o trabalho pesado (ler código legado, mapear dependências, sugerir tradução, gerar testes); o time da empresa aprova ou ajusta em pontos claros. <strong>Nada vai para produção sem chancela humana.</strong></p>
+
+        <div class="quote">
+            Um copiloto especializado em migração ETL que acelera 5–10× o trabalho, mantém o humano no controle das decisões críticas, e transforma cada projeto em ativos reutilizáveis para o próximo.
+        </div>
+    </div>
+</section>
+
+<!-- 3. COMO FUNCIONA - PIPELINE 11 ESTÁGIOS -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Método · Como Funciona</div>
+        <h2>11 estágios visíveis — cada um com entregável consultável</h2>
+        <p class="section-sub">O assistente organiza a jornada inteira de modernização em uma sequência clara. Cada estágio produz artefatos (documentação, diagramas, planilhas, código) que ficam disponíveis para consulta ao longo de todo o projeto.</p>
+
+        <div class="pipeline">
+            <div class="pipeline-track">
+                <div class="pipeline-step"><span class="num">1</span><div class="name">Perfil do Projeto</div><span class="deliv">SSIS→Airflow? COBOL→Java?</span></div>
+                <div class="pipeline-step"><span class="num">2</span><div class="name">Inventário</div><span class="deliv">Lista completa do legado</span></div>
+                <div class="pipeline-step"><span class="num">3</span><div class="name">Contexto de Negócio</div><span class="deliv">Entrevistas + docs estruturados</span></div>
+                <div class="pipeline-step"><span class="num">4</span><div class="name">Documentação</div><span class="deliv">Produz o que nunca foi escrito</span></div>
+                <div class="pipeline-step"><span class="num">5</span><div class="name">Análise</div><span class="deliv">Complexidade, risco, esforço</span></div>
+                <div class="pipeline-step"><span class="num">6</span><div class="name">Mapa de Migração</div><span class="deliv">Dependências em ordem de ataque</span></div>
+                <div class="pipeline-step"><span class="num">7</span><div class="name">Propagação</div><span class="deliv">Padroniza escolhas no portfólio</span></div>
+                <div class="pipeline-step"><span class="num">8</span><div class="name">Geração</div><span class="deliv">Tradução assistida + revisão</span></div>
+                <div class="pipeline-step"><span class="num">9</span><div class="name">Reconciliação</div><span class="deliv">Paridade legado vs novo</span></div>
+                <div class="pipeline-step"><span class="num">10</span><div class="name">Sign-off</div><span class="deliv">Aprovação formal nomeada</span></div>
+                <div class="pipeline-step"><span class="num">11</span><div class="name">Skills</div><span class="deliv">Ativos reusáveis no próximo projeto</span></div>
+            </div>
+        </div>
+
+        <p style="margin-top: 1.2rem; color: var(--text-dim); font-size: 0.9rem; text-align: center;">
+            Cada estágio é consultável a qualquer momento · entregas em ciclos curtos · pode pausar e retomar sem perder contexto
+        </p>
+    </div>
+</section>
+
+<!-- 4. O QUE MUDA - TABELA COMPARATIVA -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Impacto · O Que Muda na Prática</div>
+        <h2>Indicadores observáveis: antes vs depois</h2>
+        <p class="section-sub">Comparativo direto entre o modelo tradicional de migração e a operação com copiloto de agentes supervisionado.</p>
+
+        <table class="compare-table">
+            <thead>
+                <tr>
+                    <th>Indicador</th>
+                    <th>Modelo tradicional</th>
+                    <th>Com o assistente</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="metric">Tempo até primeira entrega</td>
+                    <td class="old">6 a 12 meses</td>
+                    <td class="new">Semanas</td>
+                </tr>
+                <tr>
+                    <td class="metric">Documentação do legado</td>
+                    <td class="old">Quase nula ou desatualizada</td>
+                    <td class="new">Produzida automaticamente, atualizada</td>
+                </tr>
+                <tr>
+                    <td class="metric">Visibilidade do progresso</td>
+                    <td class="old">Planilha mensal</td>
+                    <td class="new">Painel em tempo real, navegável</td>
+                </tr>
+                <tr>
+                    <td class="metric">Garantia de paridade</td>
+                    <td class="old">Testes manuais amostrais</td>
+                    <td class="new">Reconciliação automatizada legado vs novo</td>
+                </tr>
+                <tr>
+                    <td class="metric">Conhecimento ao final</td>
+                    <td class="old">Disperso, pessoal, frágil</td>
+                    <td class="new">Capturado em ativos reutilizáveis</td>
+                </tr>
+                <tr>
+                    <td class="metric">Risco de surpresa em produção</td>
+                    <td class="old">Alto — descoberto na virada</td>
+                    <td class="new">Mitigado por aprovações em camadas</td>
+                </tr>
+                <tr>
+                    <td class="metric">Próximo projeto similar</td>
+                    <td class="old">Recomeça do zero</td>
+                    <td class="new">Reaproveita decisões e padrões</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- 5. HITL - PRINCÍPIO INEGOCIÁVEL -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Governança · Princípio Inegociável</div>
+        <h2>Humano no controle — nenhuma ação de impacto sem decisão humana</h2>
+        <p class="section-sub">Mesmo com IA avançada, o assistente <strong>nunca opera totalmente automático</strong>. As ações são classificadas em quatro níveis de risco, cada um com forma de aprovação adequada. Isso atende auditoria, regulação (LGPD, BACEN) e dá tranquilidade ao patrocinador.</p>
+
+        <div class="hitl-grid">
+            <div class="hitl-level n1">
+                <span class="nivel">Nível 1</span>
+                <h4>Informativo</h4>
+                <p>O assistente consulta, lê, analisa. Não muda nada. Notifica o usuário e segue.</p>
+            </div>
+            <div class="hitl-level n2">
+                <span class="nivel">Nível 2</span>
+                <h4>Reversível</h4>
+                <p>Propõe rascunho editável (skill, documentação, card Jira). Tudo pode ser desfeito.</p>
+            </div>
+            <div class="hitl-level n3">
+                <span class="nivel">Nível 3</span>
+                <h4>Aprovação Nomeada</h4>
+                <p>Publicar tarefa no Jira, abrir mudança no código, executar migração de teste — exige aprovador identificado.</p>
+            </div>
+            <div class="hitl-level n4">
+                <span class="nivel">Nível 4</span>
+                <h4>Humano-First</h4>
+                <p>Sign-off de equivalência, cutover para produção, edição de regra de negócio publicada. Humano sempre.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6. DIFERENCIAÇÃO -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Posicionamento · Por Que É Diferente</div>
+        <h2>Ferramentas de mercado fazem uma parte — esta proposta organiza o trabalho inteiro</h2>
+        <p class="section-sub">Comparação direta com as três alternativas que o mercado oferece hoje para projetos de modernização de ETL.</p>
+
+        <div class="diff-header">
+            <div></div>
+            <div>Alternativa</div>
+            <div>Esta proposta</div>
+        </div>
+
+        <div class="diff-row">
+            <div class="diff-label">Conversores tradicionais</div>
+            <div class="diff-cell">Traduzem código sintaticamente, mas ignoram regra de negócio e não validam equivalência funcional.</div>
+            <div class="diff-cell ours">Captura regra de negócio no Estágio 3, reconcilia paridade no Estágio 9, documenta tudo.</div>
+        </div>
+
+        <div class="diff-row">
+            <div class="diff-label">Plataformas de IA generalistas</div>
+            <div class="diff-cell">Escrevem código competente, mas não entendem o contexto da migração nem orquestram o portfólio.</div>
+            <div class="diff-cell ours">Especializada em migração — 11 estágios desenhados para essa jornada específica.</div>
+        </div>
+
+        <div class="diff-row">
+            <div class="diff-label">Consultoria artesanal</div>
+            <div class="diff-cell">Entrega qualidade, mas em prazo e custo proibitivos para portfólios grandes.</div>
+            <div class="diff-cell ours">Acelera 5–10× sem abrir mão da qualidade, e mantém o contexto vivo entre projetos.</div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. O QUE A EMPRESA GANHA -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Valor · O Que a Empresa Ganha</div>
+        <h2>Cinco ganhos cumulativos</h2>
+        <p class="section-sub">Cada ganho se acumula sobre o anterior: redução de prazo libera capacidade para mais projetos, que geram mais reuso, que acelera ainda mais o próximo ciclo.</p>
+
+        <ol class="ladder">
+            <li>
+                <strong>Redução de prazo</strong>
+                <span>De anos para meses na carteira de migrações. Cada estágio do pipeline opera em paralelo onde possível.</span>
+            </li>
+            <li>
+                <strong>Redução de custo total</strong>
+                <span>Menos pessoas dedicadas por projeto, mais reuso entre projetos. Curva de aprendizado se transfere automaticamente.</span>
+            </li>
+            <li>
+                <strong>Redução de risco</strong>
+                <span>Paridade comprovada antes do go-live (Estágio 9), aprovações em camadas (HITL), auditoria completa de cada decisão.</span>
+            </li>
+            <li>
+                <strong>Recuperação de conhecimento</strong>
+                <span>O legado documentado vira ativo estratégico. Sai da cabeça de poucos e entra no acervo da empresa.</span>
+            </li>
+            <li>
+                <strong>Independência tecnológica</strong>
+                <span>Saída do mainframe / SSIS legado no ritmo que o negócio precisa, não no ritmo que o fornecedor impõe.</span>
+            </li>
+        </ol>
+    </div>
+</section>
+
+<!-- 8. MÉTRICAS DE NORTE -->
+<section>
+    <div class="container">
+        <div class="section-eyebrow">Indicadores · Métricas de Norte</div>
+        <h2>O que medir para saber que está funcionando</h2>
+        <p class="section-sub">Estas são as métricas que o patrocinador deve acompanhar — todas mensuráveis desde o primeiro ciclo de migração.</p>
+
+        <div class="grid grid-4">
+            <div class="card accent">
+                <div class="big-num">5–10×</div>
+                <div class="label">Aceleração vs manual</div>
+                <p style="margin-top:0.5rem">Tempo de modernização por pacote ETL comparado ao baseline atual.</p>
+            </div>
+            <div class="card accent">
+                <div class="big-num">100%</div>
+                <div class="label">Cobertura de docs</div>
+                <p style="margin-top:0.5rem">Cada objeto legado modernizado sai com documentação anexada.</p>
+            </div>
+            <div class="card accent">
+                <div class="big-num">≥ 95%</div>
+                <div class="label">Paridade reconciliada</div>
+                <p style="margin-top:0.5rem">Saídas legado vs novo comparadas automaticamente antes do sign-off.</p>
+            </div>
+            <div class="card accent">
+                <div class="big-num">100%</div>
+                <div class="label">Auditoria</div>
+                <p style="margin-top:0.5rem">Toda decisão crítica com aprovador nomeado e timestamp.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 9. RESUMO EM 1 FRASE + CTA -->
+<footer>
+    <h2>Pronto para um piloto?</h2>
+    <p>O modelo está validado em projetos reais de migração SSIS, COBOL e pipelines híbridos. Um piloto direcionado entrega valor mensurável em poucas semanas.</p>
+    <div class="next-steps">
+        <span>1. Selecionar escopo do piloto</span>
+        <span>2. Workshop de descoberta (1 semana)</span>
+        <span>3. Primeiro ciclo end-to-end (4 semanas)</span>
+        <span>4. Avaliação + decisão de escalar</span>
+    </div>
+    <p class="sig">Agents Workshop · Migration Workbench · maio/2026</p>
+</footer>
+
+</body>
+</html>

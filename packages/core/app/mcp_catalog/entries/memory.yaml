@@ -1,0 +1,48 @@
+key: memory
+name: Memory
+description: Persistent knowledge graph for storing and retrieving entities and relationships
+vendor: modelcontextprotocol
+category: utility
+run_command: "npx @modelcontextprotocol/server-memory"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/memory"
+icon: brain
+
+env_vars: {}
+
+config_fields:
+  storage_path:
+    type: string
+    required: false
+    label: "Storage Path"
+    hint: "Optional — path for persistent storage (defaults to in-memory)"
+
+tools:
+  - name: create_entities
+    description: Create new entities in the knowledge graph
+    risk_level: N2
+  - name: create_relations
+    description: Create relationships between entities
+    risk_level: N2
+  - name: add_observations
+    description: Add observations/facts to an entity
+    risk_level: N2
+  - name: delete_entities
+    description: Delete entities from the graph
+    risk_level: N3
+  - name: delete_observations
+    description: Delete specific observations
+    risk_level: N3
+  - name: delete_relations
+    description: Delete relationships
+    risk_level: N3
+  - name: read_graph
+    description: Read the entire knowledge graph
+    risk_level: N1
+  - name: search_nodes
+    description: Search for entities by query
+    risk_level: N1
+  - name: open_nodes
+    description: Open specific nodes by name
+    risk_level: N1
+
+requires_approval: false

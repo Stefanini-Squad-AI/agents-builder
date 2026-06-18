@@ -164,17 +164,47 @@
 |---|---|---|---|
 | **2.1** | Next.js 14 bootstrap + Tailwind + shadcn/ui + dark mode | S | `/` renders an empty layout |
 | **2.2** | API client (axios + TanStack Query) + single-user auth shim | S | `useQuery(['health'])` returns green |
-| **2.3** | Project list (`/`) + new-project wizard Step 1 (identity & objective) | M | Created project visible with status `draft` |
-| **2.4** | Wizard Step 2 (Q&A — 7 fields, 3 required) | S | Cannot advance without first 3 answered |
-| **2.5** | Wizard Step 3 (Tech panorama — chips + Suggest with AI + Add custom + Mark TBD) | M | All four interaction paths persist correctly |
-| **2.6** | Wizard Step 4 (Artifacts — dropzone + status polling) | M | Upload, watch status to `extracted`, see content preview |
-| **2.7** | Skill library + grid + Propose CTA | M | Propose returns and renders skills |
-| **2.8** | Skill editor (Monaco body + frontmatter form + resources tab + regenerate-body button) | M | Edits save on debounce; regenerate preserves resources |
-| **2.9** | Backlog page (table grouped by phase) + Propose CTA | M | Propose returns and renders phases + cards |
-| **2.10** | Card editor (per-section panes + per-section regenerate + inputs editor + deps editor + gate toggle) | M | All edits persist; per-section regenerate isolated |
-| **2.11** | DAG view (React Flow + `elkjs` top-down) — click → card drawer | M | Reference PoC seed renders without overlapping nodes |
-| **2.12** | Export page (tree preview + validate panel + download zip + write-to-path) | M | Web export matches CLI export byte-for-byte |
-| **2.13** | LLM runs audit page + Settings page (provider/model/temperature) | S | Cost totals match `SUM(llm_runs.cost_usd)` |
+| **2.3** | Authentication layer (JWT, login/logout, route protection, user menu) | M | Login flow works, protected routes redirect, token refresh automatic |
+| **2.4** | Project Management Interface (CRUD, dashboard, navigation, settings) | M | Projects list, create/edit forms, overview stats, navigation menu, React Hook Form + Zustand |
+| **2.4.1** | Project Discovery: Q&A Wizard (7 fields, 3 required) | M | ✅ **DONE** — Merged into unified Setup Wizard at `/projects/[slug]/setup?step=2` |
+| **2.4.2** | Project Discovery: Tech Panorama UI (chips + AI suggestions + custom + TBD) | M | ✅ **DONE** — Merged into unified Setup Wizard at `/projects/[slug]/setup?step=3` |
+| **2.5** | Document Upload Interface (dropzone + status polling + preview) | M | ✅ **DONE** — Merged into unified Setup Wizard at `/projects/[slug]/setup?step=1` |
+| **2.6** | Skill library + grid + Propose CTA | M | Propose returns and renders skills |
+| **2.7** | Skill editor (Monaco body + frontmatter form + resources tab + regenerate-body button) | M | Edits save on debounce; regenerate preserves resources |
+| **2.8** | Backlog page (table grouped by phase) + Propose CTA | M | Propose returns and renders phases + cards |
+| **2.9** | Card editor (per-section panes + per-section regenerate + inputs editor + deps editor + gate toggle) | M | All edits persist; per-section regenerate isolated |
+| **2.10** | DAG view (React Flow + `elkjs` top-down) — click → card drawer | M | Reference PoC seed renders without overlapping nodes |
+| **2.11** | Export page (tree preview + validate panel + download zip + write-to-path) | M | Web export matches CLI export byte-for-byte |
+| **2.12** | LLM runs audit page + Settings page (provider/model/temperature) | S | Cost totals match `SUM(llm_runs.cost_usd)` |
+| **2.13** | Final integration testing + Polish (responsive design, error states, loading states) | S | Full workflow works end-to-end across all devices/browsers |
+
+#### Revised Step 2.4 Approach (Risk Assessment Applied)
+
+**Decision:** Step 2.4 focuses on core project management functionality while deferring complex "discovery channels" to dedicated sub-steps.
+
+**Implementation Note (Completed):** Steps 2.4.1, 2.4.2, and 2.5 were implemented as a **unified Setup Wizard** at `/projects/[slug]/setup` with 4 steps:
+
+| Step | Content | Source Step |
+|------|---------|-------------|
+| 1 | Artifacts upload (drag & drop, extraction status) | 2.5 |
+| 2 | Q&A wizard (7 questions, 3 required, auto-save) | 2.4.1 |
+| 3 | Tech panorama (accordion dimensions, chip selection, roles) | 2.4.2 |
+| 4 | Review (summary cards, readiness check, continue to skills) | New |
+
+The project detail page now shows a **Setup Progress** card with completion status and a link to the wizard.
+
+**Original Rationale (preserved for context):**
+- **Step 2.4**: Core project management with minimal complexity
+  - Projects CRUD (list, create, edit, delete)  
+  - Basic project creation form (name, description, objective)
+  - Dashboard with overview statistics
+  - Main navigation menu and settings
+  - Includes React Hook Form + Zustand (low-risk, high-benefit tools)
+
+- **Steps 2.4.1, 2.4.2 & 2.5**: Discovery channels ✅ COMPLETED
+  - Implemented as unified 4-step wizard
+  - Reused existing API hooks (artifacts, qa, tech)
+  - Added accordion component for tech dimensions
 
 ### Checkpoint P2 ✅
 

@@ -1,0 +1,126 @@
+# Human Feedback Request: {{ artifact.filename }}
+
+> **Generated**: {{ generated_at }}  
+> **Project**: {{ project.name }}  
+> **Analysis Document**: `{{ analysis_document_path }}`  
+> **Total Items Requiring Feedback**: {{ feedback_items | length }}
+
+---
+
+## Instructions
+
+This document contains items identified during automated analysis that **require human input** before the migration can proceed safely.
+
+For each item:
+1. Read the **Context** to understand what was found
+2. Review the **Options** provided
+3. Select an option OR provide a custom response in **Your Decision**
+4. Add any relevant **Notes** or documentation references
+5. Update the **Status** to `resolved`
+
+**When all items are resolved**, mark this document as complete and the analysis will be updated.
+
+---
+
+{% for item in feedback_items %}
+## Feedback Item #{{ item.id }}: {{ item.topic }}
+
+| Field | Value |
+|-------|-------|
+| **Priority** | {{ item.priority_emoji }} {{ item.priority }} |
+| **Category** | {{ item.category }} |
+| **Suggested Owner** | {{ item.suggested_owner | default('TBD', true) }} |
+| **Deadline** | {{ item.deadline | default('Before Phase ' + item.blocking_phase, true) }} |
+| **Status** | {{ item.status | default('pending', true) }} |
+
+### Context
+
+{{ item.context }}
+
+{% if item.source_evidence %}
+### Source Evidence
+
+Found in: `{{ item.source_location }}`
+
+```{{ item.source_language | default('sql', true) }}
+{{ item.source_evidence }}
+```
+{% endif %}
+
+### Why This Matters
+
+{{ item.why_it_matters }}
+
+### Options
+
+{% for option in item.options %}
+#### Option {{ loop.index }}: {{ option.title }}
+
+{{ option.description }}
+
+{% if option.pros %}
+**Pros:**
+{% for pro in option.pros %}
+- ✅ {{ pro }}
+{% endfor %}
+{% endif %}
+
+{% if option.cons %}
+**Cons:**
+{% for con in option.cons %}
+- ❌ {{ con }}
+{% endfor %}
+{% endif %}
+
+{% if option.effort %}
+**Effort:** {{ option.effort }}
+{% endif %}
+
+{% if option.risk %}
+**Risk:** {{ option.risk }}
+{% endif %}
+
+{% endfor %}
+
+### Your Decision
+
+> **Selected Option**: _______________
+>
+> **Custom Response** (if not selecting an option above):
+> 
+> _________________________________________________________________________
+>
+> **Supporting Documentation** (links, email threads, meeting notes):
+>
+> _________________________________________________________________________
+>
+> **Decided By**: _______________ **Date**: _______________
+
+---
+
+{% endfor %}
+
+## Summary Checklist
+
+| # | Topic | Priority | Status | Decided By | Date |
+|---|-------|----------|--------|------------|------|
+{% for item in feedback_items %}
+| {{ item.id }} | {{ item.topic }} | {{ item.priority }} | ⬜ pending | | |
+{% endfor %}
+
+---
+
+## After Completion
+
+When all items are resolved:
+
+1. Save this document with your responses
+2. Upload to the project artifacts OR update directly in the web UI
+3. The system will:
+   - Update the analysis document with your decisions
+   - Remove blockers from the migration readiness score
+   - Enable downstream cards that were waiting on these decisions
+
+---
+
+*This feedback request was auto-generated. If you have questions about an item, contact the project lead or add a comment in the Notes section.*

@@ -21,7 +21,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.base import Base, TimestampsMixin, UuidPkMixin
-from app.enums import SkillKind, SkillResourceLanguage, values_csv
+from app.enums import SkillDraftStatus, SkillKind, SkillResourceLanguage, values_csv
 
 if TYPE_CHECKING:
     from app.domain.backlog import CardSkill
@@ -33,6 +33,10 @@ class Skill(UuidPkMixin, TimestampsMixin, Base):
     __table_args__ = (
         UniqueConstraint("project_id", "slug", name="project_slug"),
         CheckConstraint(f"kind IN ({values_csv(SkillKind)})", name="kind_valid"),
+        CheckConstraint(
+            f"draft_status IN ({values_csv(SkillDraftStatus)})",
+            name="draft_status_valid",
+        ),
     )
 
     project_id: Mapped[uuid.UUID] = mapped_column(
@@ -46,6 +50,15 @@ class Skill(UuidPkMixin, TimestampsMixin, Base):
     kind: Mapped[str] = mapped_column(String(16), nullable=False)
     body_md: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
     order_no: Mapped[int] = mapped_column(nullable=False, server_default="0")
+
+    # Drafting status tracking
+    draft_status: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default=SkillDraftStatus.NONE.value
+    )
+    last_llm_run_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), nullable=True
+    )
+    draft_error: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     project: Mapped[Project] = relationship(back_populates="skills")
     resources: Mapped[list[SkillResource]] = relationship(

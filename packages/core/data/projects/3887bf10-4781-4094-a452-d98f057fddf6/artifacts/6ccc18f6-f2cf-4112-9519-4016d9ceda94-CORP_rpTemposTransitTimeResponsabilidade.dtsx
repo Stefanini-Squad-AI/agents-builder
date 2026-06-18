@@ -1,0 +1,612 @@
+<?xml version="1.0"?>
+<DTS:Executable xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:refId="Package"
+  DTS:CreationDate="9/8/2021 2:06:45 PM"
+  DTS:CreationName="Microsoft.Package"
+  DTS:CreatorComputerName="VLIAZUDEV051"
+  DTS:CreatorName="VLINET\POMGVLIAZUDEV051"
+  DTS:DTSID="{F8524CC6-98C7-43A9-894B-0888B2A64246}"
+  DTS:ExecutableType="Microsoft.Package"
+  DTS:LastModifiedProductVersion="16.0.5685.0"
+  DTS:LocaleID="1046"
+  DTS:ObjectName="CORP_rpTemposTransitTimeResponsabilidade"
+  DTS:PackageType="5"
+  DTS:VersionBuild="240"
+  DTS:VersionGUID="{B83BAB15-AA88-403F-8540-22423BF07901}">
+  <DTS:Property
+    DTS:Name="PackageFormatVersion">8</DTS:Property>
+  <DTS:Variables>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{B6DCC6F5-1EED-4625-AFCF-5B9E95D42545}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="data_fim_referencia_processamento">
+      <DTS:VariableValue
+        DTS:DataType="7">9/9/2021 5:07:58 PM</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{CAC4A84A-C2DB-45E7-982A-78DC24BA0861}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="data_fim_referencia_reprocessamento">
+      <DTS:VariableValue
+        DTS:DataType="7">12/6/2021 2:22:39 PM</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{1BCD297D-22BA-49C9-969C-43643B6CD905}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="Data_inicio_execucao">
+      <DTS:VariableValue
+        DTS:DataType="7">9/8/2021 2:11:00 PM</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{88A79C29-294D-42D3-83B7-1A5DF1535E32}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="data_inicio_referencia_processamento">
+      <DTS:VariableValue
+        DTS:DataType="7">1/1/2021</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{A9D3EE9C-A24E-4F08-8491-77D926DD75AC}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="data_inicio_referencia_reprocessamento">
+      <DTS:VariableValue
+        DTS:DataType="7">12/6/2021 2:22:13 PM</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{A9E919B8-25B6-4BE7-8B69-F6BF5C440A62}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="Data_ultima_execucao">
+      <DTS:VariableValue
+        DTS:DataType="7">9/8/2021 2:11:51 PM</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{FE1197F7-93C3-452F-A705-B84E4B64AB0F}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="Processamento">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{A4457B33-BB8E-4049-BDFE-5B4426F00D87}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="ProcessamentoFull">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{1EF1A4CA-FD1D-4E47-AC20-92A363454AAF}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="Reprocessamento">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+    <DTS:Variable
+      DTS:CreationName=""
+      DTS:DTSID="{46296D19-063F-4A20-AC4A-34E692267BCF}"
+      DTS:IncludeInDebugDump="6789"
+      DTS:Namespace="User"
+      DTS:ObjectName="TipoProcessamento">
+      <DTS:VariableValue
+        DTS:DataType="3">0</DTS:VariableValue>
+    </DTS:Variable>
+  </DTS:Variables>
+  <DTS:Executables>
+    <DTS:Executable
+      DTS:refId="Package\Atualização Tabela Replicador"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{517A438A-60FE-4940-8289-015812BE5A23}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Atualização Tabela Replicador"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{6CC07B41-9A45-4746-96E7-6B8CDAA39323}"
+          SQLTask:SqlStatementSource="BEGIN TRANSACTION&#xA;-- Inserir os registros novos ou alterados na tabela de replicador ----------------------------&#xA;&#xA;INSERT INTO replicador.corp_rpTemposTransitTimeResponsabilidade&#xA;(&#x9;__operation&#xA;&#x9;,[thr_cd_ordem_servico]&#xA;&#x9;,[thr_cd_ordem_servico_correlata]&#xA;&#x9;,[thr_cd_prefixo_trem]&#xA;&#x9;,[thr_cd_estacao_origem]&#xA;&#x9;,[thr_cd_estacao_destino]&#xA;&#x9;,[thr_cd_area_operacional]&#xA;&#x9;,[thr_dt_origem]&#xA;&#x9;,[thr_dt_destino]&#xA;&#x9;,[thr_no_tempo_trem_hora_marcha]&#xA;&#x9;,[thr_no_tempo_total_transit_time]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_aci]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_cco]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_ele]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_loc]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_obr]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_ope]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_pot]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_ptt]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_vag]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_vpe]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_nao_encontrado]&#xA;&#x9;,[thr_dt_inclusao_registro]&#xA;&#x9;,[thr_dt_alteracao_registro]&#xA;&#x9;,[thr_ds_situacao_circulacao_trem]&#xA;&#x9;,[thr_sk_empresa_origem_registro]&#xA;&#x9;,[thr_ds_empresa_origem_registro]&#xA;&#x9;,[thr_ds_classe_trem]&#xA;&#x9;,[thr_cd_classetrem]&#xA;&#x9;,[thr_id_composicao]&#xA;&#x9;,[thr_dt_formacao_composicao]&#xA;&#x9;,[thr_dt_encerramento_composicao]&#xA;&#x9;,[thr_qt_na_tu_composicao]&#xA;&#x9;,[thr_qt_na_tb_composicao]&#xA;&#x9;,[thr_qt_na_paradas_trem]&#xA;&#x9;,[thr_qt_na_tkb_composicao]&#xA;&#x9;,[thr_vl_consumo_composicao]&#xA;&#x9;,[thr_qt_tb_hp_locomotiva]&#xA;&#x9;,[thr_vl_percentual_reducao_tracao]&#xA;&#x9;,[thr_qt_hp_locomotiva]&#xA;&#x9;,[thr_qt_tracionado_locomotiva]&#xA;&#x9;,[thr_qt_rebocado_locomotiva]&#xA;&#x9;,[thr_no_sequencia_estacao_ordem_servico]&#xA;&#x9;,[thr_ds_corredor_origem_ordem_servico]&#xA;&#x9;,[thr_vl_comprimento_composicao]&#xA;&#x9;,[thr_dt_partida_trem_composicao]&#xA;&#x9;,[thr_dt_chegada_trem_composicao]&#xA;&#x9;,[thr_ds_corredor_origem_composicao]&#xA;&#x9;,[thr_ds_corredor_destino_composicao]&#xA;&#x9;,[thr_cd_estacao_origem_composicao]&#xA;&#x9;,[thr_cd_estacao_destino_composicao]&#xA;&#x9;,[thr_ds_tipo_composicao]&#xA;&#x9;,[thr_sn_tracao_isolada_composicao]&#xA;&#x9;,[thr_qt_tku_composicao]&#xA;&#x9;,[thr_qt_km_percorrido_composicao]&#xA;&#x9;,[thr_cd_posicao_distribuida_composicao]&#xA;&#x9;,[thr_qt_vagoes_vazios_composicao]&#xA;&#x9;,[thr_qt_vagoes_carregados_composicao]&#xA;&#x9;,[thr_qt_peso_medio_vagoes_composicao]&#xA;&#x9;,[thr_nm_produto_composicao]&#xA;&#x9;,[thr_qt_hp_locomotivas_rebocadas_composicao]&#xA;&#x9;,[thr_qt_hp_total_locomotivas_composicao]&#xA;&#x9;,[thr_qt_hp_restrito_locomotivas_tracionadas_composicao]&#xA;&#x9;,[thr_qt_hp_restrito_locomotivas_rebocadas_composicao]&#xA;&#x9;,[thr_qt_hp_restrito_total_locomotivas_composicao]&#xA;&#x9;,[thr_qt_hp_disponivel_locomotivas_tracionadas_composicao]&#xA;&#x9;,[thr_qt_hp_disponivel_locomotivas_rebocadas_composicao]&#xA;&#x9;,[thr_qt_hp_disponivel_total_locomotivas_composicao]&#xA;&#x9;,[thr_qt_total_locomotivas_composicao]&#xA;&#x9;,[thr_ds_modelos_serie_locomotivas_composicao]&#xA;&#x9;,[thr_ft_velocidade_maxima_alcancavel_classetrem]&#xA;&#x9;,[thr_cd_hash_unique_keys]&#xA;&#x9;,[thr_cd_hash_chave_update]&#xA;)&#xA;SELECT&#xA;&#x9;2&#xA;&#x9;,STG.[thr_cd_ordem_servico]&#xA;&#x9;,STG.[thr_cd_ordem_servico_correlata]&#xA;&#x9;,STG.[thr_cd_prefixo_trem]&#xA;&#x9;,STG.[thr_cd_estacao_origem]&#xA;&#x9;,STG.[thr_cd_estacao_destino]&#xA;&#x9;,STG.[thr_cd_area_operacional]&#xA;&#x9;,STG.[thr_dt_origem]&#xA;&#x9;,STG.[thr_dt_destino]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_marcha]&#xA;&#x9;,STG.[thr_no_tempo_total_transit_time]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_aci]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_cco]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_ele]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_loc]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_obr]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_ope]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_pot]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_ptt]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_vag]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_vpe]&#xA;&#x9;,STG.[thr_no_tempo_trem_hora_parado_nao_encontrado]&#xA;&#x9;,STG.[thr_dt_inclusao_registro]&#xA;&#x9;,STG.[thr_dt_alteracao_registro]&#xA;&#x9;,STG.[thr_ds_situacao_circulacao_trem]&#xA;&#x9;,STG.[thr_sk_empresa_origem_registro]&#xA;&#x9;,STG.[thr_ds_empresa_origem_registro]&#xA;&#x9;,STG.[thr_ds_classe_trem]&#xA;&#x9;,STG.[thr_cd_classetrem]&#xA;&#x9;,STG.[thr_id_composicao]&#xA;&#x9;,STG.[thr_dt_formacao_composicao]&#xA;&#x9;,STG.[thr_dt_encerramento_composicao]&#xA;&#x9;,STG.[thr_qt_na_tu_composicao]&#xA;&#x9;,STG.[thr_qt_na_tb_composicao]&#xA;&#x9;,STG.[thr_qt_na_paradas_trem]&#xA;&#x9;,STG.[thr_qt_na_tkb_composicao]&#xA;&#x9;,STG.[thr_vl_consumo_composicao]&#xA;&#x9;,STG.[thr_qt_tb_hp_locomotiva]&#xA;&#x9;,STG.[thr_vl_percentual_reducao_tracao]&#xA;&#x9;,STG.[thr_qt_hp_locomotiva]&#xA;&#x9;,STG.[thr_qt_tracionado_locomotiva]&#xA;&#x9;,STG.[thr_qt_rebocado_locomotiva]&#xA;&#x9;,STG.[thr_no_sequencia_estacao_ordem_servico]&#xA;&#x9;,STG.[thr_ds_corredor_origem_ordem_servico]&#xA;&#x9;,STG.[thr_vl_comprimento_composicao]&#xA;&#x9;,STG.[thr_dt_partida_trem_composicao]&#xA;&#x9;,STG.[thr_dt_chegada_trem_composicao]&#xA;&#x9;,STG.[thr_ds_corredor_origem_composicao]&#xA;&#x9;,STG.[thr_ds_corredor_destino_composicao]&#xA;&#x9;,STG.[thr_cd_estacao_origem_composicao]&#xA;&#x9;,STG.[thr_cd_estacao_destino_composicao]&#xA;&#x9;,STG.[thr_ds_tipo_composicao]&#xA;&#x9;,STG.[thr_sn_tracao_isolada_composicao]&#xA;&#x9;,STG.[thr_qt_tku_composicao]&#xA;&#x9;,STG.[thr_qt_km_percorrido_composicao]&#xA;&#x9;,STG.[thr_cd_posicao_distribuida_composicao]&#xA;&#x9;,STG.[thr_qt_vagoes_vazios_composicao]&#xA;&#x9;,STG.[thr_qt_vagoes_carregados_composicao]&#xA;&#x9;,STG.[thr_qt_peso_medio_vagoes_composicao]&#xA;&#x9;,STG.[thr_nm_produto_composicao]&#xA;&#x9;,STG.[thr_qt_hp_locomotivas_rebocadas_composicao]&#xA;&#x9;,STG.[thr_qt_hp_total_locomotivas_composicao]&#xA;&#x9;,STG.[thr_qt_hp_restrito_locomotivas_tracionadas_composicao]&#xA;&#x9;,STG.[thr_qt_hp_restrito_locomotivas_rebocadas_composicao]&#xA;&#x9;,STG.[thr_qt_hp_restrito_total_locomotivas_composicao]&#xA;&#x9;,STG.[thr_qt_hp_disponivel_locomotivas_tracionadas_composicao]&#xA;&#x9;,STG.[thr_qt_hp_disponivel_locomotivas_rebocadas_composicao]&#xA;&#x9;,STG.[thr_qt_hp_disponivel_total_locomotivas_composicao]&#xA;&#x9;,STG.[thr_qt_total_locomotivas_composicao]&#xA;&#x9;,STG.[thr_ds_modelos_serie_locomotivas_composicao]&#xA;&#x9;,STG.[thr_ft_velocidade_maxima_alcancavel_classetrem]&#xA;&#x9;,STG.[thr_cd_hash_unique_keys]&#xA;&#x9;,STG.[thr_cd_hash_chave_update]&#xA;FROM corp_stg.rpTemposTransitTimeResponsabilidade STG&#xA;LEFT JOIN corp.rpTemposTransitTimeResponsabilidade TT ON TT.thr_cd_hash_unique_keys = STG.thr_cd_hash_unique_keys&#xA;WHERE ISNULL(TT.thr_cd_hash_chave_update, '') &lt;&gt; ISNULL(STG.thr_cd_hash_chave_update, '') OR TT.thr_cd_hash_unique_keys IS NULL;&#xA;&#xA;-- Inserir os registros deletados na tabela de replicador ----------------------------------------------------------&#xA;&#xA;INSERT INTO replicador.corp_rpTemposTransitTimeResponsabilidade&#xA;(&#x9;__operation&#xA;&#x9;,[thr_cd_ordem_servico]&#xA;&#x9;,[thr_cd_ordem_servico_correlata]&#xA;&#x9;,[thr_cd_prefixo_trem]&#xA;&#x9;,[thr_cd_estacao_origem]&#xA;&#x9;,[thr_cd_estacao_destino]&#xA;&#x9;,[thr_cd_area_operacional]&#xA;&#x9;,[thr_dt_origem]&#xA;&#x9;,[thr_dt_destino]&#xA;&#x9;,[thr_no_tempo_trem_hora_marcha]&#xA;&#x9;,[thr_no_tempo_total_transit_time]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_aci]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_cco]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_ele]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_loc]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_obr]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_ope]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_pot]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_ptt]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_vag]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_vpe]&#xA;&#x9;,[thr_no_tempo_trem_hora_parado_nao_encontrado]&#xA;&#x9;,[thr_dt_inclusao_registro]&#xA;&#x9;,[thr_dt_alteracao_registro]&#xA;&#x9;,[thr_ds_situacao_circulacao_trem]&#xA;&#x9;,[thr_sk_empresa_origem_registro]&#xA;&#x9;,[thr_ds_empresa_origem_registro]&#xA;&#x9;,[thr_ds_classe_trem]&#xA;&#x9;,[thr_cd_classetrem]&#xA;&#x9;,[thr_id_composicao]&#xA;&#x9;,[thr_dt_formacao_composicao]&#xA;&#x9;,[thr_dt_encerramento_composicao]&#xA;&#x9;,[thr_qt_na_tu_composicao]&#xA;&#x9;,[thr_qt_na_tb_composicao]&#xA;&#x9;,[thr_qt_na_paradas_trem]&#xA;&#x9;,[thr_qt_na_tkb_composicao]&#xA;&#x9;,[thr_vl_consumo_composicao]&#xA;&#x9;,[thr_qt_tb_hp_locomotiva]&#xA;&#x9;,[thr_vl_percentual_reducao_tracao]&#xA;&#x9;,[thr_qt_hp_locomotiva]&#xA;&#x9;,[thr_qt_tracionado_locomotiva]&#xA;&#x9;,[thr_qt_rebocado_locomotiva]&#xA;&#x9;,[thr_no_sequencia_estacao_ordem_servico]&#xA;&#x9;,[thr_ds_corredor_origem_ordem_servico]&#xA;&#x9;,[thr_vl_comprimento_composicao]&#xA;&#x9;,[thr_dt_partida_trem_composicao]&#xA;&#x9;,[thr_dt_chegada_trem_composicao]&#xA;&#x9;,[thr_ds_corredor_origem_composicao]&#xA;&#x9;,[thr_ds_corredor_destino_composicao]&#xA;&#x9;,[thr_cd_estacao_origem_composicao]&#xA;&#x9;,[thr_cd_estacao_destino_composicao]&#xA;&#x9;,[thr_ds_tipo_composicao]&#xA;&#x9;,[thr_sn_tracao_isolada_composicao]&#xA;&#x9;,[thr_qt_tku_composicao]&#xA;&#x9;,[thr_qt_km_percorrido_composicao]&#xA;&#x9;,[thr_cd_posicao_distribuida_composicao]&#xA;&#x9;,[thr_qt_vagoes_vazios_composicao]&#xA;&#x9;,[thr_qt_vagoes_carregados_composicao]&#xA;&#x9;,[thr_qt_peso_medio_vagoes_composicao]&#xA;&#x9;,[thr_nm_produto_composicao]&#xA;&#x9;,[thr_qt_hp_locomotivas_rebocadas_composicao]&#xA;&#x9;,[thr_qt_hp_total_locomotivas_composicao]&#xA;&#x9;,[thr_qt_hp_restrito_locomotivas_tracionadas_composicao]&#xA;&#x9;,[thr_qt_hp_restrito_locomotivas_rebocadas_composicao]&#xA;&#x9;,[thr_qt_hp_restrito_total_locomotivas_composicao]&#xA;&#x9;,[thr_qt_hp_disponivel_locomotivas_tracionadas_composicao]&#xA;&#x9;,[thr_qt_hp_disponivel_locomotivas_rebocadas_composicao]&#xA;&#x9;,[thr_qt_hp_disponivel_total_locomotivas_composicao]&#xA;&#x9;,[thr_qt_total_locomotivas_composicao]&#xA;&#x9;,[thr_ds_modelos_serie_locomotivas_composicao]&#xA;&#x9;,[thr_ft_velocidade_maxima_alcancavel_classetrem]&#xA;&#x9;,[thr_cd_hash_unique_keys]&#xA;&#x9;,[thr_cd_hash_chave_update]&#xA;)&#xA;SELECT&#xA;&#x9;1&#xA;&#x9;,TT.[thr_cd_ordem_servico]&#xA;&#x9;,TT.[thr_cd_ordem_servico_correlata]&#xA;&#x9;,TT.[thr_cd_prefixo_trem]&#xA;&#x9;,TT.[thr_cd_estacao_origem]&#xA;&#x9;,TT.[thr_cd_estacao_destino]&#xA;&#x9;,TT.[thr_cd_area_operacional]&#xA;&#x9;,TT.[thr_dt_origem]&#xA;&#x9;,TT.[thr_dt_destino]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_marcha]&#xA;&#x9;,TT.[thr_no_tempo_total_transit_time]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_aci]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_cco]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_ele]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_loc]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_obr]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_ope]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_pot]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_ptt]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_vag]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_vpe]&#xA;&#x9;,TT.[thr_no_tempo_trem_hora_parado_nao_encontrado]&#xA;&#x9;,TT.[thr_dt_inclusao_registro]&#xA;&#x9;,TT.[thr_dt_alteracao_registro]&#xA;&#x9;,TT.[thr_ds_situacao_circulacao_trem]&#xA;&#x9;,TT.[thr_sk_empresa_origem_registro]&#xA;&#x9;,TT.[thr_ds_empresa_origem_registro]&#xA;&#x9;,TT.[thr_ds_classe_trem]&#xA;&#x9;,TT.[thr_cd_classetrem]&#xA;&#x9;,TT.[thr_id_composicao]&#xA;&#x9;,TT.[thr_dt_formacao_composicao]&#xA;&#x9;,TT.[thr_dt_encerramento_composicao]&#xA;&#x9;,TT.[thr_qt_na_tu_composicao]&#xA;&#x9;,TT.[thr_qt_na_tb_composicao]&#xA;&#x9;,TT.[thr_qt_na_paradas_trem]&#xA;&#x9;,TT.[thr_qt_na_tkb_composicao]&#xA;&#x9;,TT.[thr_vl_consumo_composicao]&#xA;&#x9;,TT.[thr_qt_tb_hp_locomotiva]&#xA;&#x9;,TT.[thr_vl_percentual_reducao_tracao]&#xA;&#x9;,TT.[thr_qt_hp_locomotiva]&#xA;&#x9;,TT.[thr_qt_tracionado_locomotiva]&#xA;&#x9;,TT.[thr_qt_rebocado_locomotiva]&#xA;&#x9;,TT.[thr_no_sequencia_estacao_ordem_servico]&#xA;&#x9;,TT.[thr_ds_corredor_origem_ordem_servico]&#xA;&#x9;,TT.[thr_vl_comprimento_composicao]&#xA;&#x9;,TT.[thr_dt_partida_trem_composicao]&#xA;&#x9;,TT.[thr_dt_chegada_trem_composicao]&#xA;&#x9;,TT.[thr_ds_corredor_origem_composicao]&#xA;&#x9;,TT.[thr_ds_corredor_destino_composicao]&#xA;&#x9;,TT.[thr_cd_estacao_origem_composicao]&#xA;&#x9;,TT.[thr_cd_estacao_destino_composicao]&#xA;&#x9;,TT.[thr_ds_tipo_composicao]&#xA;&#x9;,TT.[thr_sn_tracao_isolada_composicao]&#xA;&#x9;,TT.[thr_qt_tku_composicao]&#xA;&#x9;,TT.[thr_qt_km_percorrido_composicao]&#xA;&#x9;,TT.[thr_cd_posicao_distribuida_composicao]&#xA;&#x9;,TT.[thr_qt_vagoes_vazios_composicao]&#xA;&#x9;,TT.[thr_qt_vagoes_carregados_composicao]&#xA;&#x9;,TT.[thr_qt_peso_medio_vagoes_composicao]&#xA;&#x9;,TT.[thr_nm_produto_composicao]&#xA;&#x9;,TT.[thr_qt_hp_locomotivas_rebocadas_composicao]&#xA;&#x9;,TT.[thr_qt_hp_total_locomotivas_composicao]&#xA;&#x9;,TT.[thr_qt_hp_restrito_locomotivas_tracionadas_composicao]&#xA;&#x9;,TT.[thr_qt_hp_restrito_locomotivas_rebocadas_composicao]&#xA;&#x9;,TT.[thr_qt_hp_restrito_total_locomotivas_composicao]&#xA;&#x9;,TT.[thr_qt_hp_disponivel_locomotivas_tracionadas_composicao]&#xA;&#x9;,TT.[thr_qt_hp_disponivel_locomotivas_rebocadas_composicao]&#xA;&#x9;,TT.[thr_qt_hp_disponivel_total_locomotivas_composicao]&#xA;&#x9;,TT.[thr_qt_total_locomotivas_composicao]&#xA;&#x9;,TT.[thr_ds_modelos_serie_locomotivas_composicao]&#xA;&#x9;,TT.[thr_ft_velocidade_maxima_alcancavel_classetrem]&#xA;&#x9;,TT.[thr_cd_hash_unique_keys]&#xA;&#x9;,TT.[thr_cd_hash_chave_update]&#xA;&#x9;FROM CORP.rpTemposTransitTimeResponsabilidade TT&#xA;&#x9;LEFT JOIN CORP_STG.rpTemposTransitTimeResponsabilidade STG ON TT.thr_cd_hash_unique_keys = STG.thr_cd_hash_unique_keys&#xA;&#x9;WHERE STG.thr_cd_hash_unique_keys IS NULL&#xA;&#xA;COMMIT TRANSACTION" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask" />
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\Delete_Insert_Update_Report"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{6d281e7b-1686-4bc9-a67a-6de46efcb8e0}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="Delete_Insert_Update_Report"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{6CC07B41-9A45-4746-96E7-6B8CDAA39323}"
+          SQLTask:SqlStatementSource="&#xA;&#xA;--Update dos registros&#xA;&#xA;&#xA;UPDATE TT&#xA;SET &#xA;TT.thr_cd_ordem_servico = STG.thr_cd_ordem_servico,&#xA;TT.thr_cd_prefixo_trem = STG.thr_cd_prefixo_trem,&#xA;TT.thr_cd_estacao_origem = STG.thr_cd_estacao_origem,&#xA;TT.thr_cd_estacao_destino = STG.thr_cd_estacao_destino,&#xA;TT.thr_cd_area_operacional = STG.thr_cd_area_operacional,&#xA;TT.thr_dt_origem = STG.thr_dt_origem,&#xA;TT.thr_dt_destino = STG.thr_dt_destino,&#xA;TT.thr_no_tempo_trem_hora_marcha = STG.thr_no_tempo_trem_hora_marcha,&#xA;TT.thr_no_tempo_total_transit_time = STG.thr_no_tempo_total_transit_time,&#xA;TT.thr_no_tempo_trem_hora_parado = STG.thr_no_tempo_trem_hora_parado,&#xA;TT.thr_no_tempo_trem_hora_parado_aci = STG.thr_no_tempo_trem_hora_parado_aci,&#xA;TT.thr_no_tempo_trem_hora_parado_cco = STG.thr_no_tempo_trem_hora_parado_cco,&#xA;TT.thr_no_tempo_trem_hora_parado_ele = STG.thr_no_tempo_trem_hora_parado_ele,&#xA;TT.thr_no_tempo_trem_hora_parado_loc = STG.thr_no_tempo_trem_hora_parado_loc,&#xA;TT.thr_no_tempo_trem_hora_parado_obr = STG.thr_no_tempo_trem_hora_parado_obr,&#xA;TT.thr_no_tempo_trem_hora_parado_ope = STG.thr_no_tempo_trem_hora_parado_ope,&#xA;TT.thr_no_tempo_trem_hora_parado_pot = STG.thr_no_tempo_trem_hora_parado_pot,&#xA;TT.thr_no_tempo_trem_hora_parado_ptt = STG.thr_no_tempo_trem_hora_parado_ptt,&#xA;TT.thr_no_tempo_trem_hora_parado_vag = STG.thr_no_tempo_trem_hora_parado_vag,&#xA;TT.thr_no_tempo_trem_hora_parado_vpe = STG.thr_no_tempo_trem_hora_parado_vpe,&#xA;TT.thr_no_tempo_trem_hora_parado_nao_encontrado = STG.thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;TT.thr_dt_inclusao_registro = STG.thr_dt_inclusao_registro,&#xA;TT.thr_dt_alteracao_registro = STG.thr_dt_alteracao_registro,&#xA;TT.thr_ds_situacao_circulacao_trem = STG.thr_ds_situacao_circulacao_trem,&#xA;TT.thr_sk_empresa_origem_registro = STG.thr_sk_empresa_origem_registro,&#xA;TT.thr_ds_empresa_origem_registro = STG.thr_ds_empresa_origem_registro,&#xA;TT.thr_cd_ordem_servico_correlata = STG.thr_cd_ordem_servico_correlata,&#xA;TT.thr_ds_classe_trem = STG.thr_ds_classe_trem,&#xA;TT.thr_cd_classetrem = STG.thr_cd_classetrem,&#xA;TT.thr_id_composicao = STG.thr_id_composicao,&#xA;TT.thr_dt_formacao_composicao = STG.thr_dt_formacao_composicao,&#xA;TT.thr_dt_encerramento_composicao = STG.thr_dt_encerramento_composicao,&#xA;TT.thr_qt_na_tu_composicao = STG.thr_qt_na_tu_composicao,&#xA;TT.thr_qt_na_tb_composicao = STG.thr_qt_na_tb_composicao,&#xA;TT.thr_qt_na_paradas_trem = STG.thr_qt_na_paradas_trem,&#xA;TT.thr_qt_na_tkb_composicao = STG.thr_qt_na_tkb_composicao,&#xA;TT.thr_vl_consumo_composicao = STG.thr_vl_consumo_composicao,&#xA;TT.thr_qt_tb_hp_locomotiva = STG.thr_qt_tb_hp_locomotiva,&#xA;TT.thr_vl_percentual_reducao_tracao = STG.thr_vl_percentual_reducao_tracao,&#xA;TT.thr_qt_hp_locomotiva = STG.thr_qt_hp_locomotiva,&#xA;TT.thr_qt_tracionado_locomotiva = STG.thr_qt_tracionado_locomotiva,&#xA;TT.thr_qt_rebocado_locomotiva = STG.thr_qt_rebocado_locomotiva,&#xA;TT.thr_no_sequencia_estacao_ordem_servico = STG.thr_no_sequencia_estacao_ordem_servico,&#xA;TT.thr_ds_corredor_origem_ordem_servico = STG.thr_ds_corredor_origem_ordem_servico,&#xA;TT.thr_vl_comprimento_composicao = STG.thr_vl_comprimento_composicao,&#xA;TT.thr_dt_partida_trem_composicao = STG.thr_dt_partida_trem_composicao,&#xA;TT.thr_dt_chegada_trem_composicao = STG.thr_dt_chegada_trem_composicao,&#xA;TT.thr_ds_corredor_origem_composicao = STG.thr_ds_corredor_origem_composicao,&#xA;TT.thr_ds_corredor_destino_composicao = STG.thr_ds_corredor_destino_composicao,&#xA;TT.thr_cd_estacao_origem_composicao = STG.thr_cd_estacao_origem_composicao,&#xA;TT.thr_cd_estacao_destino_composicao = STG.thr_cd_estacao_destino_composicao,&#xA;TT.thr_ds_tipo_composicao = STG.thr_ds_tipo_composicao,&#xA;TT.thr_sn_tracao_isolada_composicao = STG.thr_sn_tracao_isolada_composicao,&#xA;TT.thr_qt_tku_composicao = STG.thr_qt_tku_composicao,&#xA;TT.thr_qt_km_percorrido_composicao = STG.thr_qt_km_percorrido_composicao,&#xA;TT.thr_cd_posicao_distribuida_composicao = STG.thr_cd_posicao_distribuida_composicao,&#xA;TT.thr_qt_vagoes_vazios_composicao = STG.thr_qt_vagoes_vazios_composicao,&#xA;TT.thr_qt_vagoes_carregados_composicao = STG.thr_qt_vagoes_carregados_composicao,&#xA;TT.thr_qt_peso_medio_vagoes_composicao = STG.thr_qt_peso_medio_vagoes_composicao,&#xA;TT.thr_nm_produto_composicao = STG.thr_nm_produto_composicao,&#xA;TT.thr_qt_hp_locomotivas_rebocadas_composicao = STG.thr_qt_hp_locomotivas_rebocadas_composicao,&#xA;TT.thr_qt_hp_total_locomotivas_composicao = STG.thr_qt_hp_total_locomotivas_composicao,&#xA;TT.thr_qt_hp_restrito_locomotivas_tracionadas_composicao = STG.thr_qt_hp_restrito_locomotivas_tracionadas_composicao,&#xA;TT.thr_qt_hp_restrito_locomotivas_rebocadas_composicao = STG.thr_qt_hp_restrito_locomotivas_rebocadas_composicao,&#xA;TT.thr_qt_hp_restrito_total_locomotivas_composicao = STG.thr_qt_hp_restrito_total_locomotivas_composicao,&#xA;TT.thr_qt_hp_disponivel_locomotivas_tracionadas_composicao = STG.thr_qt_hp_disponivel_locomotivas_tracionadas_composicao,&#xA;TT.thr_qt_hp_disponivel_locomotivas_rebocadas_composicao = STG.thr_qt_hp_disponivel_locomotivas_rebocadas_composicao,&#xA;TT.thr_qt_hp_disponivel_total_locomotivas_composicao = STG.thr_qt_hp_disponivel_total_locomotivas_composicao,&#xA;TT.thr_qt_total_locomotivas_composicao = STG.thr_qt_total_locomotivas_composicao,&#xA;TT.thr_ds_modelos_serie_locomotivas_composicao = STG.thr_ds_modelos_serie_locomotivas_composicao,&#xA;TT.thr_ft_velocidade_maxima_alcancavel_classetrem = STG.thr_ft_velocidade_maxima_alcancavel_classetrem,&#xA;TT.thr_cd_hash_chave_update = STG.thr_cd_hash_chave_update&#xA;FROM corp.rpTemposTransitTimeResponsabilidade TT&#xA;JOIN corp_stg.rpTemposTransitTimeResponsabilidade STG &#xA;    ON TT.thr_cd_hash_unique_keys = STG.thr_cd_hash_unique_keys&#xA;WHERE ISNULL(TT.thr_cd_hash_chave_update, '') &lt;&gt; ISNULL(STG.thr_cd_hash_chave_update, '');&#xA;&#xA;&#xA;&#xA;--Inserir registros&#xA;insert into corp.rpTemposTransitTimeResponsabilidade  (thr_cd_ordem_servico&#xA;,thr_cd_prefixo_trem&#xA;,thr_cd_estacao_origem&#xA;,thr_cd_estacao_destino&#xA;,thr_cd_area_operacional&#xA;,thr_dt_origem&#xA;,thr_dt_destino&#xA;,thr_no_tempo_trem_hora_marcha&#xA;,thr_no_tempo_total_transit_time&#xA;,thr_no_tempo_trem_hora_parado&#xA;,thr_no_tempo_trem_hora_parado_aci&#xA;,thr_no_tempo_trem_hora_parado_cco&#xA;,thr_no_tempo_trem_hora_parado_ele&#xA;,thr_no_tempo_trem_hora_parado_loc&#xA;,thr_no_tempo_trem_hora_parado_obr&#xA;,thr_no_tempo_trem_hora_parado_ope&#xA;,thr_no_tempo_trem_hora_parado_pot&#xA;,thr_no_tempo_trem_hora_parado_ptt&#xA;,thr_no_tempo_trem_hora_parado_vag&#xA;,thr_no_tempo_trem_hora_parado_vpe&#xA;,thr_no_tempo_trem_hora_parado_nao_encontrado&#xA;,thr_dt_inclusao_registro&#xA;,thr_dt_alteracao_registro&#xA;,thr_ds_situacao_circulacao_trem&#xA;,thr_sk_empresa_origem_registro&#xA;,thr_ds_empresa_origem_registro&#xA;,thr_cd_ordem_servico_correlata&#xA;,thr_ds_classe_trem&#xA;,thr_cd_classetrem&#xA;,thr_id_composicao&#xA;,thr_dt_formacao_composicao&#xA;,thr_dt_encerramento_composicao&#xA;,thr_qt_na_tu_composicao&#xA;,thr_qt_na_tb_composicao&#xA;,thr_qt_na_paradas_trem&#xA;,thr_qt_na_tkb_composicao&#xA;,thr_vl_consumo_composicao&#xA;,thr_qt_tb_hp_locomotiva&#xA;,thr_vl_percentual_reducao_tracao&#xA;,thr_qt_hp_locomotiva&#xA;,thr_qt_tracionado_locomotiva&#xA;,thr_qt_rebocado_locomotiva&#xA;,thr_no_sequencia_estacao_ordem_servico&#xA;,thr_ds_corredor_origem_ordem_servico&#xA;,thr_vl_comprimento_composicao&#xA;,thr_dt_partida_trem_composicao&#xA;,thr_dt_chegada_trem_composicao&#xA;,thr_ds_corredor_origem_composicao&#xA;,thr_ds_corredor_destino_composicao&#xA;,thr_cd_estacao_origem_composicao&#xA;,thr_cd_estacao_destino_composicao&#xA;,thr_ds_tipo_composicao&#xA;,thr_sn_tracao_isolada_composicao&#xA;,thr_qt_tku_composicao&#xA;,thr_qt_km_percorrido_composicao&#xA;,thr_cd_posicao_distribuida_composicao&#xA;,thr_qt_vagoes_vazios_composicao&#xA;,thr_qt_vagoes_carregados_composicao&#xA;,thr_qt_peso_medio_vagoes_composicao&#xA;,thr_nm_produto_composicao&#xA;,thr_qt_hp_locomotivas_rebocadas_composicao&#xA;,thr_qt_hp_total_locomotivas_composicao&#xA;,thr_qt_hp_restrito_locomotivas_tracionadas_composicao&#xA;,thr_qt_hp_restrito_locomotivas_rebocadas_composicao&#xA;,thr_qt_hp_restrito_total_locomotivas_composicao&#xA;,thr_qt_hp_disponivel_locomotivas_tracionadas_composicao&#xA;,thr_qt_hp_disponivel_locomotivas_rebocadas_composicao&#xA;,thr_qt_hp_disponivel_total_locomotivas_composicao&#xA;,thr_qt_total_locomotivas_composicao&#xA;,thr_ds_modelos_serie_locomotivas_composicao&#xA;,thr_ft_velocidade_maxima_alcancavel_classetrem&#xA;,thr_cd_hash_unique_keys&#xA;,thr_cd_hash_chave_update)&#xA;select &#xA; STG.thr_cd_ordem_servico&#xA;,STG.thr_cd_prefixo_trem&#xA;,STG.thr_cd_estacao_origem&#xA;,STG.thr_cd_estacao_destino&#xA;,STG.thr_cd_area_operacional&#xA;,STG.thr_dt_origem&#xA;,STG.thr_dt_destino&#xA;,STG.thr_no_tempo_trem_hora_marcha&#xA;,STG.thr_no_tempo_total_transit_time&#xA;,STG.thr_no_tempo_trem_hora_parado&#xA;,STG.thr_no_tempo_trem_hora_parado_aci&#xA;,STG.thr_no_tempo_trem_hora_parado_cco&#xA;,STG.thr_no_tempo_trem_hora_parado_ele&#xA;,STG.thr_no_tempo_trem_hora_parado_loc&#xA;,STG.thr_no_tempo_trem_hora_parado_obr&#xA;,STG.thr_no_tempo_trem_hora_parado_ope&#xA;,STG.thr_no_tempo_trem_hora_parado_pot&#xA;,STG.thr_no_tempo_trem_hora_parado_ptt&#xA;,STG.thr_no_tempo_trem_hora_parado_vag&#xA;,STG.thr_no_tempo_trem_hora_parado_vpe&#xA;,STG.thr_no_tempo_trem_hora_parado_nao_encontrado&#xA;,STG.thr_dt_inclusao_registro&#xA;,STG.thr_dt_alteracao_registro&#xA;,STG.thr_ds_situacao_circulacao_trem&#xA;,STG.thr_sk_empresa_origem_registro&#xA;,STG.thr_ds_empresa_origem_registro&#xA;,STG.thr_cd_ordem_servico_correlata&#xA;,STG.thr_ds_classe_trem&#xA;,STG.thr_cd_classetrem&#xA;,STG.thr_id_composicao&#xA;,STG.thr_dt_formacao_composicao&#xA;,STG.thr_dt_encerramento_composicao&#xA;,STG.thr_qt_na_tu_composicao&#xA;,STG.thr_qt_na_tb_composicao&#xA;,STG.thr_qt_na_paradas_trem&#xA;,STG.thr_qt_na_tkb_composicao&#xA;,STG.thr_vl_consumo_composicao&#xA;,STG.thr_qt_tb_hp_locomotiva&#xA;,STG.thr_vl_percentual_reducao_tracao&#xA;,STG.thr_qt_hp_locomotiva&#xA;,STG.thr_qt_tracionado_locomotiva&#xA;,STG.thr_qt_rebocado_locomotiva&#xA;,STG.thr_no_sequencia_estacao_ordem_servico&#xA;,STG.thr_ds_corredor_origem_ordem_servico&#xA;,STG.thr_vl_comprimento_composicao&#xA;,STG.thr_dt_partida_trem_composicao&#xA;,STG.thr_dt_chegada_trem_composicao&#xA;,STG.thr_ds_corredor_origem_composicao&#xA;,STG.thr_ds_corredor_destino_composicao&#xA;,STG.thr_cd_estacao_origem_composicao&#xA;,STG.thr_cd_estacao_destino_composicao&#xA;,STG.thr_ds_tipo_composicao&#xA;,STG.thr_sn_tracao_isolada_composicao&#xA;,STG.thr_qt_tku_composicao&#xA;,STG.thr_qt_km_percorrido_composicao&#xA;,STG.thr_cd_posicao_distribuida_composicao&#xA;,STG.thr_qt_vagoes_vazios_composicao&#xA;,STG.thr_qt_vagoes_carregados_composicao&#xA;,STG.thr_qt_peso_medio_vagoes_composicao&#xA;,STG.thr_nm_produto_composicao&#xA;,STG.thr_qt_hp_locomotivas_rebocadas_composicao&#xA;,STG.thr_qt_hp_total_locomotivas_composicao&#xA;,STG.thr_qt_hp_restrito_locomotivas_tracionadas_composicao&#xA;,STG.thr_qt_hp_restrito_locomotivas_rebocadas_composicao&#xA;,STG.thr_qt_hp_restrito_total_locomotivas_composicao&#xA;,STG.thr_qt_hp_disponivel_locomotivas_tracionadas_composicao&#xA;,STG.thr_qt_hp_disponivel_locomotivas_rebocadas_composicao&#xA;,STG.thr_qt_hp_disponivel_total_locomotivas_composicao&#xA;,STG.thr_qt_total_locomotivas_composicao&#xA;,STG.thr_ds_modelos_serie_locomotivas_composicao&#xA;,STG.thr_ft_velocidade_maxima_alcancavel_classetrem&#xA;,STG.thr_cd_hash_unique_keys&#xA;,STG.thr_cd_hash_chave_update&#xA;&#xA;FROM corp_stg.rpTemposTransitTimeResponsabilidade STG&#xA;LEFT JOIN corp.rpTemposTransitTimeResponsabilidade TT ON STG.thr_cd_hash_unique_keys = TT.thr_cd_hash_unique_keys &#xA;WHERE TT.thr_cd_hash_unique_keys IS NULL;&#xA;&#xA;&#xA;-- Deletar Registros&#xA;&#xA;DELETE TT&#xA;FROM corp.rpTemposTransitTimeResponsabilidade TT&#xA;LEFT JOIN corp_stg.rpTemposTransitTimeResponsabilidade STG ON TT.thr_cd_hash_unique_keys = STG.thr_cd_hash_unique_keys&#xA;WHERE STG.thr_cd_hash_unique_keys IS NULL;&#xA;  " xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::Data_inicio_execucao"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::ProcessamentoFull"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="131"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::Reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="131"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="3"
+            SQLTask:DtsVariableName="User::data_inicio_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="4"
+            SQLTask:DtsVariableName="User::data_fim_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\ESQL_CargaReport_Incremental"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{d07e16bc-d429-4547-af00-83f475b18a18}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="ESQL_CargaReport_Incremental"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{6CC07B41-9A45-4746-96E7-6B8CDAA39323}"
+          SQLTask:SqlStatementSource="DECLARE @dataProcessamento DATE = ?&#xA;DECLARE @dataInicio DATE&#xA;DECLARE @dataFim DATE&#xA;DECLARE @FULL INT = ?&#xA;DECLARE @REPROCESSAMENTO INT = ?;&#xA;&#xA;--IF @FULL = 0&#xA;--BEGIN&#xA;&#xA;--SET @dataInicio = (SELECT MIN(ttt_dt_origem) FROM corp.rpTemposTransitTime)&#xA;--SET @dataFim = @dataProcessamento; --dataBancoSSIS&#xA;--TRUNCATE TABLE corp.rpTemposTransitTimeResponsabilidade&#xA;&#xA;--END&#xA;&#xA;&#xA;&#xA;IF @REPROCESSAMENTO = 1&#xA;&#xA;BEGIN&#xA;SET @dataInicio = ?&#xA;SET @dataFim = ?&#xA;DELETE FROM corp.rpTemposTransitTimeResponsabilidade WHERE thr_dt_destino BETWEEN @dataInicio AND @dataFim&#xA;&#xA;END&#xA;;&#xA;&#xA;&#xA;SELECT &#xA;&#x9;tha_sk_ordem_servico_trem,&#xA;&#x9;tha_sk_classe_trem,&#xA;&#x9;--IIF(thp_sk_secao_bloqueio_ferrovia = -2, NULL, thp_sk_secao_bloqueio_ferrovia) AS thp_sk_secao_bloqueio_ferrovia,&#xA;&#x9;tha_sk_area_operacional,&#xA;&#x9;tha_sk_area_operacional_parada,&#xA;&#x9;tha_sk_trem,&#xA;&#x9;tha_sk_grupo_responsavel_parada_trem,&#xA;&#x9;tha_sk_motivo_parada_trem,&#xA;&#x9;tha_no_tempo_trem_hora_parado,&#xA;&#x9;DATA_ORIGEM.dat_dt_data + CAST(tha_sk_hr_inicio_parada_trem AS DATETIME) DataHoraInicioThp,&#xA;&#x9;DATA_DESTINO.dat_dt_data + CAST(tha_sk_hr_fim_parada_trem AS DATETIME) AS DataHoraFimThp&#xA;INTO #THP&#xA;FROM corp.fdTremHoraParadoAreasOperacionais WITH (NOLOCK)&#xA;JOIN gbl.mdDatas dataPos WITH (NOLOCK) ON dataPos.dat_no_ano_mes_dia = tha_sk_dt_inicio_parada_trem &#xA;JOIN gbl.mdDatas DATA_ORIGEM WITH (NOLOCK) ON  DATA_ORIGEM.dat_no_ano_mes_dia = tha_sk_dt_inicio_parada_trem&#xA;JOIN gbl.mdDatas DATA_DESTINO WITH (NOLOCK) ON  DATA_DESTINO.dat_no_ano_mes_dia = tha_sk_dt_fim_parada_trem&#xA;--WHERE THA_SK_REGISTRO_ALTERADO = 1&#xA; ;&#xA;&#xA;&#xA;SELECT distinct&#xA;&#x9;ttm_sk_ordem_servico_trem,&#xA;&#x9;ttm_sk_classe_trem,&#xA;&#x9;ttm_sk_estacao_origem,&#xA;&#x9;ttm_sk_estacao_destino,&#xA;&#x9;ttm_sk_area_operacional,&#xA;&#x9;ttm_sk_trem,&#xA;&#x9;ttm_no_tempo_transit_time,&#xA;&#x9;ttm_sk_situacao_circulacao_trem,&#xA;&#x9;DATA_ORIGEM.dat_dt_data + CAST(ttm_sk_hr_saida_origem_trem AS DATETIME) AS DataHoraOrigem,&#xA;&#x9;DATA_DESTINO.dat_dt_data + CAST(ttm_sk_hr_chegada_destino_trem AS DATETIME) AS DataHoraDestino&#xA;INTO #TRANSIT_TIME&#xA;FROM corp.fdTransitTimeAreasOperacionais WITH (NOLOCK)&#xA;JOIN gbl.mdDatas DATA_ORIGEM WITH (NOLOCK) ON  DATA_ORIGEM.dat_no_ano_mes_dia = ttm_sk_dt_saida_origem_trem&#xA;JOIN gbl.mdDatas DATA_DESTINO WITH (NOLOCK) ON  DATA_DESTINO.dat_no_ano_mes_dia = ttm_sk_dt_chegada_destino_trem&#xA;;&#xA;&#xA;SELECT  &#xA;&#x9;ost_no_ordem_servico_trem AS CodigoOrdemServico,&#xA;&#x9;ost_no_ordem_servico_correlata AS CodigoOrdemServicoCorrelata,&#xA;&#x9;CASE &#xA;&#x9;when C.ctg_cd_classetrem = 'A' THEN 'AUTO DE LINHA'&#xA;&#x9;When C.ctg_cd_classetrem = 'B' THEN 'AUTO DE LINHA'&#xA;&#x9;when C.ctg_cd_classetrem = 'C' THEN 'CARGUEIRO'&#xA;&#x9;when C.ctg_cd_classetrem = 'D' THEN 'COMBUSTÍVEIS'&#xA;&#x9;when C.ctg_cd_classetrem = 'E' THEN 'EXPRESSO'&#xA;&#x9;when C.ctg_cd_classetrem = 'F' THEN 'VEÍCULO RODOFERROV'&#xA;&#x9;when C.ctg_cd_classetrem = 'G' THEN 'MINÉRIO VAGÃO C G'&#xA;&#x9;when C.ctg_cd_classetrem = 'H' THEN 'HELP'&#xA;&#x9;when C.ctg_cd_classetrem = 'I' THEN 'INSPEÇÃO'&#xA;&#x9;when C.ctg_cd_classetrem = 'J' THEN 'GRÃOS'&#xA;&#x9;when C.ctg_cd_classetrem = 'K' THEN 'CARVÃO'&#xA;&#x9;when C.ctg_cd_classetrem = 'L' THEN 'ESCOTEIRA'&#xA;&#x9;when C.ctg_cd_classetrem = 'M' THEN 'MINÉRIO'&#xA;&#x9;when C.ctg_cd_classetrem = 'O' THEN 'TREM ESPECIAL'&#xA;&#x9;when C.ctg_cd_classetrem = 'P' THEN 'PASSAGEIRO'&#xA;&#x9;when C.ctg_cd_classetrem = 'Q' Then 'AÇUCAR'&#xA;&#x9;when C.ctg_cd_classetrem = 'R' THEN 'EQUIPAMENTO VP'&#xA;&#x9;when C.ctg_cd_classetrem = 'S' THEN 'SOCORRO'&#xA;&#x9;when C.ctg_cd_classetrem = 'T' THEN 'TRILHEIRO'&#xA;&#x9;when C.ctg_cd_classetrem = 'V' THEN 'SERVIÇO INTERNO'--US 264063&#xA;&#x9;when C.ctg_cd_classetrem = 'W' THEN 'MANOBRAS'&#xA;&#x9;when C.ctg_cd_classetrem = 'X' THEN 'PRODUTOS QUÍMICOS'&#xA;&#x9;when C.ctg_cd_classetrem = 'Y' THEN 'CIMENTO'--US 264063&#xA;&#x9;END AS DescricaoClasseTrem,&#xA;&#x9;ttm_sk_ordem_servico_trem,&#xA;&#x9;tre_cd_prefixo_trem AS CodigoPrefixoTrem,&#xA;&#x9;AO.aro_cd_areaoperacional AS AreaOperacional, &#xA;&#x9;AOP.eso_cd_estacao_origem as CodigoEstacaoOrigem,&#xA;&#x9;AOPD.esd_cd_estacao_destino as CodigoEstacaoDestino, &#xA;&#x9;DataHoraOrigem,&#xA;&#x9;DataHoraDestino,&#xA;&#x9;DataHoraInicioThp,&#xA;&#x9;DataHoraFimThp,&#xA;&#x9;ttm_no_tempo_transit_time - ISNULL(THP.tha_no_tempo_trem_hora_parado,0) AS TremHoraMarcha,&#xA;&#x9;ISNULL(THP.tha_no_tempo_trem_hora_parado,0) AS TremHoraParado,&#xA;&#x9;ISNULL(ttm_no_tempo_transit_time,0) AS TransitTime,&#xA;&#x9;rmt_cd_grupo_responsavel AS CodigoGrupoResponsabilidadeParada,&#xA;&#x9;mpt_ds_motivo_parada_trem AS DescricaoMotivoParadaTrem,&#xA;&#x9;sct_ds_situacao_circulacao_trem AS DescricaoSituacaoTrem,&#xA;&#x9;C.ctg_ft_velocidade_maxima_admissivel_classetrem AS VMAClasseTrem, --US 264063&#xA;&#x9;C.ctg_cd_classetrem AS CodigoClasseTrem&#xA;INTO #THP_THM&#xA;FROM #TRANSIT_TIME &#xA;LEFT JOIN #THP THP ON  (THP.tha_sk_ordem_servico_trem = ttm_sk_ordem_servico_trem&#xA;&#x9;AND ((ttm_sk_area_operacional = THP.tha_sk_area_operacional_parada) OR (ttm_sk_area_operacional = THP.tha_sk_area_operacional))&#xA;&#x9;AND ttm_sk_trem = THP.tha_sk_trem)&#xA;LEFT JOIN OPF.mdClassesTrem AS C WITH (NOLOCK) ON C.ctg_sk_classetrem =  ttm_sk_classe_trem&#xA;LEFT JOIN corp.mdOrdensServicoTrem OST WITH (NOLOCK) ON  ost_sk_ordem_servico_trem = ttm_sk_ordem_servico_trem&#xA;LEFT JOIN corp.mdTrens TREM WITH (NOLOCK) ON  TREM.tre_sk_trem = ost_sk_trem&#xA;LEFT JOIN CORP.mdSituacoesCirculacaoTrem SCT ON SCT.sct_sk_situacao_circulacao_trem = ttm_sk_situacao_circulacao_trem&#xA;LEFT JOIN opf.mdAreasOperacionais AO ON AO.aro_sk_areaoperacional = ttm_sk_area_operacional&#xA;LEFT JOIN corp.mdEstacoesOrigem AOP  ON AOP.eso_sk_estacao_origem = ttm_sk_estacao_origem&#xA;LEFT JOIN corp.mdEstacoesDestino AOPD ON AOPD.esd_sk_estacao_destino = ttm_sk_estacao_destino&#xA;LEFT JOIN corp.mdResponsaveisMotivosParadasTrem WITH (NOLOCK) ON  rmt_sk_responsavel = tha_sk_grupo_responsavel_parada_trem&#xA;LEFT JOIN corp.mdMotivosParadasTrem WITH (NOLOCK) ON  mpt_sk_motivo_parada_trem = tha_sk_motivo_parada_trem&#xA;Where 1 = 1;&#xA;&#xA;&#xA; &#xA;SELECT Distinct&#xA;&#x9;ttm_sk_ordem_servico_trem AS tsb_sk_ordem_servico_trem&#xA;INTO #TRENS&#xA;FROM #THP_THM;&#xA;&#xA;&#xA;SELECT&#xA;&#x9;CodigoOrdemServico,&#xA;&#x9;CodigoOrdemServicoCorrelata,&#xA;&#x9;DescricaoClasseTrem,&#xA;&#x9;CodigoPrefixoTrem,&#xA;&#x9;AreaOperacional,&#xA;&#x9;CodigoEstacaoOrigem,&#xA;&#x9;CodigoEstacaoDestino,&#xA;&#x9;--DataHoraInicioThp,&#xA;&#x9;--DataHoraFimThp,&#xA;&#x9;DataHoraOrigem,&#xA;&#x9;DataHoraDestino,&#xA;&#x9;CodigoGrupoResponsabilidadeParada,&#xA;&#x9;CodigoGrupoResponsabilidadeParada as CodigoGrupoResponsabilidade,&#xA;&#x9;DescricaoMotivoParadaTrem,&#xA;&#x9;(TransitTime - SUM(TremHoraParado)) AS TempoEmMarchaEmHoras, -- alteração bug 210804&#xA;&#x9;--SUM(TremHoraMarcha) AS TempoEmMarchaEmHoras, -- alteração bug 210804&#xA;&#x9;SUM(TremHoraParado) AS  TempoParadoEmHorasPivot,&#xA;&#x9;SUM(TremHoraParado) AS TempoParadoEmHoras,&#xA;&#x9;-- SUM(TransitTime) AS TransitTime  -- alteração bug 210804&#xA;&#x9;TransitTime AS TransitTime, -- alteração bug 210804&#xA;&#x9;DescricaoSituacaoTrem,&#xA;&#x9;VMAClasseTrem,&#xA;&#x9;CodigoClasseTrem--US 264063&#xA;INTO #BASE_THM_THP&#xA;FROM #THP_THM THP_THM&#xA;INNER JOIN #TRENS t ON  t.tsb_sk_ordem_servico_trem = THP_THM.ttm_sk_ordem_servico_trem&#xA;GROUP BY&#xA;&#x9;CodigoOrdemServico,&#xA;&#x9;CodigoOrdemServicoCorrelata,&#xA;&#x9;DescricaoClasseTrem,&#xA;&#x9;CodigoPrefixoTrem,&#xA;&#x9;AreaOperacional,&#xA;&#x9;CodigoEstacaoOrigem,&#xA;&#x9;CodigoEstacaoDestino,&#xA;&#x9;--DataHoraInicioThp,&#xA;&#x9;--DataHoraFimThp,&#xA;&#x9;DataHoraOrigem,&#xA;&#x9;DataHoraDestino,&#xA;&#x9;CodigoGrupoResponsabilidadeParada,&#xA;&#x9;DescricaoMotivoParadaTrem,&#xA;&#x9;TransitTime,&#xA;&#x9;DescricaoSituacaoTrem,&#xA;&#x9;VMAClasseTrem, --US 264063;&#xA;&#x9;CodigoClasseTrem&#xA; &#xA;&#xA;SELECT&#xA;&#x9;CodigoOrdemServico,&#xA;&#x9;CodigoOrdemServicoCorrelata,&#xA;&#x9;DescricaoClasseTrem,&#xA;&#x9;CodigoPrefixoTrem,&#xA;&#x9;CodigoEstacaoOrigem,&#xA;&#x9;CodigoEstacaoDestino,&#xA;&#x9;AreaOperacional,&#xA;&#x9;DataHoraOrigem,&#xA;&#x9;DataHoraDestino,&#xA;&#x9;--CodigoGrupoResponsabilidadeParada,&#xA;&#x9;--DescricaoMotivoParadaTrem,&#xA;&#x9;DescricaoSituacaoTrem,&#xA;&#x9;TempoEmMarchaEmHoras As TremHoraMarcha,&#xA;&#x9;TempoParadoEmHoras,&#xA;&#x9;TempoParadoEmHoras AS TempoParadoEmHorasPivot,&#xA;&#x9;TempoParadoEmHoras AS TremHoraParado,&#xA;&#x9;TransitTime AS TransitTime,&#xA;&#x9;ISNULL([ACI],  0) 'thr_no_tempo_trem_hora_parado_aci',&#xA;&#x9;ISNULL([CCO],  0) 'thr_no_tempo_trem_hora_parado_cco',&#xA;&#x9;ISNULL([ELE],  0) 'thr_no_tempo_trem_hora_parado_ele',&#xA;&#x9;ISNULL([LOC],  0) 'thr_no_tempo_trem_hora_parado_loc',&#xA;&#x9;ISNULL([OBR],  0) 'thr_no_tempo_trem_hora_parado_obr',&#xA;&#x9;ISNULL([OPE],  0) 'thr_no_tempo_trem_hora_parado_ope',&#xA;&#x9;ISNULL([POT],   0) 'thr_no_tempo_trem_hora_parado_pot',&#xA;&#x9;ISNULL([PTT],  0) 'thr_no_tempo_trem_hora_parado_ptt',&#xA;&#x9;ISNULL([VAG],  0) 'thr_no_tempo_trem_hora_parado_vag',&#xA;&#x9;ISNULL([VPE],  0) 'thr_no_tempo_trem_hora_parado_vpe',&#xA;&#x9;ISNULL([Nao_Preenchido], 0) 'thr_no_tempo_trem_hora_parado_nao_preenchido',&#xA;&#x9;VMAClasseTrem, --US 264063&#xA;&#x9;CodigoClasseTrem&#xA;INTO #BASEPIVOT&#xA;FROM #BASE_THM_THP BASE_THM_THP PIVOT (SUM(TempoParadoEmHorasPivot) &#xA;&#x9;FOR BASE_THM_THP.CodigoGrupoResponsabilidadeParada IN([ACI], [CCO], [ELE], [LOC], [OBR], [OPE], [POT], [PTT], [VAG], [VPE],  [Nao_Preenchido]) ) PivotTable;&#xA;&#xA;&#xA;-- Retira registros duplicados em função do campo CodigoOrdemServicoCorrelata = -2 - BUG: 217549&#xA;SELECT &#xA;&#x9;ISNULL(CodigoOrdemServico,-2) as thr_cd_ordem_servico,&#xA;&#x9;ISNULL(CodigoOrdemServicoCorrelata,-2) as thr_cd_ordem_servico_correlata,&#xA;&#x9;ISNULL(DescricaoClasseTrem,'NÃO ENCONTRADA') as thr_ds_classe_trem,&#xA;&#x9;ISNULL(CodigoPrefixoTrem,'-2') as thr_cd_prefixo_trem,&#xA;&#x9;ISNULL(CodigoEstacaoOrigem,'-2') as thr_cd_estacao_origem,&#xA;&#x9;ISNULL(CodigoEstacaoDestino,'-2') as thr_cd_estacao_destino,&#xA;&#x9;ISNULL(AreaOperacional,'NÃO ENCONTRADO') as thr_cd_area_operacional,&#xA;&#x9;ISNULL(DescricaoSituacaoTrem,'NÃO ENCONTRADO') as thr_ds_situacao_circulacao_trem,&#xA;&#x9;ISNULL(DataHoraOrigem,'1900-01-01 00:00:00') as thr_dt_origem,&#xA;&#x9;ISNULL(DataHoraDestino,'1900-01-01 00:00:00') as thr_dt_destino,&#xA;&#x9;SUM(TremHoraParado) as thr_no_tempo_trem_hora_parado,&#xA;&#x9;max(TransitTime) - SUM(TremHoraParado) as thr_no_tempo_trem_hora_marcha ,&#xA;&#x9;max(TransitTime) as thr_no_tempo_total_transit_time,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_aci) as thr_no_tempo_trem_hora_parado_aci,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_cco) as thr_no_tempo_trem_hora_parado_cco,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_ele) as thr_no_tempo_trem_hora_parado_ele,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_loc) as thr_no_tempo_trem_hora_parado_loc,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_obr) as thr_no_tempo_trem_hora_parado_obr,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_ope) as thr_no_tempo_trem_hora_parado_ope,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_pot) as thr_no_tempo_trem_hora_parado_pot,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_ptt) as thr_no_tempo_trem_hora_parado_ptt,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_vag) as thr_no_tempo_trem_hora_parado_vag,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_vpe) as thr_no_tempo_trem_hora_parado_vpe,&#xA;&#x9;SUM(thr_no_tempo_trem_hora_parado_nao_preenchido) as thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;&#x9;@dataProcessamento AS thr_dt_inclusao_registro,&#xA;&#x9;@dataProcessamento AS thr_dt_alteracao_registro,&#xA;&#x9;1 AS thr_sk_empresa_origem_registro,&#xA;&#x9;'VLI' AS thr_ds_empresa_origem_registro,&#xA;&#x9;ROW_NUMBER() OVER(PARTITION BY CodigoOrdemServico, CodigoPrefixoTrem, CodigoEstacaoOrigem, CodigoEstacaoDestino, DataHoraOrigem, DataHoraDestino ,&#xA;&#x9;AreaOperacional ORDER BY CodigoOrdemServicoCorrelata desc) AS CONT,&#xA;&#x9;ISNULL(VMAClasseTrem, -2) AS thr_ft_velocidade_maxima_alcancavel_classetrem, --US 264063&#xA;&#x9;ISNULL(CodigoClasseTrem,-2) as thr_cd_classetrem&#xA;INTO #RETIRADUPLICADOS&#xA;FROM #BASEPIVOT &#xA;where 1 = 1&#xA;GROUP BY&#xA;&#x9;CodigoOrdemServico,&#xA;&#x9;CodigoOrdemServicoCorrelata,&#xA;&#x9;DescricaoClasseTrem,&#xA;&#x9;CodigoPrefixoTrem,&#xA;&#x9;CodigoEstacaoOrigem,&#xA;&#x9;CodigoEstacaoDestino,&#xA;&#x9;AreaOperacional,&#xA;&#x9;DescricaoSituacaoTrem,&#xA;&#x9;DataHoraOrigem,&#xA;&#x9;DataHoraDestino,&#xA;&#x9;VMAClasseTrem,&#xA;&#x9;ISNULL(CodigoClasseTrem,-2);&#xA;&#xA;/*&#xA;*&#x9;248717 - [DW-CI] [OKR1-KR05-2025] [Novo Indicador] - Report para Transit Time com informações aderência trem tipo (TB ; HP,TB/HP)&#x9;&#xA;*&#xA;*&#x9;Realiza o agrupamento dos dados, referente à composição e locomotiva, que estão presentes na rpAderenciaTremTipoLocomotivas&#xA;*&#x9;Os indicadores TU, TB, QT_PARADAS_TREM, TKB, VL_CONSUMO_COMPOSIÇÃO não são agregáveis pois a granularidade já está em relação à composição&#xA;*&#xA;*&#x9;Os indicadores relacionados às locomotivas são agregáveis.&#xA;*&#x9;O indicador vl_percentual_reducao_tracao faz uma média da porcentagem das locomotivas tracionadas&#xA;*&#x9;O indicador qt_hp_locomotiva é somado apenas para as locomotivas tracionadas&#xA;*/ &#xA;&#xA;SELECT &#xA;&#x9;atl_no_ordem_servico_trem&#xA;&#x9;,atl_cd_prefixo_trem&#xA;&#x9;,atl_cd_classetrem&#xA;&#x9;,atl_id_composicao&#xA;&#x9;,atl_dt_formacao_composicao&#xA;&#x9;,atl_dt_encerramento_composicao&#xA;&#x9;,AVG(atl_qt_tu_composicao)&#x9;&#x9;&#x9;&#x9;AS atl_qt_tu_composicao&#xA;&#x9;,AVG(atl_qt_tb_composicao)&#x9;&#x9;&#x9;&#x9;AS atl_qt_tb_composicao&#x9;&#x9;&#xA;&#x9;,AVG(atl_qt_paradas_trem)&#x9;&#x9;&#x9;&#x9;AS atl_qt_paradas_trem&#xA;&#x9;,AVG(atl_qt_tkb_composicao)&#x9;&#x9;&#x9;&#x9;AS atl_qt_tkb_composicao&#xA;&#x9;,AVG(atl_vl_consumo_composicao)&#x9;&#x9;&#x9;AS atl_vl_consumo_composicao&#xA;&#x9;,AVG(CASE WHEN atl_ds_tracionado_rebocado = 'Tracionado' THEN atl_vl_percentual_reducao_tracao END)  AS atl_vl_percentual_reducao_tracao&#xA;&#x9;,SUM(CASE WHEN atl_ds_tracionado_rebocado = 'Tracionado' THEN atl_qt_hp_locomotiva END) AS atl_qt_hp_locomotiva&#xA;&#x9;,COUNT(CASE WHEN atl_ds_tracionado_rebocado = 'Tracionado' THEN 1 END) AS atl_qt_tracionado_locomotiva&#xA;&#x9;,COUNT(CASE WHEN atl_ds_tracionado_rebocado = 'Rebocado' THEN 1 END) AS atl_qt_rebocado_locomotiva&#xA;INTO #ADERENCIA&#xA;FROM CORP.rpAderenciaTremTipoLocomotivas&#xA;GROUP BY &#xA;&#x9;atl_no_ordem_servico_trem&#xA;&#x9;,atl_cd_prefixo_trem&#xA;&#x9;,atl_cd_classetrem&#xA;&#x9;,atl_id_composicao&#xA;&#x9;,atl_dt_formacao_composicao&#xA;&#x9;,atl_dt_encerramento_composicao&#xA;&#xA;/*&#xA;*&#x9;ADICIONA A COLUNA dt_media e filtra os registros duplicados&#xA;*&#x9;&#xA;*&#x9;A coluna dt_media é a media entre dt_origem e dt_destino e é utilizada como chave no join com a rpAderenciaTremTipoLocomotivas&#xA;*/&#xA;SELECT &#xA;&#x9;thr_cd_ordem_servico,&#xA;&#x9;thr_cd_ordem_servico_correlata,&#xA;&#x9;thr_ds_classe_trem,&#xA;&#x9;thr_cd_prefixo_trem,&#xA;&#x9;thr_cd_estacao_origem,&#xA;&#x9;thr_cd_estacao_destino,&#xA;&#x9;thr_cd_area_operacional,&#xA;&#x9;thr_ds_situacao_circulacao_trem,&#xA;&#x9;thr_dt_origem,&#xA;&#x9;thr_dt_destino,&#xA;&#x9;thr_no_tempo_trem_hora_parado,&#xA;&#x9;thr_no_tempo_trem_hora_marcha ,&#xA;&#x9;thr_no_tempo_total_transit_time,&#xA;&#x9;thr_no_tempo_trem_hora_parado_aci,&#xA;&#x9;thr_no_tempo_trem_hora_parado_cco,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ele,&#xA;&#x9;thr_no_tempo_trem_hora_parado_loc,&#xA;&#x9;thr_no_tempo_trem_hora_parado_obr,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ope,&#xA;&#x9;thr_no_tempo_trem_hora_parado_pot,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ptt,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vag,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vpe,&#xA;&#x9;thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;&#x9;thr_dt_inclusao_registro,&#xA;&#x9;thr_dt_alteracao_registro,&#xA;&#x9;thr_sk_empresa_origem_registro,&#xA;&#x9;thr_ds_empresa_origem_registro,&#xA;&#x9;CASE WHEN thr_dt_origem &lt; '2000-01-01' THEN thr_dt_destino&#xA;&#x9;&#x9;&#x9;  WHEN thr_dt_destino &lt; '2000-01-01' THEN thr_dt_origem&#xA;&#x9;&#x9;&#x9;  ELSE (DATEADD(SECOND, DATEDIFF(SECOND, thr_dt_origem, thr_dt_destino) / 2, thr_dt_origem))&#xA;&#x9;END AS thr_dt_media,&#xA;&#x9;thr_ft_velocidade_maxima_alcancavel_classetrem,&#xA;&#x9;thr_cd_classetrem--US 264063&#xA;&#xA;INTO #TT_DTMEDIA&#xA;from #RETIRADUPLICADOS&#xA;WHERE CONT = 1&#xA;&#xA;--Abaixo novas colunas da rpAderenciaTremTipoComposicaoSerie adicionadas na estória 261633 &#xA;Select &#xA;&#x9;ats_id_composicao&#xA;&#x9;,ats_vl_comprimento_composicao&#xA;&#x9;,ats_dt_partida_trem&#xA;&#x9;,ats_dt_chegada_trem&#xA;&#x9;,ats_ds_corredor_origem_os&#xA;&#x9;,ats_ds_corredor_origem_composicao&#xA;&#x9;,ats_ds_corredor_destino_composicao&#xA;&#x9;,ats_cd_estacao_origem_composicao&#xA;&#x9;,ats_cd_estacao_destino_composicao&#xA;&#x9;,ats_ds_tipo_composicao&#xA;&#x9;,ats_sn_tracao_isolada&#xA;&#x9;,ats_qt_tku_composicao&#xA;&#x9;,ats_qt_km_percorrido&#xA;&#x9;&#xA;&#x9;,ats_cd_posicao_distribuida&#xA;&#x9;,ats_qt_vagoes_vazios&#xA;&#x9;,ats_qt_vagoes_carregados&#xA;&#x9;,ats_qt_peso_medio_vagoes&#xA;&#x9;,ats_nm_produto_composicao&#xA;&#x9;&#xA;&#x9;,sum(ats_qt_hp_locomotivas_rebocada) as ats_qt_hp_locomotivas_rebocada&#xA;&#x9;,sum(ats_qt_hp_locomotivas_total) as ats_qt_hp_locomotivas_total&#xA;&#xA;&#x9;,sum(ats_qt_hp_locomotivas_restrito_tracionada) as ats_qt_hp_locomotivas_restrito_tracionada&#xA;&#x9;,sum(ats_qt_hp_locomotivas_restrito_rebocada) as ats_qt_hp_locomotivas_restrito_rebocada&#xA;&#x9;,sum(ats_qt_hp_locomotivas_restrito_total) as ats_qt_hp_locomotivas_restrito_total&#xA;&#xA;&#x9;,sum(ats_qt_hp_locomotivas_disponivel_tracionada) as ats_qt_hp_locomotivas_disponivel_tracionada&#xA;&#x9;,sum(ats_qt_hp_locomotivas_disponivel_rebocada) as ats_qt_hp_locomotivas_disponivel_rebocada&#xA;&#x9;,sum(ats_hp_locomotivas_disponivel_total) as ats_hp_locomotivas_disponivel_total&#xA;&#x9;&#xA;&#x9;,sum(ats_qt_locomotivas_total) as ats_qt_locomotivas_total&#xA;&#xA;&#x9;,STRING_AGG(CASE WHEN ats_qt_locomotivas_tracionado &gt; 0 &#xA;                 THEN CAST(ats_qt_locomotivas_tracionado AS NVARCHAR(20)) + ' ' + ats_cd_serie_locomotiva &#xA;                 ELSE NULL &#xA;            END, &#xA;            '; ') WITHIN GROUP (ORDER BY ats_qt_locomotivas_tracionado)&#x9;as ModeloComposicao&#xA;&#x9;&#xA;INTO #rpAderenciaTremTipoComposicaoSerie&#xA;FROM CORP.rpAderenciaTremTipoComposicaoSerie ad&#xA;--where ats_cd_prefixo_trem = 'M380'-- and ats_id_composicao = '4669004'&#xA;GROUP BY&#xA;&#x9;ats_id_composicao&#xA;&#x9;,ats_vl_comprimento_composicao&#xA;&#x9;,ats_dt_partida_trem&#xA;&#x9;,ats_dt_chegada_trem&#xA;&#x9;,ats_dt_formacao_composicao&#xA;&#x9;,ats_ds_corredor_origem_os&#xA;&#x9;,ats_ds_corredor_origem_composicao&#xA;&#x9;,ats_ds_corredor_destino_composicao&#xA;&#x9;,ats_cd_estacao_origem_composicao&#xA;&#x9;,ats_cd_estacao_destino_composicao&#xA;&#x9;,ats_ds_tipo_composicao&#xA;&#x9;,ats_sn_tracao_isolada&#xA;&#x9;,ats_qt_tku_composicao&#xA;&#x9;,ats_qt_km_percorrido&#xA;&#x9;,ats_cd_posicao_distribuida&#xA;&#x9;,ats_qt_vagoes_vazios&#xA;&#x9;,ats_qt_vagoes_carregados&#xA;&#x9;,ats_qt_peso_medio_vagoes&#xA;&#x9;,ats_nm_produto_composicao&#xA;&#x9;,ats_cd_prefixo_trem;&#xA;&#xA;SELECT &#xA;&#x9;thr_cd_ordem_servico,&#xA;&#x9;thr_cd_ordem_servico_correlata,&#xA;&#x9;thr_ds_classe_trem,&#xA;&#x9;thr_cd_prefixo_trem,&#xA;&#x9;thr_cd_estacao_origem,&#xA;&#x9;thr_cd_estacao_destino,&#xA;&#x9;thr_cd_area_operacional,&#xA;&#x9;thr_ds_situacao_circulacao_trem,&#xA;&#x9;thr_dt_origem,&#xA;&#x9;thr_dt_destino,&#xA;&#x9;thr_no_tempo_trem_hora_parado,&#xA;&#x9;thr_no_tempo_trem_hora_marcha ,&#xA;&#x9;thr_no_tempo_total_transit_time,&#xA;&#x9;thr_no_tempo_trem_hora_parado_aci,&#xA;&#x9;thr_no_tempo_trem_hora_parado_cco,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ele,&#xA;&#x9;thr_no_tempo_trem_hora_parado_loc,&#xA;&#x9;thr_no_tempo_trem_hora_parado_obr,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ope,&#xA;&#x9;thr_no_tempo_trem_hora_parado_pot,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ptt,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vag,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vpe,&#xA;&#x9;thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;&#x9;thr_dt_inclusao_registro,&#xA;&#x9;thr_dt_alteracao_registro,&#xA;&#x9;thr_sk_empresa_origem_registro,&#xA;&#x9;thr_ds_empresa_origem_registro&#xA;&#x9;--Abaixo estão os dados da rpAderenciaTremTipoLocomotivas &#xA;&#x9;--,ISNULL(ADERENCIA.atl_cd_classetrem, 'NAO SE APLICA') AS atl_cd_classetrem&#xA;&#x9;,ISNULL(ADERENCIA.atl_id_composicao, -1) AS atl_id_composicao&#xA;&#x9;,ISNULL(ADERENCIA.atl_dt_formacao_composicao, '1900-01-01 00:00:00') AS atl_dt_formacao_composicao&#xA;&#x9;,ISNULL(ADERENCIA.atl_dt_encerramento_composicao, '1900-01-01 00:00:00') AS atl_dt_encerramento_composicao&#xA;&#x9;,ISNULL(ADERENCIA.atl_qt_tu_composicao, 0) AS atl_qt_tu_composicao&#xA;&#x9;,ISNULL(ADERENCIA.atl_qt_tb_composicao, 0) AS atl_qt_tb_composicao&#xA;&#x9;,ISNULL(ADERENCIA.atl_qt_paradas_trem, 0) AS atl_qt_paradas_trem&#xA;&#x9;,ISNULL(ADERENCIA.atl_qt_tkb_composicao, 0) AS atl_qt_tkb_composicao&#xA;&#x9;,ISNULL(ADERENCIA.atl_vl_consumo_composicao, 0) AS atl_vl_consumo_composicao&#xA;&#x9;,CASE &#xA;&#x9;&#x9;WHEN &#xA;&#x9;&#x9;&#x9;ADERENCIA.atl_qt_hp_locomotiva IS NULL &#xA;&#x9;&#x9;&#x9;OR ADERENCIA.atl_qt_hp_locomotiva = 0 &#xA;&#x9;&#x9;&#x9;OR ADERENCIA.atl_qt_tb_composicao IS NULL&#xA;&#x9;&#x9;&#x9;THEN 0 &#xA;&#x9;&#x9;ELSE CAST((ADERENCIA.atl_qt_tb_composicao / ADERENCIA.atl_qt_hp_locomotiva) AS NUMERIC(12,3))&#xA;&#x9;END AS atl_qt_tb_hp_locomotiva &#xA;&#x9;,ISNULL(ADERENCIA.atl_vl_percentual_reducao_tracao, 0) AS atl_vl_percentual_reducao_tracao&#xA;&#x9;,ISNULL(ADERENCIA.atl_qt_hp_locomotiva, 0) AS atl_qt_hp_locomotiva&#xA;&#x9;,ISNULL(ADERENCIA.atl_qt_tracionado_locomotiva, 0) AS atl_qt_tracionado_locomotiva&#xA;&#x9;,ISNULL(ADERENCIA.atl_qt_rebocado_locomotiva, 0) AS atl_qt_rebocado_locomotiva&#xA;&#x9;,ROW_NUMBER() OVER(PARTITION BY thr_cd_ordem_servico, thr_cd_prefixo_trem, thr_cd_estacao_origem, thr_cd_estacao_destino, thr_dt_origem, thr_dt_destino ,&#xA;&#x9;thr_cd_area_operacional ORDER BY thr_cd_ordem_servico_correlata desc) AS RN&#xA;&#x9;,thr_cd_classetrem&#xA;&#x9;--Abaixo novas colunas adicionadas na estória 261633 - Coluna de sequencia de estações e Dados da rpAderenciaTremTipoComposicaoSerie&#xA;&#x9;,ROW_NUMBER() OVER (PARTITION BY thr_cd_ordem_servico ORDER BY thr_dt_origem, thr_dt_destino) as Sequencia&#xA;&#x9;,ISNULL(ad.ats_ds_corredor_origem_os,'NÃO ENCONTRADO')&#x9;&#x9;&#x9;AS ats_ds_corredor_origem_os&#xA;&#x9;,ISNULL(ad.ats_vl_comprimento_composicao,-1)&#x9;AS ats_vl_comprimento_composicao&#xA;&#x9;,ISNULL(ad.ats_dt_partida_trem,'1900-01-01 00:00:00')&#x9;&#x9;&#x9;AS ats_dt_partida_trem&#xA;&#x9;,ISNULL(ad.ats_dt_chegada_trem,'1900-01-01 00:00:00')&#x9;&#x9;&#x9;AS ats_dt_chegada_trem&#xA;&#x9;,ISNULL(ad.ats_ds_corredor_origem_composicao,'NÃO ENCONTRADO')&#x9;AS ats_ds_corredor_origem_composicao&#xA;&#x9;,ISNULL(ad.ats_ds_corredor_destino_composicao,'NÃO ENCONTRADO')&#x9;AS ats_ds_corredor_destino_composicao&#xA;&#x9;,ISNULL(ad.ats_cd_estacao_origem_composicao,'NSA')&#x9;&#x9;&#x9;&#x9;AS ats_cd_estacao_origem_composicao&#xA;&#x9;,ISNULL(ad.ats_cd_estacao_destino_composicao,'NSA')&#x9;&#x9;&#x9;&#x9;AS ats_cd_estacao_destino_composicao&#xA;&#x9;,ISNULL(ad.ats_ds_tipo_composicao,'NÃO ENCONTRADO')&#x9;&#x9;&#x9;&#x9;AS ats_ds_tipo_composicao&#xA;&#x9;,ISNULL(ad.ats_sn_tracao_isolada,'NSA')&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_sn_tracao_isolada&#xA;&#x9;,ISNULL(ad.ats_qt_tku_composicao,-1)&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_tku_composicao&#xA;&#x9;,ISNULL(ad.ats_qt_km_percorrido,-1)&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_km_percorrido&#xA;&#x9;,ISNULL(ad.ats_cd_posicao_distribuida,'NSA')&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_cd_posicao_distribuida&#xA;&#x9;,ISNULL(ad.ats_qt_vagoes_vazios,-1)&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_vagoes_vazios&#xA;&#x9;,ISNULL(ad.ats_qt_vagoes_carregados,-1)&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_vagoes_carregados&#xA;&#x9;,ISNULL(ad.ats_qt_peso_medio_vagoes,-1)&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_peso_medio_vagoes&#xA;&#x9;,ISNULL(ad.ats_nm_produto_composicao,'NÃO ENCONTRADO')&#x9;&#x9;&#x9;AS ats_nm_produto_composicao&#xA;&#x9;,ISNULL(ad.ats_qt_hp_locomotivas_rebocada,-1)&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_hp_locomotivas_rebocada&#xA;&#x9;,ISNULL(ad.ats_qt_hp_locomotivas_total,-1)&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_hp_locomotivas_total&#xA;&#x9;,ISNULL(ad.ats_qt_hp_locomotivas_restrito_tracionada,-1)&#x9;&#x9;AS ats_qt_hp_locomotivas_restrito_tracionada&#xA;&#x9;,ISNULL(ad.ats_qt_hp_locomotivas_restrito_rebocada,-1)&#x9;&#x9;&#x9;AS ats_qt_hp_locomotivas_restrito_rebocada&#xA;&#x9;,ISNULL(ad.ats_qt_hp_locomotivas_restrito_total,-1)&#x9;&#x9;&#x9;&#x9;AS ats_qt_hp_locomotivas_restrito_total&#xA;&#x9;,ISNULL(ad.ats_qt_hp_locomotivas_disponivel_tracionada,-1)&#x9;&#x9;AS ats_qt_hp_locomotivas_disponivel_tracionada&#xA;&#x9;,ISNULL(ad.ats_qt_hp_locomotivas_disponivel_rebocada,-1)&#x9;&#x9;AS ats_qt_hp_locomotivas_disponivel_rebocada&#xA;&#x9;,ISNULL(ad.ats_hp_locomotivas_disponivel_total,-1)&#x9;&#x9;&#x9;&#x9;AS ats_hp_locomotivas_disponivel_total&#xA;&#x9;,ISNULL(ad.ats_qt_locomotivas_total,-1)&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;AS ats_qt_locomotivas_total&#xA;&#x9;,ISNULL(ad.ModeloComposicao,'NÃO ENCONTRADO')&#x9;&#x9;&#x9;&#x9;&#x9;AS ModeloComposicao&#xA;&#x9;,thr_ft_velocidade_maxima_alcancavel_classetrem --US 264063&#xA;INTO #TT_RETIRA_DUPLICADOS&#xA;FROM #TT_DTMEDIA AS TT_DTMEDIA&#xA;LEFT JOIN #ADERENCIA AS ADERENCIA&#xA;&#x9;ON TT_DTMEDIA.thr_cd_ordem_servico = ADERENCIA.atl_no_ordem_servico_trem&#xA;&#x9;&#x9;AND TT_DTMEDIA.thr_dt_media BETWEEN ADERENCIA.atl_dt_formacao_composicao AND ADERENCIA.atl_dt_encerramento_composicao&#xA;LEFT JOIN #rpAderenciaTremTipoComposicaoSerie  ad on ad.ats_id_composicao = ADERENCIA.atl_id_composicao&#xA;&#xA;&#xA;SELECT *&#xA;&#x9;,thr_cd_hash_unique_keys = CONVERT(CHAR(32),HASHBYTES('MD5',concat_ws('_',thr_cd_ordem_servico,thr_cd_ordem_servico_correlata,thr_cd_area_operacional,thr_sk_empresa_origem_registro)),2)&#xA;&#x9;,thr_cd_hash_chave_update = CONVERT(CHAR(32),HASHBYTES('SHA2_512',CONCAT_WS('_',&#xA;&#x9;&#x9;thr_cd_ordem_servico,&#xA;&#x9;&#x9;thr_cd_ordem_servico_correlata,&#xA;&#x9;&#x9;thr_ds_classe_trem,&#xA;&#x9;&#x9;thr_cd_prefixo_trem,&#xA;&#x9;&#x9;thr_cd_estacao_origem,&#xA;&#x9;&#x9;thr_cd_estacao_destino,&#xA;&#x9;&#x9;thr_cd_area_operacional,&#xA;&#x9;&#x9;thr_ds_situacao_circulacao_trem,&#xA;&#x9;&#x9;thr_dt_origem,&#xA;&#x9;&#x9;thr_dt_destino,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_marcha ,&#xA;&#x9;&#x9;thr_no_tempo_total_transit_time,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_aci,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_cco,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_ele,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_loc,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_obr,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_ope,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_pot,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_ptt,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_vag,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_vpe,&#xA;&#x9;&#x9;thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;&#x9;&#x9;thr_sk_empresa_origem_registro,&#xA;&#x9;&#x9;thr_ds_empresa_origem_registro&#xA;&#x9;--Abaixo estão os dados da rpAderenciaTremTipoLocomotivas &#xA;&#x9;,thr_cd_classetrem&#xA;&#x9;,atl_id_composicao&#xA;&#x9;,atl_dt_formacao_composicao&#xA;&#x9;,atl_dt_encerramento_composicao&#xA;&#x9;,atl_qt_tu_composicao&#xA;&#x9;,atl_qt_tb_composicao&#xA;&#x9;,atl_qt_paradas_trem&#xA;&#x9;,atl_qt_tkb_composicao&#xA;&#x9;,atl_vl_consumo_composicao&#xA;&#x9;,atl_qt_tb_hp_locomotiva &#xA;&#x9;,atl_vl_percentual_reducao_tracao&#xA;&#x9;,atl_qt_hp_locomotiva&#xA;&#x9;,atl_qt_tracionado_locomotiva&#xA;&#x9;,atl_qt_rebocado_locomotiva&#x9;&#xA;&#x9;--Abaixo novas colunas adicionadas na estória 261633 - Coluna de sequencia de estações e Dados da rpAderenciaTremTipoComposicaoSerie&#xA;&#x9;,Sequencia&#xA;&#x9;,ats_ds_corredor_origem_os&#xA;&#x9;,ats_vl_comprimento_composicao&#xA;&#x9;,ats_dt_partida_trem&#xA;&#x9;,ats_dt_chegada_trem&#xA;&#x9;,ats_ds_corredor_origem_composicao&#xA;&#x9;,ats_ds_corredor_destino_composicao&#xA;&#x9;,ats_cd_estacao_origem_composicao&#xA;&#x9;,ats_cd_estacao_destino_composicao&#xA;&#x9;,ats_ds_tipo_composicao&#xA;&#x9;,ats_sn_tracao_isolada&#xA;&#x9;,ats_qt_tku_composicao&#xA;&#x9;,ats_qt_km_percorrido&#xA;&#x9;,ats_cd_posicao_distribuida&#xA;&#x9;,ats_qt_vagoes_vazios&#xA;&#x9;,ats_qt_vagoes_carregados&#xA;&#x9;,ats_qt_peso_medio_vagoes&#xA;&#x9;,ats_nm_produto_composicao&#xA;&#x9;,ats_qt_hp_locomotivas_rebocada&#xA;&#x9;,ats_qt_hp_locomotivas_total&#xA;&#x9;,ats_qt_hp_locomotivas_restrito_tracionada&#xA;&#x9;,ats_qt_hp_locomotivas_restrito_rebocada&#xA;&#x9;,ats_qt_hp_locomotivas_restrito_total&#xA;&#x9;,ats_qt_hp_locomotivas_disponivel_tracionada&#xA;&#x9;,ats_qt_hp_locomotivas_disponivel_rebocada&#xA;&#x9;,ats_hp_locomotivas_disponivel_total&#xA;&#x9;,ats_qt_locomotivas_total&#xA;&#x9;,ModeloComposicao&#xA;&#x9;,thr_ft_velocidade_maxima_alcancavel_classetrem)),2)&#xA;INTO #TT_COM_HASH&#xA;FROM #TT_RETIRA_DUPLICADOS&#xA;WHERE RN=1&#xA;/* Filtro adicionado para coletar apenas dados do ano anterior e do ano atual */&#xA;AND &#xA;(&#xA;&#x9;CASE WHEN thr_dt_origem='1900-01-01 00:00:00.000' THEN thr_dt_destino &#xA;&#x9;ELSE thr_dt_origem END&#xA;) &gt;= DATEFROMPARTS(YEAR(GETDATE())-1,1,1)&#xA;&#xA;&#xA;IF @FULL = 0&#xA;BEGIN&#xA;&#xA;SET @dataInicio = (SELECT MIN(ttt_dt_origem) FROM corp.rpTemposTransitTime)&#xA;SET @dataFim = @dataProcessamento; --dataBancoSSIS&#xA;&#xA;TRUNCATE TABLE corp_stg.rpTemposTransitTimeResponsabilidade&#xA;&#xA;END&#xA;&#xA;INSERT INTO corp_stg.rpTemposTransitTimeResponsabilidade&#xA;(&#xA;&#x9;thr_cd_ordem_servico,&#xA;&#x9;thr_cd_ordem_servico_correlata,&#xA;&#x9;thr_ds_classe_trem,&#xA;&#x9;thr_cd_prefixo_trem,&#xA;&#x9;thr_cd_estacao_origem,&#xA;&#x9;thr_cd_estacao_destino,&#xA;&#x9;thr_cd_area_operacional,&#xA;&#x9;thr_ds_situacao_circulacao_trem,&#xA;&#x9;thr_dt_origem,&#xA;&#x9;thr_dt_destino,&#xA;&#x9;thr_no_tempo_trem_hora_parado,&#xA;&#x9;thr_no_tempo_trem_hora_marcha ,&#xA;&#x9;thr_no_tempo_total_transit_time,&#xA;&#x9;thr_no_tempo_trem_hora_parado_aci,&#xA;&#x9;thr_no_tempo_trem_hora_parado_cco,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ele,&#xA;&#x9;thr_no_tempo_trem_hora_parado_loc,&#xA;&#x9;thr_no_tempo_trem_hora_parado_obr,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ope,&#xA;&#x9;thr_no_tempo_trem_hora_parado_pot,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ptt,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vag,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vpe,&#xA;&#x9;thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;&#x9;thr_dt_inclusao_registro, &#xA;&#x9;thr_dt_alteracao_registro&#xA;&#x9;,thr_sk_empresa_origem_registro&#xA;&#x9;,thr_ds_empresa_origem_registro&#xA;&#x9;--Abaixo estão os dados da rpAderenciaTremTipoLocomotivas &#xA;&#x9;,thr_cd_classetrem&#xA;&#x9;,thr_id_composicao&#x9;  &#xA;&#x9;,thr_dt_formacao_composicao&#xA;&#x9;,thr_dt_encerramento_composicao&#xA;&#x9;,thr_qt_na_tu_composicao&#xA;&#x9;,thr_qt_na_tb_composicao&#xA;&#x9;,thr_qt_na_paradas_trem&#x9;  &#xA;&#x9;,thr_qt_na_tkb_composicao&#x9;  &#xA;&#x9;,thr_vl_consumo_composicao&#xA;&#x9;,thr_qt_tb_hp_locomotiva&#xA;&#x9;,thr_vl_percentual_reducao_tracao&#xA;&#x9;,thr_qt_hp_locomotiva&#xA;&#x9;,thr_qt_tracionado_locomotiva&#xA;&#x9;,thr_qt_rebocado_locomotiva&#xA;&#x9;--&#xA;&#x9;,thr_no_sequencia_estacao_ordem_servico&#xA;&#x9;,thr_ds_corredor_origem_ordem_servico&#xA;&#x9;,thr_vl_comprimento_composicao&#xA;&#x9;,thr_dt_partida_trem_composicao&#xA;&#x9;,thr_dt_chegada_trem_composicao&#xA;&#x9;,thr_ds_corredor_origem_composicao&#xA;&#x9;,thr_ds_corredor_destino_composicao&#xA;&#x9;,thr_cd_estacao_origem_composicao&#xA;&#x9;,thr_cd_estacao_destino_composicao&#xA;&#x9;,thr_ds_tipo_composicao&#xA;&#x9;,thr_sn_tracao_isolada_composicao&#xA;&#x9;,thr_qt_tku_composicao&#xA;&#x9;,thr_qt_km_percorrido_composicao&#xA;&#x9;,thr_cd_posicao_distribuida_composicao&#xA;&#x9;,thr_qt_vagoes_vazios_composicao&#xA;&#x9;,thr_qt_vagoes_carregados_composicao&#xA;&#x9;,thr_qt_peso_medio_vagoes_composicao&#xA;&#x9;,thr_nm_produto_composicao&#xA;&#x9;,thr_qt_hp_locomotivas_rebocadas_composicao&#xA;&#x9;,thr_qt_hp_total_locomotivas_composicao&#xA;&#x9;,thr_qt_hp_restrito_locomotivas_tracionadas_composicao&#xA;&#x9;,thr_qt_hp_restrito_locomotivas_rebocadas_composicao&#xA;&#x9;,thr_qt_hp_restrito_total_locomotivas_composicao&#xA;&#x9;,thr_qt_hp_disponivel_locomotivas_tracionadas_composicao&#xA;&#x9;,thr_qt_hp_disponivel_locomotivas_rebocadas_composicao&#xA;&#x9;,thr_qt_hp_disponivel_total_locomotivas_composicao&#xA;&#x9;,thr_qt_total_locomotivas_composicao&#xA;&#x9;,thr_ds_modelos_serie_locomotivas_composicao&#xA;&#x9;,thr_ft_velocidade_maxima_alcancavel_classetrem --US 264063&#xA;&#x9;-- US 271434&#xA;&#x9;,thr_cd_hash_unique_keys&#xA;&#x9;,thr_cd_hash_chave_update&#xA;&#xA;)&#xA;&#xA;SELECT &#xA;&#x9;thr_cd_ordem_servico,&#xA;&#x9;thr_cd_ordem_servico_correlata,&#xA;&#x9;thr_ds_classe_trem,&#xA;&#x9;thr_cd_prefixo_trem,&#xA;&#x9;thr_cd_estacao_origem,&#xA;&#x9;thr_cd_estacao_destino,&#xA;&#x9;thr_cd_area_operacional,&#xA;&#x9;thr_ds_situacao_circulacao_trem,&#xA;&#x9;thr_dt_origem,&#xA;&#x9;thr_dt_destino,&#xA;&#x9;thr_no_tempo_trem_hora_parado,&#xA;&#x9;thr_no_tempo_trem_hora_marcha ,&#xA;&#x9;thr_no_tempo_total_transit_time,&#xA;&#x9;thr_no_tempo_trem_hora_parado_aci,&#xA;&#x9;thr_no_tempo_trem_hora_parado_cco,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ele,&#xA;&#x9;thr_no_tempo_trem_hora_parado_loc,&#xA;&#x9;thr_no_tempo_trem_hora_parado_obr,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ope,&#xA;&#x9;thr_no_tempo_trem_hora_parado_pot,&#xA;&#x9;thr_no_tempo_trem_hora_parado_ptt,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vag,&#xA;&#x9;thr_no_tempo_trem_hora_parado_vpe,&#xA;&#x9;thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;&#x9;thr_dt_inclusao_registro,&#xA;&#x9;thr_dt_alteracao_registro,&#xA;&#x9;thr_sk_empresa_origem_registro,&#xA;&#x9;thr_ds_empresa_origem_registro&#xA;&#x9;--Abaixo estão os dados da rpAderenciaTremTipoLocomotivas &#xA;&#x9;,thr_cd_classetrem&#xA;&#x9;,atl_id_composicao&#xA;&#x9;,atl_dt_formacao_composicao&#xA;&#x9;,atl_dt_encerramento_composicao&#xA;&#x9;,atl_qt_tu_composicao&#xA;&#x9;,atl_qt_tb_composicao&#xA;&#x9;,atl_qt_paradas_trem&#xA;&#x9;,atl_qt_tkb_composicao&#xA;&#x9;,atl_vl_consumo_composicao&#xA;&#x9;,atl_qt_tb_hp_locomotiva &#xA;&#x9;,atl_vl_percentual_reducao_tracao&#xA;&#x9;,atl_qt_hp_locomotiva&#xA;&#x9;,atl_qt_tracionado_locomotiva&#xA;&#x9;,atl_qt_rebocado_locomotiva&#x9;&#xA;&#x9;--Abaixo novas colunas adicionadas na estória 261633 - Coluna de sequencia de estações e Dados da rpAderenciaTremTipoComposicaoSerie&#xA;&#x9;,Sequencia&#xA;&#x9;,ats_ds_corredor_origem_os&#xA;&#x9;,ats_vl_comprimento_composicao&#xA;&#x9;,ats_dt_partida_trem&#xA;&#x9;,ats_dt_chegada_trem&#xA;&#x9;,ats_ds_corredor_origem_composicao&#xA;&#x9;,ats_ds_corredor_destino_composicao&#xA;&#x9;,ats_cd_estacao_origem_composicao&#xA;&#x9;,ats_cd_estacao_destino_composicao&#xA;&#x9;,ats_ds_tipo_composicao&#xA;&#x9;,ats_sn_tracao_isolada&#xA;&#x9;,ats_qt_tku_composicao&#xA;&#x9;,ats_qt_km_percorrido&#xA;&#x9;,ats_cd_posicao_distribuida&#xA;&#x9;,ats_qt_vagoes_vazios&#xA;&#x9;,ats_qt_vagoes_carregados&#xA;&#x9;,ats_qt_peso_medio_vagoes&#xA;&#x9;,ats_nm_produto_composicao&#xA;&#x9;,ats_qt_hp_locomotivas_rebocada&#xA;&#x9;,ats_qt_hp_locomotivas_total&#xA;&#x9;,ats_qt_hp_locomotivas_restrito_tracionada&#xA;&#x9;,ats_qt_hp_locomotivas_restrito_rebocada&#xA;&#x9;,ats_qt_hp_locomotivas_restrito_total&#xA;&#x9;,ats_qt_hp_locomotivas_disponivel_tracionada&#xA;&#x9;,ats_qt_hp_locomotivas_disponivel_rebocada&#xA;&#x9;,ats_hp_locomotivas_disponivel_total&#xA;&#x9;,ats_qt_locomotivas_total&#xA;&#x9;,ModeloComposicao&#xA;&#x9;--&#xA;&#x9;,thr_ft_velocidade_maxima_alcancavel_classetrem --US 264063&#xA;&#x9;,thr_cd_hash_unique_keys&#xA;&#x9;,thr_cd_hash_chave_update&#xA;&#xA;FROM #TT_COM_HASH&#xA;&#xA;&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::Data_inicio_execucao"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::ProcessamentoFull"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="131"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::Reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="131"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="3"
+            SQLTask:DtsVariableName="User::data_inicio_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="4"
+            SQLTask:DtsVariableName="User::data_fim_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\ESQL_CargaReport_Incremental_VALE"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{90695cd9-1f1c-4d6c-bef1-d93513b91d45}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="ESQL_CargaReport_Incremental_VALE"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{6CC07B41-9A45-4746-96E7-6B8CDAA39323}"
+          SQLTask:SqlStatementSource="DECLARE @dataProcessamento DATE = ?&#xA;DECLARE @dataInicio DATE&#xA;DECLARE @dataFim DATE&#xA;DECLARE @FULL INT = ?&#xA;DECLARE @REPROCESSAMENTO INT = ?;&#xA;&#xA;IF @FULL = 0&#xA;BEGIN&#xA;&#xA;SET @dataInicio = (SELECT MIN(ttt_dt_origem) FROM corp.rpTemposTransitTime)&#xA;SET @dataFim = @dataProcessamento; --dataBancoSSIS&#xA;&#xA;END&#xA;&#xA;IF @REPROCESSAMENTO = 1&#xA;&#xA;BEGIN&#xA;SET @dataInicio = ?&#xA;SET @dataFim = ?&#xA;DELETE FROM corp.rpTemposTransitTimeResponsabilidade WHERE thr_dt_destino BETWEEN @dataInicio AND @dataFim&#xA;&#xA;END&#xA;;&#xA;&#xA;WITH stgRP AS (&#xA;&#xA;SELECT&#xA;&#x9;&#x9;ISNULL(OST.ost_no_ordem_servico_trem,OSI.osi_no_ordem_servico_trem) AS ost_no_ordem_servico_trem&#xA;&#x9;&#x9;,OSI.osi_no_ordem_servico_trem AS osi_no_ordem_servico_correlata&#xA;&#x9;&#x9;,tre_cd_prefixo_trem&#xA;&#x9;&#x9;,ESTO.est_cd_estacao ORIGEM&#xA;&#x9;&#x9;,ESTD.est_cd_estacao DESTINO&#xA;&#x9;&#x9;,ARO.aro_cd_areaoperacional&#xA;&#x9;&#x9;,DATA_ORIGEM.dat_dt_data + CAST(tti_sk_hr_saida_origem_trem AS DATETIME) AS tti_sk_dt_saida_origem_trem&#xA;&#x9;&#x9;,DATA_DESTINO.dat_dt_data + CAST(tti_sk_hr_chegada_destino_trem AS DATETIME) AS tti_sk_dt_chegada_destino_trem&#xA;&#x9;&#x9;,tti_no_tempo_trem_hora_parado&#x9;&#xA;&#x9;&#x9;,tti_no_tempo_trem_hora_marcha&#x9;&#xA;&#x9;&#x9;,tti_no_tempo_total_transit_time&#xA;&#x9;&#x9;,tti_dt_inclusao_registro&#xA;&#x9;&#x9;,tti_dt_alteracao_registro&#xA;&#x9;&#x9;,ROW_NUMBER()over(partition by ISNULL(OST.ost_no_ordem_servico_trem,OSI.osi_no_ordem_servico_trem),OSI.osi_no_ordem_servico_trem,tre_cd_prefixo_trem,aro_cd_areaoperacional,tti_sk_dt_saida_origem_trem,tti_sk_dt_chegada_destino_trem ORDER BY OSI.osi_no_ordem_servico_trem DESC) AS RNK&#xA;&#xA;FROM CORP.fdTransitTimeAreasOperacionaisIntercambios fd&#xA;&#xA;LEFT JOIN CORP.mdOrdensServicoTremIntercambios OSI&#xA;&#x9;ON OSI.osi_sk_ordem_servico_trem = FD.tti_sk_ordem_servico_trem&#xA;&#xA;LEFT JOIN CORP.mdOrdensServicoTrem OST &#xA;&#x9;ON OSI.osi_no_ordem_servico_trem = OST.ost_no_ordem_servico_correlata&#xA;&#xA;LEFT JOIN CORP.mdTrens TRE WITH (NOLOCK) &#xA;&#x9;ON TRE.tre_sk_trem = FD.tti_sk_trem&#xA;&#xA;LEFT JOIN CORP.mdEstacoes ESTO WITH (NOLOCK) &#xA;&#x9;ON ESTO.est_sk_estacao = FD.tti_sk_estacao_origem&#xA;&#xA;LEFT JOIN CORP.mdEstacoes ESTD WITH (NOLOCK) &#xA;&#x9;ON ESTD.est_sk_estacao = FD.tti_sk_estacao_destino&#xA;&#xA;LEFT JOIN OPF.mdAreasOperacionais ARO WITH (NOLOCK) &#xA;&#x9;ON ARO.aro_sk_areaoperacional = FD.tti_sk_areaoperacional&#xA;&#xA;LEFT JOIN gbl.mdDatas DATA_ORIGEM WITH (NOLOCK) &#xA;&#x9;ON DATA_ORIGEM.dat_no_ano_mes_dia = FD.tti_sk_dt_saida_origem_trem&#xA;&#xA;LEFT JOIN gbl.mdDatas DATA_DESTINO WITH (NOLOCK) &#xA;&#x9;ON DATA_DESTINO.dat_no_ano_mes_dia = FD.tti_sk_dt_chegada_destino_trem&#xA;)&#xA;&#xA;INSERT INTO corp_stg.rpTemposTransitTimeResponsabilidade&#xA;(&#xA;  thr_cd_ordem_servico,&#xA;  thr_cd_ordem_servico_correlata,&#xA;  thr_ds_classe_trem,&#xA;  thr_cd_prefixo_trem,&#xA;  thr_cd_estacao_origem,&#xA;  thr_cd_estacao_destino,&#xA;  thr_cd_area_operacional,&#xA;  thr_ds_situacao_circulacao_trem,&#xA;  thr_dt_origem,&#xA;  thr_dt_destino,&#xA;  thr_no_tempo_trem_hora_parado,&#xA;  thr_no_tempo_trem_hora_marcha ,&#xA;  thr_no_tempo_total_transit_time,&#xA;  thr_no_tempo_trem_hora_parado_aci,&#xA;  thr_no_tempo_trem_hora_parado_cco,&#xA;  thr_no_tempo_trem_hora_parado_ele,&#xA;  thr_no_tempo_trem_hora_parado_loc,&#xA;  thr_no_tempo_trem_hora_parado_obr,&#xA;  thr_no_tempo_trem_hora_parado_ope,&#xA;  thr_no_tempo_trem_hora_parado_pot,&#xA;  thr_no_tempo_trem_hora_parado_ptt,&#xA;  thr_no_tempo_trem_hora_parado_vag,&#xA;  thr_no_tempo_trem_hora_parado_vpe,&#xA;  thr_no_tempo_trem_hora_parado_nao_encontrado,&#xA;  thr_dt_inclusao_registro, &#xA;  thr_dt_alteracao_registro,&#xA;  thr_sk_empresa_origem_registro,&#xA;  thr_ds_empresa_origem_registro&#xA;&#x9;--Abaixo estão os dados da rpAderenciaTremTipoLocomotivas &#xA;&#x9;,thr_cd_classetrem&#xA;&#x9;,thr_id_composicao&#x9;  &#xA;&#x9;,thr_dt_formacao_composicao&#xA;&#x9;,thr_dt_encerramento_composicao&#xA;&#x9;,thr_qt_na_tu_composicao&#xA;&#x9;,thr_qt_na_tb_composicao&#xA;&#x9;,thr_qt_na_paradas_trem&#x9;  &#xA;&#x9;,thr_qt_na_tkb_composicao&#x9;  &#xA;&#x9;,thr_vl_consumo_composicao&#xA;&#x9;,thr_qt_tb_hp_locomotiva&#xA;&#x9;,thr_vl_percentual_reducao_tracao&#xA;&#x9;,thr_qt_hp_locomotiva&#xA;&#x9;,thr_qt_tracionado_locomotiva&#xA;&#x9;,thr_qt_rebocado_locomotiva&#xA;&#x9;--&#xA;&#x9;,thr_no_sequencia_estacao_ordem_servico&#xA;&#x9;,thr_ds_corredor_origem_ordem_servico&#xA;&#x9;,thr_vl_comprimento_composicao&#xA;&#x9;,thr_dt_partida_trem_composicao&#xA;&#x9;,thr_dt_chegada_trem_composicao&#xA;&#x9;,thr_ds_corredor_origem_composicao&#xA;&#x9;,thr_ds_corredor_destino_composicao&#xA;&#x9;,thr_cd_estacao_origem_composicao&#xA;&#x9;,thr_cd_estacao_destino_composicao&#xA;&#x9;,thr_ds_tipo_composicao&#xA;&#x9;,thr_sn_tracao_isolada_composicao&#xA;&#x9;,thr_qt_tku_composicao&#xA;&#x9;,thr_qt_km_percorrido_composicao&#xA;&#x9;,thr_cd_posicao_distribuida_composicao&#xA;&#x9;,thr_qt_vagoes_vazios_composicao&#xA;&#x9;,thr_qt_vagoes_carregados_composicao&#xA;&#x9;,thr_qt_peso_medio_vagoes_composicao&#xA;&#x9;,thr_nm_produto_composicao&#xA;&#x9;,thr_qt_hp_locomotivas_rebocadas_composicao&#xA;&#x9;,thr_qt_hp_total_locomotivas_composicao&#xA;&#x9;,thr_qt_hp_restrito_locomotivas_tracionadas_composicao&#xA;&#x9;,thr_qt_hp_restrito_locomotivas_rebocadas_composicao&#xA;&#x9;,thr_qt_hp_restrito_total_locomotivas_composicao&#xA;&#x9;,thr_qt_hp_disponivel_locomotivas_tracionadas_composicao&#xA;&#x9;,thr_qt_hp_disponivel_locomotivas_rebocadas_composicao&#xA;&#x9;,thr_qt_hp_disponivel_total_locomotivas_composicao&#xA;&#x9;,thr_qt_total_locomotivas_composicao&#xA;&#x9;,thr_ds_modelos_serie_locomotivas_composicao&#xA;&#x9;,thr_ft_velocidade_maxima_alcancavel_classetrem --US 264063&#xA;&#x9;,thr_cd_hash_unique_keys&#xA;&#x9;,thr_cd_hash_chave_update&#xA;)&#xA;&#xA;SELECT &#xA; &#x9;&#x9;ost_no_ordem_servico_trem&#x9;&#x9;&#x9;&#x9;&#xA;&#x9;&#x9;,osi_no_ordem_servico_correlata&#x9;&#xA;&#x9;&#x9; ,CASE &#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'A' THEN 'AUTO DE LINHA'&#xA;&#x9;&#x9;&#x9;When LEFT(tre_cd_prefixo_trem,1) = 'B' THEN 'AUTO DE LINHA'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'C' THEN 'CARGUEIRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'D' THEN 'COMBUSTÍVEIS'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'E' THEN 'EXPRESSO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'F' THEN 'VEÍCULO RODOFERROV'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'G' THEN 'MINÉRIO VAGÃO C G'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'H' THEN 'HELP'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'I' THEN 'INSPEÇÃO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'J' THEN 'GRÃOS'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'K' THEN 'CARVÃO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'L' THEN 'ESCOTEIRA'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'M' THEN 'MINÉRIO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'N' THEN 'VAGO-RESERVADO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'O' THEN 'TREM ESPECIAL'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'Q' THEN 'AÇUCAR'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'P' THEN 'PASSAGEIRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'R' THEN 'EQUIPAMENTO VP'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'S' THEN 'SOCORRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'T' THEN 'TRILHEIRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'V' THEN 'SERVIÇO INTERNO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'W' THEN 'MANOBRAS'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'X' THEN 'PRODUTOS QUÍMICOS'&#xA;&#x9;&#x9;END AS thr_ds_classe_trem&#xA;&#x9;&#x9;,tre_cd_prefixo_trem&#xA;&#x9;&#x9;,ORIGEM&#xA;&#x9;&#x9;,DESTINO&#xA;&#x9;&#x9;,aro_cd_areaoperacional&#xA;&#x9;&#x9;,'ENCERRADO'&#xA;&#x9;&#x9;,tti_sk_dt_saida_origem_trem&#xA;&#x9;&#x9;,tti_sk_dt_chegada_destino_trem&#xA;&#x9;&#x9;,tti_no_tempo_trem_hora_parado&#x9;&#xA;&#x9;&#x9;,tti_no_tempo_trem_hora_marcha&#x9;&#xA;&#x9;&#x9;,tti_no_tempo_total_transit_time&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,tti_dt_inclusao_registro&#xA;&#x9;&#x9;,tti_dt_alteracao_registro&#xA;&#x9;&#x9;,2&#xA;&#x9;&#x9;,'Vale'&#xA;&#x9;&#x9;--&#xA;&#x9;&#x9;,'NAO SE APLICA'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;--&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,thr_cd_hash_unique_keys = CONVERT(CHAR(32),HASHBYTES('MD5',concat_ws('_',ost_no_ordem_servico_trem&#x9;,osi_no_ordem_servico_correlata&#x9;,aro_cd_areaoperacional,2)),2)&#xA;&#x9;&#x9;,thr_cd_hash_chave_update = CONVERT(CHAR(32),HASHBYTES('SHA2_512',CONCAT_WS('_',ost_no_ordem_servico_trem&#x9;&#x9;&#x9;&#x9;&#xA;&#x9;&#x9;,osi_no_ordem_servico_correlata&#x9;&#xA;&#x9;&#x9; ,CASE &#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'A' THEN 'AUTO DE LINHA'&#xA;&#x9;&#x9;&#x9;When LEFT(tre_cd_prefixo_trem,1) = 'B' THEN 'AUTO DE LINHA'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'C' THEN 'CARGUEIRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'D' THEN 'COMBUSTÍVEIS'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'E' THEN 'EXPRESSO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'F' THEN 'VEÍCULO RODOFERROV'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'G' THEN 'MINÉRIO VAGÃO C G'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'H' THEN 'HELP'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'I' THEN 'INSPEÇÃO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'J' THEN 'GRÃOS'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'K' THEN 'CARVÃO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'L' THEN 'ESCOTEIRA'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'M' THEN 'MINÉRIO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'N' THEN 'VAGO-RESERVADO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'O' THEN 'TREM ESPECIAL'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'P' THEN 'PASSAGEIRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'Q' THEN 'AÇUCAR'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'R' THEN 'EQUIPAMENTO VP'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'S' THEN 'SOCORRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'T' THEN 'TRILHEIRO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'V' THEN 'SERVIÇO INTERNO'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'W' THEN 'MANOBRAS'&#xA;&#x9;&#x9;&#x9;when LEFT(tre_cd_prefixo_trem,1) = 'X' THEN 'PRODUTOS QUÍMICOS'&#xA;&#x9;&#x9;END&#xA;&#x9;&#x9;,tre_cd_prefixo_trem&#xA;&#x9;&#x9;,ORIGEM&#xA;&#x9;&#x9;,DESTINO&#xA;&#x9;&#x9;,aro_cd_areaoperacional&#xA;&#x9;&#x9;,'ENCERRADO'&#xA;&#x9;&#x9;,tti_sk_dt_saida_origem_trem&#xA;&#x9;&#x9;,tti_sk_dt_chegada_destino_trem&#xA;&#x9;&#x9;,tti_no_tempo_trem_hora_parado&#x9;&#xA;&#x9;&#x9;,tti_no_tempo_trem_hora_marcha&#x9;&#xA;&#x9;&#x9;,tti_no_tempo_total_transit_time&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,2&#xA;&#x9;&#x9;,'Vale'&#xA;&#x9;&#x9;--&#xA;&#x9;&#x9;,'NAO SE APLICA'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;,0&#xA;&#x9;&#x9;--&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,'1900-01-01 00:00:00'&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NSA'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,-1&#xA;&#x9;&#x9;,'NÃO ENCONTRADO'&#xA;&#x9;&#x9;,-1)),2)&#xA;FROM stgRP &#xA;WHERE RNK = 1&#xA;" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::Data_inicio_execucao"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::ProcessamentoFull"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="131"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::Reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="131"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="3"
+            SQLTask:DtsVariableName="User::data_inicio_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="4"
+            SQLTask:DtsVariableName="User::data_fim_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\ESQL_Deleta registros_reprocessamento_replicador"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{E9ACDA21-055A-429B-8296-CE46D5CF1AF3}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="ESQL_Deleta registros_reprocessamento_replicador"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{6CC07B41-9A45-4746-96E7-6B8CDAA39323}"
+          SQLTask:SqlStatementSource="DECLARE @REPROCESSAMENTO INT = ?,&#xA;@dataInicioReprocessamento DATE = ?,&#xA;@dataFimReprocessamento DATE = ?;&#xA;&#xA;IF @REPROCESSAMENTO = 1&#xA;&#xA;BEGIN&#xA;&#xA;&#x9;INSERT INTO replicador.corp_rpTemposTransitTimeResponsabilidade&#xA;&#x9;(&#xA;&#x9;&#x9;__operation&#xA;&#x9;&#x9;,[thr_cd_ordem_servico]&#xA;&#x9;&#x9;,[thr_cd_ordem_servico_correlata]&#xA;&#x9;&#x9;,[thr_cd_prefixo_trem]&#xA;&#x9;&#x9;,[thr_cd_estacao_origem]&#xA;&#x9;&#x9;,[thr_cd_estacao_destino]&#xA;&#x9;&#x9;,[thr_cd_area_operacional]&#xA;&#x9;&#x9;,[thr_dt_origem]&#xA;&#x9;&#x9;,[thr_dt_destino]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_marcha]&#xA;&#x9;&#x9;,[thr_no_tempo_total_transit_time]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_aci]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_cco]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_ele]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_loc]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_obr]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_ope]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_pot]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_ptt]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_vag]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_vpe]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_nao_encontrado]&#xA;&#x9;&#x9;,[thr_dt_inclusao_registro]&#xA;&#x9;&#x9;,[thr_dt_alteracao_registro]&#xA;&#x9;&#x9;,[thr_ds_situacao_circulacao_trem]&#xA;&#x9;&#x9;,[thr_sk_empresa_origem_registro]&#xA;&#x9;&#x9;,[thr_ds_empresa_origem_registro]&#xA;&#x9;&#x9;,[thr_ds_classe_trem]&#xA;&#x9;&#x9;,[thr_cd_classetrem]&#xA;&#x9;&#x9;,[thr_id_composicao]&#xA;&#x9;&#x9;,[thr_dt_formacao_composicao]&#xA;&#x9;&#x9;,[thr_dt_encerramento_composicao]&#xA;&#x9;&#x9;,[thr_qt_na_tu_composicao]&#xA;&#x9;&#x9;,[thr_qt_na_tb_composicao]&#xA;&#x9;&#x9;,[thr_qt_na_paradas_trem]&#xA;&#x9;&#x9;,[thr_qt_na_tkb_composicao]&#xA;&#x9;&#x9;,[thr_vl_consumo_composicao]&#xA;&#x9;&#x9;,[thr_qt_tb_hp_locomotiva]&#xA;&#x9;&#x9;,[thr_vl_percentual_reducao_tracao]&#xA;&#x9;&#x9;,[thr_qt_hp_locomotiva]&#xA;&#x9;&#x9;,[thr_qt_tracionado_locomotiva]&#xA;&#x9;&#x9;,[thr_qt_rebocado_locomotiva]&#xA;&#x9;&#x9;,[thr_no_sequencia_estacao_ordem_servico]&#xA;&#x9;&#x9;,[thr_ds_corredor_origem_ordem_servico]&#xA;&#x9;&#x9;,[thr_vl_comprimento_composicao]&#xA;&#x9;&#x9;,[thr_dt_partida_trem_composicao]&#xA;&#x9;&#x9;,[thr_dt_chegada_trem_composicao]&#xA;&#x9;&#x9;,[thr_ds_corredor_origem_composicao]&#xA;&#x9;&#x9;,[thr_ds_corredor_destino_composicao]&#xA;&#x9;&#x9;,[thr_cd_estacao_origem_composicao]&#xA;&#x9;&#x9;,[thr_cd_estacao_destino_composicao]&#xA;&#x9;&#x9;,[thr_ds_tipo_composicao]&#xA;&#x9;&#x9;,[thr_sn_tracao_isolada_composicao]&#xA;&#x9;&#x9;,[thr_qt_tku_composicao]&#xA;&#x9;&#x9;,[thr_qt_km_percorrido_composicao]&#xA;&#x9;&#x9;,[thr_cd_posicao_distribuida_composicao]&#xA;&#x9;&#x9;,[thr_qt_vagoes_vazios_composicao]&#xA;&#x9;&#x9;,[thr_qt_vagoes_carregados_composicao]&#xA;&#x9;&#x9;,[thr_qt_peso_medio_vagoes_composicao]&#xA;&#x9;&#x9;,[thr_nm_produto_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_locomotivas_rebocadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_restrito_locomotivas_tracionadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_restrito_locomotivas_rebocadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_restrito_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_disponivel_locomotivas_tracionadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_disponivel_locomotivas_rebocadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_disponivel_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_qt_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_ds_modelos_serie_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_ft_velocidade_maxima_alcancavel_classetrem]&#xA;&#x9;&#x9;,[thr_cd_hash_unique_keys]&#xA;&#x9;&#x9;,[thr_cd_hash_chave_update]&#xA;&#x9;)&#xA;&#x9;SELECT&#xA;&#x9;&#x9;1,&#xA;&#x9;&#x9;[thr_cd_ordem_servico]&#xA;&#x9;&#x9;,[thr_cd_ordem_servico_correlata]&#xA;&#x9;&#x9;,[thr_cd_prefixo_trem]&#xA;&#x9;&#x9;,[thr_cd_estacao_origem]&#xA;&#x9;&#x9;,[thr_cd_estacao_destino]&#xA;&#x9;&#x9;,[thr_cd_area_operacional]&#xA;&#x9;&#x9;,[thr_dt_origem]&#xA;&#x9;&#x9;,[thr_dt_destino]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_marcha]&#xA;&#x9;&#x9;,[thr_no_tempo_total_transit_time]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_aci]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_cco]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_ele]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_loc]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_obr]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_ope]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_pot]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_ptt]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_vag]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_vpe]&#xA;&#x9;&#x9;,[thr_no_tempo_trem_hora_parado_nao_encontrado]&#xA;&#x9;&#x9;,[thr_dt_inclusao_registro]&#xA;&#x9;&#x9;,[thr_dt_alteracao_registro]&#xA;&#x9;&#x9;,[thr_ds_situacao_circulacao_trem]&#xA;&#x9;&#x9;,[thr_sk_empresa_origem_registro]&#xA;&#x9;&#x9;,[thr_ds_empresa_origem_registro]&#xA;&#x9;&#x9;,[thr_ds_classe_trem]&#xA;&#x9;&#x9;,[thr_cd_classetrem]&#xA;&#x9;&#x9;,[thr_id_composicao]&#xA;&#x9;&#x9;,[thr_dt_formacao_composicao]&#xA;&#x9;&#x9;,[thr_dt_encerramento_composicao]&#xA;&#x9;&#x9;,[thr_qt_na_tu_composicao]&#xA;&#x9;&#x9;,[thr_qt_na_tb_composicao]&#xA;&#x9;&#x9;,[thr_qt_na_paradas_trem]&#xA;&#x9;&#x9;,[thr_qt_na_tkb_composicao]&#xA;&#x9;&#x9;,[thr_vl_consumo_composicao]&#xA;&#x9;&#x9;,[thr_qt_tb_hp_locomotiva]&#xA;&#x9;&#x9;,[thr_vl_percentual_reducao_tracao]&#xA;&#x9;&#x9;,[thr_qt_hp_locomotiva]&#xA;&#x9;&#x9;,[thr_qt_tracionado_locomotiva]&#xA;&#x9;&#x9;,[thr_qt_rebocado_locomotiva]&#xA;&#x9;&#x9;,[thr_no_sequencia_estacao_ordem_servico]&#xA;&#x9;&#x9;,[thr_ds_corredor_origem_ordem_servico]&#xA;&#x9;&#x9;,[thr_vl_comprimento_composicao]&#xA;&#x9;&#x9;,[thr_dt_partida_trem_composicao]&#xA;&#x9;&#x9;,[thr_dt_chegada_trem_composicao]&#xA;&#x9;&#x9;,[thr_ds_corredor_origem_composicao]&#xA;&#x9;&#x9;,[thr_ds_corredor_destino_composicao]&#xA;&#x9;&#x9;,[thr_cd_estacao_origem_composicao]&#xA;&#x9;&#x9;,[thr_cd_estacao_destino_composicao]&#xA;&#x9;&#x9;,[thr_ds_tipo_composicao]&#xA;&#x9;&#x9;,[thr_sn_tracao_isolada_composicao]&#xA;&#x9;&#x9;,[thr_qt_tku_composicao]&#xA;&#x9;&#x9;,[thr_qt_km_percorrido_composicao]&#xA;&#x9;&#x9;,[thr_cd_posicao_distribuida_composicao]&#xA;&#x9;&#x9;,[thr_qt_vagoes_vazios_composicao]&#xA;&#x9;&#x9;,[thr_qt_vagoes_carregados_composicao]&#xA;&#x9;&#x9;,[thr_qt_peso_medio_vagoes_composicao]&#xA;&#x9;&#x9;,[thr_nm_produto_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_locomotivas_rebocadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_restrito_locomotivas_tracionadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_restrito_locomotivas_rebocadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_restrito_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_disponivel_locomotivas_tracionadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_disponivel_locomotivas_rebocadas_composicao]&#xA;&#x9;&#x9;,[thr_qt_hp_disponivel_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_qt_total_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_ds_modelos_serie_locomotivas_composicao]&#xA;&#x9;&#x9;,[thr_ft_velocidade_maxima_alcancavel_classetrem]&#xA;&#x9;&#x9;,[thr_cd_hash_unique_keys]&#xA;&#x9;&#x9;,[thr_cd_hash_chave_update]&#xA;&#x9;&#x9;FROM CORP.rpTemposTransitTimeResponsabilidade WHERE thr_dt_destino BETWEEN @dataInicioReprocessamento AND @dataFimReprocessamento&#xA;&#xA;END" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::Reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="131"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::data_inicio_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="User::data_fim_referencia_reprocessamento"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\ESQL_Verifica_Processamento_e_Datas"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{2F8D7BF3-59DA-4F15-850D-C8011C8E12FC}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="ESQL_Verifica_Processamento_e_Datas"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:LoggingOptions
+        DTS:FilterKind="0" />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AB4FF944-CC18-49F8-982C-362EC5C7640A}"
+          SQLTask:SqlStatementSource="SELECT &#xA; PACOTE.ST_REPROCESSAMENTO      AS REPROCESSAMENTO,&#xA; PACOTE.ST_PROCESSAMENTO_FULL     AS PROCESSAMENTOFULL,&#xA; GETDATE()          AS DT_INICIO_CARGA,&#xA; PACOTE.DT_CARGA_ANTERIOR      AS DATA_INICIO_REFERENCIA_PROCESSAMENTO,&#xA; --MIN(PACOTE_PREDECESSOR.DT_CARGA_ANTERIOR)  AS DATA_FIM_REFERENCIA_PROCESSAMENTO, &#xA; PACOTE.DT_INICIO_REFERENCIA     AS DATA_INICIO_REFERENCIA_REPROCESSAMENTO,&#xA; PACOTE.DT_FIM_REFERENCIA      AS DATA_FIM_REFERENCIA_REPROCESSAMENTO&#xA;FROM [DBO].[MDEXECUCOESCARGAS] PACOTE &#xA;WHERE &#xA; PACOTE.NM_FLUXO_CARGA = ?&#xA;GROUP BY &#xA; PACOTE.DT_CARGA_ANTERIOR, &#xA; PACOTE.DT_INICIO_CARGA,&#xA; PACOTE.ST_REPROCESSAMENTO,  &#xA; PACOTE.ST_PROCESSAMENTO_FULL,&#xA; PACOTE.dt_inicio_referencia,&#xA; PACOTE.dt_fim_referencia"
+          SQLTask:ResultType="ResultSetType_SingleRow" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="REPROCESSAMENTO"
+            SQLTask:DtsVariableName="User::Reprocessamento" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="PROCESSAMENTOFULL"
+            SQLTask:DtsVariableName="User::ProcessamentoFull" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="DT_INICIO_CARGA"
+            SQLTask:DtsVariableName="User::Data_inicio_execucao" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="DATA_INICIO_REFERENCIA_PROCESSAMENTO"
+            SQLTask:DtsVariableName="User::data_inicio_referencia_processamento" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="DATA_INICIO_REFERENCIA_REPROCESSAMENTO"
+            SQLTask:DtsVariableName="User::data_inicio_referencia_reprocessamento" />
+          <SQLTask:ResultBinding
+            SQLTask:ResultName="DATA_FIM_REFERENCIA_REPROCESSAMENTO"
+            SQLTask:DtsVariableName="User::data_fim_referencia_reprocessamento" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="System::PackageName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+    <DTS:Executable
+      DTS:refId="Package\SQL_Atualiza_Fim_Processamento"
+      DTS:CreationName="Microsoft.ExecuteSQLTask"
+      DTS:Description="Execute SQL Task"
+      DTS:DTSID="{5241EA3D-9711-494E-BC79-B19013739E43}"
+      DTS:ExecutableType="Microsoft.ExecuteSQLTask"
+      DTS:LocaleID="-1"
+      DTS:ObjectName="SQL_Atualiza_Fim_Processamento"
+      DTS:TaskContact="Execute SQL Task; Microsoft Corporation; Microsoft SQL Server 2008; © 2007 Microsoft Corporation; All Rights Reserved;http://www.microsoft.com/sql/support/default.asp;1"
+      DTS:ThreadHint="0">
+      <DTS:Variables />
+      <DTS:LoggingOptions
+        DTS:FilterKind="0" />
+      <DTS:ObjectData>
+        <SQLTask:SqlTaskData
+          SQLTask:Connection="{AB4FF944-CC18-49F8-982C-362EC5C7640A}"
+          SQLTask:SqlStatementSource="update [DBConfig].[dbo].[mdExecucoesCargas]&#xA;set &#xA; dt_fim_carga = getdate(),&#xA; dt_carga_anterior = ?,&#xA; dt_inicio_carga = ?,&#xA; st_reprocessamento = 0,&#xA; st_processamento_full = 0&#xA;WHERE nm_fluxo_carga = ?" xmlns:SQLTask="www.microsoft.com/sqlserver/dts/tasks/sqltask">
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="2"
+            SQLTask:DtsVariableName="System::PackageName"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="129"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="0"
+            SQLTask:DtsVariableName="User::Data_inicio_execucao"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+          <SQLTask:ParameterBinding
+            SQLTask:ParameterName="1"
+            SQLTask:DtsVariableName="User::Data_inicio_execucao"
+            SQLTask:ParameterDirection="Input"
+            SQLTask:DataType="7"
+            SQLTask:ParameterSize="-1" />
+        </SQLTask:SqlTaskData>
+      </DTS:ObjectData>
+    </DTS:Executable>
+  </DTS:Executables>
+  <DTS:PrecedenceConstraints>
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint]"
+      DTS:CreationName=""
+      DTS:DTSID="{8369F34A-6429-451E-8E47-96232B93923B}"
+      DTS:From="Package\ESQL_Verifica_Processamento_e_Datas"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint"
+      DTS:To="Package\ESQL_Deleta registros_reprocessamento_replicador" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 1]"
+      DTS:CreationName=""
+      DTS:DTSID="{27B9728D-06CD-4D02-89A6-BB9F9C505D46}"
+      DTS:From="Package\ESQL_Deleta registros_reprocessamento_replicador"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 1"
+      DTS:To="Package\ESQL_CargaReport_Incremental" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 2]"
+      DTS:CreationName=""
+      DTS:DTSID="{94152C83-FD30-482E-8E95-0B0787E71C0A}"
+      DTS:From="Package\ESQL_CargaReport_Incremental_VALE"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 2"
+      DTS:To="Package\Atualização Tabela Replicador" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 3]"
+      DTS:CreationName=""
+      DTS:DTSID="{FF84D528-E2E3-404C-8978-2E66FF97AA3C}"
+      DTS:From="Package\Atualização Tabela Replicador"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 3"
+      DTS:To="Package\Delete_Insert_Update_Report" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 4]"
+      DTS:CreationName=""
+      DTS:DTSID="{3D3E4B3B-8C30-4124-A773-8CA8905F8DED}"
+      DTS:From="Package\ESQL_CargaReport_Incremental"
+      DTS:LogicalAnd="True"
+      DTS:ObjectName="Constraint 4"
+      DTS:To="Package\ESQL_CargaReport_Incremental_VALE" />
+    <DTS:PrecedenceConstraint
+      DTS:refId="Package.PrecedenceConstraints[Constraint 6]"
+      DTS:CreationName=""
+      DTS:DTSID="{1F996900-4872-4E02-BB51-1C212CAE2E1C}"
+      DTS:From="Package\Delete_Insert_Update_Report"
+      DTS:ObjectName="Constraint 6"
+      DTS:To="Package\SQL_Atualiza_Fim_Processamento" />
+  </DTS:PrecedenceConstraints>
+  <DTS:DesignTimeProperties><![CDATA[<?xml version="1.0"?>
+<!--This CDATA section contains the layout information of the package. The section includes information such as (x,y) coordinates, width, and height.-->
+<!--If you manually edit this section and make a mistake, you can delete it. -->
+<!--The package will still be able to load normally but the previous layout information will be lost and the designer will automatically re-arrange the elements on the design surface.-->
+<Objects
+  Version="8">
+  <!--Each node below will contain properties that do not affect runtime behavior.-->
+  <Package
+    design-time-name="Package">
+    <LayoutInfo>
+      <GraphLayout
+        Capacity="16" xmlns="clr-namespace:Microsoft.SqlServer.IntegrationServices.Designer.Model.Serialization;assembly=Microsoft.SqlServer.IntegrationServices.Graph" xmlns:mssgle="clr-namespace:Microsoft.SqlServer.Graph.LayoutEngine;assembly=Microsoft.SqlServer.Graph" xmlns:assembly="http://schemas.microsoft.com/winfx/2006/xaml">
+        <NodeLayout
+          Size="218,42"
+          Id="Package\Atualização Tabela Replicador"
+          TopLeft="43.9,411.9" />
+        <NodeLayout
+          Size="218,42"
+          Id="Package\Delete_Insert_Update_Report"
+          TopLeft="43.9,513.5" />
+        <NodeLayout
+          Size="265,42"
+          Id="Package\ESQL_CargaReport_Incremental"
+          TopLeft="20.7,208.7" />
+        <NodeLayout
+          Size="265,42"
+          Id="Package\ESQL_CargaReport_Incremental_VALE"
+          TopLeft="20.7,310.3" />
+        <NodeLayout
+          Size="295,42"
+          Id="Package\ESQL_Deleta registros_reprocessamento_replicador"
+          TopLeft="5.50000000000003,107.1" />
+        <NodeLayout
+          Size="265,42"
+          Id="Package\ESQL_Verifica_Processamento_e_Datas"
+          TopLeft="20.7,5.49999999999995" />
+        <NodeLayout
+          Size="265,42"
+          Id="Package\SQL_Atualiza_Fim_Processamento"
+          TopLeft="20.7000000000001,615.1" />
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint]"
+          TopLeft="153.1,47.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,59.9999999999999"
+              Start="0,0"
+              End="0,52.4999999999999">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.4999999999999" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 1]"
+          TopLeft="153.1,148.7">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60"
+              Start="0,0"
+              End="0,52.5">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 2]"
+          TopLeft="153.1,351.9">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.0000000000001"
+              Start="0,0"
+              End="0,52.5000000000001">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5000000000001" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 3]"
+          TopLeft="153.1,453.5">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.0000000000002"
+              Start="0,0"
+              End="0,52.5000000000002">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5000000000002" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 4]"
+          TopLeft="153.1,250.3">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.0000000000001"
+              Start="0,0"
+              End="0,52.5000000000001">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5000000000001" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+        <EdgeLayout
+          Id="Package.PrecedenceConstraints[Constraint 6]"
+          TopLeft="153.1,555.1">
+          <EdgeLayout.Curve>
+            <mssgle:Curve
+              StartConnector="{assembly:Null}"
+              EndConnector="0,60.0000000000001"
+              Start="0,0"
+              End="0,52.5000000000001">
+              <mssgle:Curve.Segments>
+                <mssgle:SegmentCollection
+                  Capacity="5">
+                  <mssgle:LineSegment
+                    End="0,52.5000000000001" />
+                </mssgle:SegmentCollection>
+              </mssgle:Curve.Segments>
+            </mssgle:Curve>
+          </EdgeLayout.Curve>
+          <EdgeLayout.Labels>
+            <EdgeLabelCollection />
+          </EdgeLayout.Labels>
+        </EdgeLayout>
+      </GraphLayout>
+    </LayoutInfo>
+  </Package>
+</Objects>]]></DTS:DesignTimeProperties>
+</DTS:Executable>

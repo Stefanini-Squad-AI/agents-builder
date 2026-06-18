@@ -1,0 +1,248 @@
+# Business & Technical Assessment: {{ artifact.filename }}
+
+> **Generated**: {{ generated_at | default(now(), true) }}  
+> **Artifact Type**: {{ artifact.kind }}  
+> **Analysis Status**: {{ analysis.status | default('draft', true) }}  
+> **Requires Human Input**: {{ 'Yes' if feedback_items else 'No' }}
+
+---
+
+## 1. Executive Summary
+
+### What This {{ artifact_type_label }} Does
+{{ executive_summary.what_it_does }}
+
+### Business Process Supported
+{{ executive_summary.business_process }}
+
+### Who Uses the Output
+{% for consumer in executive_summary.consumers %}
+- **{{ consumer.name }}**: {{ consumer.usage }}
+{% endfor %}
+
+### Business Impact if This Fails
+{{ executive_summary.failure_impact }}
+
+---
+
+## 2. Data User Journey
+
+### The Story of a Record
+
+{{ user_journey.narrative }}
+
+### Visual Flow
+```
+{{ user_journey.diagram }}
+```
+
+---
+
+## 3. Business Rules Inventory
+
+{% for rule in business_rules %}
+### Rule {{ loop.index }}: {{ rule.name }}
+
+| Aspect | Detail |
+|--------|--------|
+| **Rule** | {{ rule.description }} |
+| **Source** | {{ rule.source | default('Inferred from code', true) }} |
+| **Implementation** | `{{ rule.implementation }}` |
+{% if rule.risk %}
+| **Risk** | ⚠️ {{ rule.risk }} |
+{% endif %}
+{% if rule.migration_note %}
+| **Migration Note** | {{ rule.migration_note }} |
+{% endif %}
+{% if rule.needs_confirmation %}
+| **⚡ NEEDS CONFIRMATION** | See Feedback Request #{{ rule.feedback_id }} |
+{% endif %}
+
+{% endfor %}
+
+---
+
+## 4. Connection Managers / System Landscape
+
+### Source Systems (DATA IN)
+
+| Connection | System | Business Role | Data Owned |
+|------------|--------|---------------|------------|
+{% for conn in connections.sources %}
+| `{{ conn.name }}` | {{ conn.system }} ({{ conn.server }}) | {{ conn.business_role }} | {{ conn.data_owned }} |
+{% endfor %}
+
+### Target Systems (DATA OUT)
+
+| Connection | System | Business Role | Consumers |
+|------------|--------|---------------|-----------|
+{% for conn in connections.targets %}
+| `{{ conn.name }}` | {{ conn.system }} ({{ conn.server }}) | {{ conn.business_role }} | {{ conn.consumers }} |
+{% endfor %}
+
+{% if connections.control %}
+### Control / Orchestration
+
+| Connection | System | Purpose |
+|------------|--------|---------|
+{% for conn in connections.control %}
+| `{{ conn.name }}` | {{ conn.system }} | {{ conn.purpose }} |
+{% endfor %}
+{% endif %}
+
+### System Landscape Diagram
+```
+{{ connections.landscape_diagram }}
+```
+
+---
+
+## 5. Package Objective & Success Criteria
+
+### Primary Objective
+> {{ objective.primary }}
+
+### Success Metrics (Current State)
+| Metric | Current SLA | Actual Performance |
+|--------|-------------|-------------------|
+{% for metric in objective.current_metrics %}
+| {{ metric.name }} | {{ metric.sla }} | {{ metric.actual }} |
+{% endfor %}
+
+### Migration Success Criteria
+| Metric | Target for {{ target_platform }} |
+|--------|----------------------------------|
+{% for metric in objective.migration_targets %}
+| {{ metric.name }} | {{ metric.target }} |
+{% endfor %}
+
+---
+
+## 6. Execution Modes
+
+{% for mode in execution_modes %}
+### {{ mode.name }} Mode
+| Aspect | Detail |
+|--------|--------|
+| **When Used** | {{ mode.when_used }} |
+| **Behavior** | {{ mode.behavior }} |
+| **Duration** | {{ mode.duration }} |
+| **Business Trigger** | {{ mode.business_trigger }} |
+
+{% endfor %}
+
+{% if execution_modes | length > 1 %}
+### Mode Selection Logic
+```
+{{ mode_selection_logic }}
+```
+
+**Migration Note**: {{ mode_migration_note | default('Implement as separate Workflow paths for better monitoring and retry isolation.', true) }}
+{% endif %}
+
+---
+
+## 7. Technical Inventory
+
+### Task Census
+| Type | Count | Enabled | Notes |
+|------|-------|---------|-------|
+{% for task_type in task_census %}
+| {{ task_type.type }} | {{ task_type.count }} | {{ task_type.enabled }} | {{ task_type.notes | default('-', true) }} |
+{% endfor %}
+
+### Variables
+| Variable | Type | Expression? | Business Meaning |
+|----------|------|-------------|------------------|
+{% for var in variables %}
+| `{{ var.name }}` | {{ var.type }} | {{ 'Yes' if var.is_expression else 'No' }} | {{ var.business_meaning }} |
+{% endfor %}
+
+{% if disabled_tasks %}
+### Disabled Tasks (Require Decision)
+| Task | Disabled Since | Likely Reason | Recommendation |
+|------|----------------|---------------|----------------|
+{% for task in disabled_tasks %}
+| `{{ task.name }}` | {{ task.disabled_since | default('Unknown', true) }} | {{ task.likely_reason }} | {{ task.recommendation }} |
+{% endfor %}
+{% endif %}
+
+---
+
+## 8. Known Gaps & Assumptions
+
+### Assumptions Made (Require Verification)
+| # | Assumption | Risk if Wrong | Verification Method |
+|---|------------|---------------|---------------------|
+{% for assumption in assumptions %}
+| {{ loop.index }} | {{ assumption.statement }} | {{ assumption.risk }} | {{ assumption.verification }} |
+{% endfor %}
+
+### Information Not Found in Source
+| # | Missing Information | Why Needed | Suggested Source |
+|---|---------------------|------------|------------------|
+{% for gap in information_gaps %}
+| {{ loop.index }} | {{ gap.what }} | {{ gap.why_needed }} | {{ gap.suggested_source }} |
+{% endfor %}
+
+---
+
+## 9. Migration Readiness Score
+
+### Overall: {{ readiness.emoji }} {{ readiness.score }}/5 — {{ readiness.label }}
+
+| Category | Score | Notes |
+|----------|-------|-------|
+{% for category in readiness.categories %}
+| {{ category.name }} | {{ category.score }}/5 | {{ category.notes }} |
+{% endfor %}
+
+### Pre-Migration Blockers
+{% for blocker in blockers %}
+- {{ blocker.severity_emoji }} **{{ blocker.title }}** — {{ blocker.description }}{% if blocker.feedback_id %} (See Feedback Request #{{ blocker.feedback_id }}){% endif %}
+
+{% endfor %}
+
+---
+
+## 10. Source References
+
+| Section | Source Location | Lines |
+|---------|-----------------|-------|
+{% for ref in source_references %}
+| {{ ref.section }} | {{ ref.location }} | {{ ref.lines }} |
+{% endfor %}
+
+### Completeness Notice
+| Aspect | Extracted | Confidence | Needs Verification |
+|--------|-----------|------------|-------------------|
+{% for aspect in completeness %}
+| {{ aspect.name }} | {{ aspect.extracted }} | {{ aspect.confidence }} | {{ aspect.needs_verification | default('-', true) }} |
+{% endfor %}
+
+{% if known_omissions %}
+### Known Omissions
+{% for omission in known_omissions %}
+- {{ omission.description }} — See source {{ omission.location }}
+{% endfor %}
+{% endif %}
+
+---
+
+{% if feedback_items %}
+## ⚡ HUMAN FEEDBACK REQUIRED
+
+This analysis identified {{ feedback_items | length }} item(s) requiring human input before proceeding.
+
+**→ See companion document: `{{ feedback_document_path }}`**
+
+| # | Topic | Priority | Owner |
+|---|-------|----------|-------|
+{% for item in feedback_items %}
+| {{ item.id }} | {{ item.topic }} | {{ item.priority }} | {{ item.suggested_owner | default('TBD', true) }} |
+{% endfor %}
+{% endif %}
+
+---
+
+*This analysis was generated by AI based on the source artifact. Human verification is recommended before using for migration decisions.*

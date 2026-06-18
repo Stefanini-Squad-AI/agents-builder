@@ -1,0 +1,54 @@
+key: filesystem
+name: Filesystem
+description: Local file access for reading, writing, and managing files in allowed directories
+vendor: modelcontextprotocol
+category: utility
+run_command: "npx @modelcontextprotocol/server-filesystem"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem"
+icon: folder
+
+env_vars: {}
+
+config_fields:
+  allowed_directories:
+    type: string
+    required: true
+    label: "Allowed Directories"
+    hint: "Comma-separated list of directories the server can access (e.g., /home/user/docs,/tmp/workspace)"
+  read_only:
+    type: boolean
+    required: false
+    label: "Read-Only Mode"
+    hint: "Restrict to read operations only (recommended)"
+    default: "true"
+
+tools:
+  - name: read_file
+    description: Read contents of a file
+    risk_level: N1
+  - name: read_multiple_files
+    description: Read contents of multiple files
+    risk_level: N1
+  - name: list_directory
+    description: List files and directories
+    risk_level: N1
+  - name: directory_tree
+    description: Get recursive directory tree
+    risk_level: N1
+  - name: search_files
+    description: Search for files by name pattern
+    risk_level: N1
+  - name: get_file_info
+    description: Get file metadata (size, modified date)
+    risk_level: N1
+  - name: write_file
+    description: Write content to a file
+    risk_level: N3
+  - name: create_directory
+    description: Create a new directory
+    risk_level: N3
+  - name: move_file
+    description: Move or rename a file
+    risk_level: N3
+
+requires_approval: false

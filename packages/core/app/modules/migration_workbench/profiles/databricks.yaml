@@ -1,0 +1,588 @@
+# Databricks Target Technology Profile
+# Medallion architecture patterns and design guidance for migrations TO Databricks
+
+name: Databricks
+slug: databricks
+type: target  # This is a TARGET profile (vs source profiles like ssis.yaml)
+version: "1.0"
+
+# =============================================================================
+# Medallion Architecture
+# =============================================================================
+architecture:
+  name: Medallion Architecture
+  description: >
+    Three-layer data architecture (Bronze → Silver → Gold) for organizing
+    data by quality and business readiness.
+
+  layers:
+    bronze:
+      name: Bronze (Raw)
+      purpose: Raw data landing, schema-on-read, append-only
+      description: >
+        Landing zone for raw data exactly as received from source systems.
+        Preserve original schema, add ingestion metadata, partition by date.
+      patterns:
+        - Ingest with COPY INTO or Auto Loader
+        - Preserve source schema (no transformations)
+        - Add metadata columns (_ingested_at, _source_file, _batch_id)
+        - Partition by ingestion date (year/month/day)
+        - Delta Lake with append-only writes
+      anti_patterns:
+        - Business logic or transformations
+        - Deletes or updates (should be append-only)
+        - Complex column renaming
+      detection_hints:
+        - Task name contains: extract, ingest, load, bronze, raw, landing
+        - SQL contains: INSERT INTO...SELECT...FROM source
+        - SQL contains: COPY INTO
+
+    silver:
+      name: Silver (Cleansed)
+      purpose: Cleansed, deduplicated, business-typed data
+      description: >
+        Cleaned and validated data with proper data types, deduplication,
+        and foreign key validation. Conforms to business entity model.
+      patterns:
+        - Dedupe using MERGE or QUALIFY ROW_NUMBER()
+        - Type casting and nullability enforcement
+        - Business key derivation and validation
+        - Foreign key validation against dimensions
+        - Delta Lake with MERGE for updates
+      anti_patterns:
+        - Aggregations (belong in Gold)
+        - Denormalization (belong in Gold)
+        - Business metrics calculation
+      detection_hints:
+        - Task name contains: transform, clean, dedupe, silver, conform
+        - SQL contains: DISTINCT, QUALIFY, ROW_NUMBER
+        - SQL contains: CAST, CONVERT, COALESCE
+
+    gold:
+      name: Gold (Business)
+      purpose: Aggregated, business-ready, analytics-optimized
+      description: >
+        Business-level aggregations, star/snowflake schemas, pre-computed
+        metrics ready for BI tools and analysts.
+      patterns:
+        - Fact/dimension modeling (star schema)
+        - Pre-computed aggregates and metrics
+        - Business-friendly column names
+        - SCD Type 2 for dimension history
+        - Optimized for query performance (Z-ORDER, partitioning)
+      anti_patterns:
+        - Raw source data
+        - Technical/cryptic column names
+        - Unaggregated transactional detail
+      detection_hints:
+        - Task name contains: merge, final, gold, dim_, fact_, aggregate
+        - SQL contains: MERGE INTO, GROUP BY, SUM, COUNT, AVG
+        - SQL contains: SCD, effective_date, is_current
+
+# =============================================================================
+# Data Patterns (15 total)
+# =============================================================================
+data_patterns:
+
+  # ---------------------------------------------------------------------------
+  # Load Patterns - How data lands in target
+  # ---------------------------------------------------------------------------
+  
+  - id: merge
+    name: MERGE (Upsert)
+    category: load
+    description: >
+      Update existing rows and insert new rows based on key match.
+      Standard incremental load pattern for dimensions and slowly-changing data.
+    detection:
+      sql_keywords:
+        - MERGE INTO
+        - WHEN MATCHED THEN UPDATE
+        - WHEN NOT MATCHED THEN INSERT
+      task_name_hints:
+        - merge
+        - upsert
+        - sync
+    databricks_pattern: |
+      MERGE INTO target t
+      USING source s ON t.key = s.key
+      WHEN MATCHED THEN UPDATE SET *
+      WHEN NOT MATCHED THEN INSERT *
+    considerations:
+      - Requires unique business key
+      - Good for dimensions and master data
+      - Delta Lake optimized
+
+  - id: delete_insert
+    name: DELETE + INSERT (Full Reload)
+    category: load
+    description: >
+      Truncate or delete target data, then insert fresh copy.
+      Simple but expensive for large tables.
+    detection:
+      sql_keywords:
+        - TRUNCATE TABLE
+        - DELETE FROM
+      sql_patterns:
+        - "TRUNCATE.*INSERT"
+        - "DELETE FROM.*INSERT INTO"
+      task_name_hints:
+        - reload
+        - refresh
+        - truncate
+    databricks_pattern: |
+      TRUNCATE TABLE target;
+      INSERT INTO target SELECT * FROM source;
+    considerations:
+      - Simple to implement
+      - No key required
+      - Expensive for large tables
+      - No history preserved
+
+  - id: append_only
+    name: APPEND Only
+    category: load
+    description: >
+      Insert new records only, no updates or deletes.
+      Ideal for immutable event data and audit logs.
+    detection:
+      sql_keywords:
+        - INSERT INTO
+      sql_anti_patterns:
+        - UPDATE
+        - DELETE
+        - MERGE
+        - TRUNCATE
+      task_name_hints:
+        - append
+        - log
+        - event
+        - audit
+    databricks_pattern: |
+      INSERT INTO target SELECT * FROM source;
+    considerations:
+      - Best for event/log tables
+      - Natural fit for streaming
+      - No deduplication needed if source guarantees uniqueness
+
+  - id: update_in_place
+    name: UPDATE In-Place
+    category: load
+    description: >
+      Update existing rows without inserting new ones.
+      Typically for status updates or corrections.
+    detection:
+      sql_keywords:
+        - UPDATE
+        - SET
+      sql_anti_patterns:
+        - INSERT
+        - MERGE
+      task_name_hints:
+        - update
+        - correct
+        - fix
+    databricks_pattern: |
+      UPDATE target SET col = value WHERE condition;
+    considerations:
+      - Requires matching key
+      - No new rows created
+      - Use for corrections and status changes
+
+  # ---------------------------------------------------------------------------
+  # SCD Patterns - Slowly Changing Dimensions
+  # ---------------------------------------------------------------------------
+
+  - id: scd_type_1
+    name: SCD Type 1 (Overwrite)
+    category: scd
+    description: >
+      Overwrite old values with new values, no history preserved.
+      Simple but loses historical context.
+    detection:
+      sql_patterns:
+        - "UPDATE.*SET.*WHERE"
+      column_hints:
+        - No effective_date, end_date, or is_current columns
+      task_name_hints:
+        - scd1
+        - overwrite
+    databricks_pattern: |
+      MERGE INTO dim t USING src s ON t.key = s.key
+      WHEN MATCHED THEN UPDATE SET t.name = s.name
+      WHEN NOT MATCHED THEN INSERT *
+    considerations:
+      - Simplest SCD pattern
+      - No history tracking
+      - Storage efficient
+
+  - id: scd_type_2
+    name: SCD Type 2 (History Tracking)
+    category: scd
+    description: >
+      Preserve full history by creating new row for each change.
+      Uses effective_date, end_date, and is_current flag.
+    detection:
+      column_hints:
+        - effective_date
+        - end_date
+        - valid_from
+        - valid_to
+        - is_current
+        - is_active
+      sql_patterns:
+        - "UPDATE.*SET.*end_date"
+        - "UPDATE.*SET.*is_current.*0"
+      task_name_hints:
+        - scd2
+        - history
+        - versioned
+    databricks_pattern: |
+      -- Close existing current record
+      UPDATE dim SET end_date = current_date(), is_current = false
+      WHERE key = @key AND is_current = true;
+      
+      -- Insert new current record
+      INSERT INTO dim (key, name, effective_date, end_date, is_current)
+      VALUES (@key, @name, current_date(), '9999-12-31', true);
+    considerations:
+      - Full history preserved
+      - Point-in-time queries possible
+      - Storage grows with changes
+      - Complex merge logic
+
+  - id: scd_type_3
+    name: SCD Type 3 (Previous Value)
+    category: scd
+    description: >
+      Track current and previous value only.
+      Limited history but simpler than Type 2.
+    detection:
+      column_hints:
+        - previous_
+        - prior_
+        - old_
+        - current_
+      sql_patterns:
+        - "SET previous_.*= current_"
+        - "SET old_.*= "
+      task_name_hints:
+        - scd3
+        - previous
+    databricks_pattern: |
+      UPDATE dim SET 
+        previous_name = current_name,
+        current_name = @new_name
+      WHERE key = @key;
+    considerations:
+      - Only one level of history
+      - Simple schema
+      - Limited audit capability
+
+  # ---------------------------------------------------------------------------
+  # Delete Patterns
+  # ---------------------------------------------------------------------------
+
+  - id: soft_delete
+    name: Soft Delete
+    category: delete
+    description: >
+      Mark records as deleted without physically removing them.
+      Preserves audit trail and enables recovery.
+    detection:
+      sql_patterns:
+        - "UPDATE.*SET.*is_deleted.*=.*1"
+        - "UPDATE.*SET.*is_deleted.*=.*true"
+        - "UPDATE.*SET.*deleted_at"
+        - "UPDATE.*SET.*active.*=.*0"
+      column_hints:
+        - is_deleted
+        - deleted_at
+        - is_active
+        - status
+      task_name_hints:
+        - soft_delete
+        - mark_deleted
+        - deactivate
+    databricks_pattern: |
+      UPDATE target SET 
+        is_deleted = true,
+        deleted_at = current_timestamp()
+      WHERE key NOT IN (SELECT key FROM source);
+    considerations:
+      - Preserves history
+      - Enables recovery
+      - Requires WHERE is_deleted = false in queries
+      - Storage not reclaimed
+
+  - id: hard_delete
+    name: Hard Delete
+    category: delete
+    description: >
+      Physically remove rows no longer in source.
+      Permanent removal with no recovery option.
+    detection:
+      sql_keywords:
+        - DELETE FROM
+      sql_patterns:
+        - "DELETE FROM.*WHERE.*NOT IN"
+        - "DELETE FROM.*WHERE.*NOT EXISTS"
+      task_name_hints:
+        - hard_delete
+        - purge
+        - remove
+    databricks_pattern: |
+      DELETE FROM target 
+      WHERE key NOT IN (SELECT key FROM source);
+    considerations:
+      - Permanent removal
+      - Reclaims storage (after VACUUM)
+      - No recovery without backup
+      - Use with caution
+
+  # ---------------------------------------------------------------------------
+  # Incremental Patterns
+  # ---------------------------------------------------------------------------
+
+  - id: watermark
+    name: Watermark (High-Water Mark)
+    category: incremental
+    description: >
+      Load only records newer than last processed timestamp.
+      Requires reliable modified_date column in source.
+    detection:
+      sql_patterns:
+        - "WHERE.*>.*@last_run"
+        - "WHERE.*modified_date.*>"
+        - "WHERE.*updated_at.*>"
+        - "WHERE.*>.*\(SELECT MAX"
+      variable_hints:
+        - last_run_date
+        - high_water_mark
+        - watermark
+      task_name_hints:
+        - incremental
+        - delta
+        - watermark
+    databricks_pattern: |
+      INSERT INTO target
+      SELECT * FROM source
+      WHERE modified_date > (SELECT MAX(modified_date) FROM target);
+    considerations:
+      - Requires reliable timestamp column
+      - Must handle late-arriving data
+      - Efficient for large tables
+      - Common pattern for incremental loads
+
+  - id: cdc
+    name: CDC (Change Data Capture)
+    category: incremental
+    description: >
+      Process change events with operation type (Insert/Update/Delete).
+      Source provides explicit change flags.
+    detection:
+      column_hints:
+        - __$operation
+        - __$start_lsn
+        - op_type
+        - operation
+        - cdc_
+      sql_patterns:
+        - "CASE.*WHEN.*operation.*INSERT"
+        - "__$operation"
+      task_name_hints:
+        - cdc
+        - change_capture
+        - changes
+    databricks_pattern: |
+      MERGE INTO target t USING cdc_source s ON t.key = s.key
+      WHEN MATCHED AND s.operation = 'D' THEN DELETE
+      WHEN MATCHED AND s.operation = 'U' THEN UPDATE SET *
+      WHEN NOT MATCHED AND s.operation = 'I' THEN INSERT *
+    considerations:
+      - Source must provide CDC stream
+      - Handles all change types
+      - Order of operations matters
+      - SQL Server CDC, Debezium, etc.
+
+  - id: delta_diff
+    name: Delta Diff (Compare & Sync)
+    category: incremental
+    description: >
+      Compare source and target to find differences.
+      Load only changed records by hash or column comparison.
+    detection:
+      sql_patterns:
+        - EXCEPT
+        - NOT EXISTS
+        - HASHBYTES
+        - CHECKSUM
+      sql_keywords:
+        - EXCEPT
+      task_name_hints:
+        - diff
+        - compare
+        - sync
+        - reconcile
+    databricks_pattern: |
+      -- Find new/changed records
+      INSERT INTO target
+      SELECT s.* FROM source s
+      WHERE NOT EXISTS (
+        SELECT 1 FROM target t 
+        WHERE t.key = s.key AND t.hash = s.hash
+      );
+    considerations:
+      - Works without timestamps
+      - Hash comparison can be expensive
+      - Good for irregular source updates
+
+  # ---------------------------------------------------------------------------
+  # Transform Patterns
+  # ---------------------------------------------------------------------------
+
+  - id: lookup_enrich
+    name: Lookup Enrichment
+    category: transform
+    description: >
+      Join with reference/dimension tables to add context.
+      Typically Silver-layer transformation.
+    detection:
+      sql_keywords:
+        - LEFT JOIN
+        - INNER JOIN
+        - JOIN
+      sql_patterns:
+        - "JOIN.*dim_"
+        - "JOIN.*ref_"
+        - "JOIN.*lkp_"
+      task_name_hints:
+        - lookup
+        - enrich
+        - denorm
+    databricks_pattern: |
+      SELECT t.*, d.description, d.category
+      FROM transactions t
+      LEFT JOIN dim_product d ON t.product_id = d.product_id
+    considerations:
+      - Common in Silver layer
+      - May need broadcast hints for small dims
+      - Watch for fan-out on many-to-many
+
+  - id: aggregate
+    name: Aggregation
+    category: transform
+    description: >
+      Group and summarize data with aggregate functions.
+      Typically Gold-layer transformation.
+    detection:
+      sql_keywords:
+        - GROUP BY
+        - SUM
+        - COUNT
+        - AVG
+        - MAX
+        - MIN
+      sql_patterns:
+        - "SELECT.*SUM.*GROUP BY"
+        - "SELECT.*COUNT.*GROUP BY"
+      task_name_hints:
+        - aggregate
+        - summary
+        - rollup
+        - metrics
+    databricks_pattern: |
+      SELECT 
+        date, product_id,
+        SUM(amount) as total_amount,
+        COUNT(*) as transaction_count
+      FROM fact_sales
+      GROUP BY date, product_id
+    considerations:
+      - Gold layer pattern
+      - Pre-compute for performance
+      - Consider materialized views
+
+  - id: pivot_unpivot
+    name: Pivot / Unpivot
+    category: transform
+    description: >
+      Reshape data between row and column formats.
+      Convert columns to rows or rows to columns.
+    detection:
+      sql_keywords:
+        - PIVOT
+        - UNPIVOT
+      sql_patterns:
+        - "CASE WHEN.*THEN"
+        - "UNION ALL.*SELECT"
+      task_name_hints:
+        - pivot
+        - unpivot
+        - transpose
+        - reshape
+    databricks_pattern: |
+      -- Pivot (rows to columns)
+      SELECT * FROM sales
+      PIVOT (SUM(amount) FOR month IN ('Jan', 'Feb', 'Mar'));
+      
+      -- Unpivot (columns to rows)
+      SELECT * FROM wide_table
+      UNPIVOT (value FOR metric IN (col1, col2, col3));
+    considerations:
+      - Schema change required
+      - Dynamic pivot may need SQL generation
+      - Consider performance impact
+
+# =============================================================================
+# Performance Hints
+# =============================================================================
+performance:
+  photon:
+    name: Photon Optimization
+    description: >
+      Photon is Databricks' native vectorized query engine.
+      SQL and simple DataFrame operations benefit most.
+    eligible_patterns:
+      - merge
+      - delete_insert
+      - append_only
+      - aggregate
+    hints:
+      - Use SQL notebooks for Photon optimization
+      - Avoid UDFs (not Photon-accelerated)
+      - Prefer built-in functions
+
+  broadcast:
+    name: Broadcast Joins
+    description: >
+      Small dimension tables should be broadcast to all workers.
+    when_to_use:
+      - Dimension table < 100MB
+      - Many-to-one joins
+    databricks_hint: |
+      SELECT /*+ BROADCAST(small_dim) */ *
+      FROM large_fact f
+      JOIN small_dim d ON f.key = d.key
+
+  z_order:
+    name: Z-ORDER Clustering
+    description: >
+      Optimize query performance by co-locating related data.
+    when_to_use:
+      - Frequent filter columns
+      - Join keys
+      - Date partitions
+    databricks_hint: |
+      OPTIMIZE table_name ZORDER BY (partition_col, filter_col)
+
+  range_join:
+    name: Range Join Optimization
+    description: >
+      Optimize joins on date ranges or intervals.
+    detection_hints:
+      - DATEDIFF in join condition
+      - BETWEEN in join condition
+    databricks_hint: |
+      -- Enable range join optimization
+      SET spark.databricks.optimizer.rangeJoin.binSize = 60;

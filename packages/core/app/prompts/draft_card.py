@@ -7,9 +7,79 @@ The template family provides domain-specific examples and structure guidance.
 
 from __future__ import annotations
 
+import re
+from typing import Literal
+
 from app.families._base import CardDraftContext, TemplateFamily
 from app.llm.base import ChatPrompt
 from app.schemas.llm_io import DraftedCard
+
+# Progressive disclosure level for skill rendering in prompts.
+#   L1: slug + name + kind (cheapest — used by ProposeBacklog)
+#   L2: + description + "When to invoke" excerpt + resources list (default — used by DraftCard)
+#   L3: + full body_md + resources content (most expensive — opt-in only)
+SkillDetailLevel = Literal["L1", "L2", "L3"]
+
+# Hard caps to keep prompt budget predictable even with chatty skill bodies.
+_BODY_EXCERPT_MAX_CHARS = 800
+_RESOURCE_CONTENT_MAX_CHARS = 400
+_MAX_RESOURCES_LISTED = 5
+
+# Regex to pull the "When to invoke" / "When to pull" / "Triggers" section out
+# of a SKILL.md body. We use this in L2 so the prompt sees the most actionable
+# slice of the body without the full markdown bloat.
+_WHEN_TO_INVOKE_HEADERS = re.compile(
+    r"^#+\s*(when to (invoke|pull|use)|triggers|usage|quando invocar).*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+
+
+def _extract_when_to_invoke(body_md: str) -> str | None:
+    """Return the body section under a 'When to invoke' header, or None.
+
+    Looks for any markdown header matching the When-to-invoke pattern and
+    returns the text up to the next header of equal or higher level.
+    Falls back to None when no such section exists — the caller decides
+    whether to use the leading paragraph instead.
+    """
+    if not body_md:
+        return None
+
+    match = _WHEN_TO_INVOKE_HEADERS.search(body_md)
+    if not match:
+        return None
+
+    start = match.end()
+    # Find the next header at any level after this section.
+    next_header = re.search(r"^#+\s", body_md[start:], re.MULTILINE)
+    end = start + next_header.start() if next_header else len(body_md)
+    section = body_md[start:end].strip()
+    return section or None
+
+
+def _body_summary(body_md: str) -> str | None:
+    """Best-effort short summary of a skill body for L2 rendering.
+
+    Preference order:
+      1. Explicit "When to invoke" section.
+      2. First paragraph of the body (capped).
+    """
+    if not body_md or not body_md.strip():
+        return None
+
+    when = _extract_when_to_invoke(body_md)
+    if when:
+        return when[:_BODY_EXCERPT_MAX_CHARS]
+
+    # Fallback: first non-empty paragraph, stripped of markdown headers.
+    paragraphs = [
+        p.strip()
+        for p in re.split(r"\n\s*\n", body_md)
+        if p.strip() and not p.strip().startswith("#")
+    ]
+    if not paragraphs:
+        return None
+    return paragraphs[0][:_BODY_EXCERPT_MAX_CHARS]
 
 
 class DraftCardPrompt:
@@ -59,11 +129,29 @@ class DraftCardPrompt:
         return "\n".join(parts) if parts else "No direct dependencies within this phase."
 
     @staticmethod
-    def build_skills_context(skills: list) -> str:
+    def build_skills_context(
+        skills: list,
+        level: SkillDetailLevel = "L2",
+    ) -> str:
         """Build a summary of available skills for the card.
+
+        Uses progressive disclosure to balance context richness against token
+        budget and attention dilution:
+
+        - **L1**: slug + name + kind only. ~30 tokens/skill. Use for
+          high-level proposals (e.g. ProposeBacklog) where the LLM only needs
+          to know skills exist and what category they belong to.
+        - **L2** (default): + description + body excerpt (When-to-invoke
+          section, or first paragraph) + resource filenames with purposes.
+          ~250-400 tokens/skill. Use for DraftCard and similar prompts that
+          need to know *what* each skill can do without the full guidance.
+        - **L3**: + full body_md + resource content excerpts. ~1500+
+          tokens/skill. Opt-in only; reserve for prompts that genuinely
+          need to inline the skill's full guidance.
 
         Args:
             skills: List of SkillView objects available for this card
+            level: Progressive disclosure level (default L2)
 
         Returns:
             Formatted string describing skills and their purposes
@@ -72,9 +160,58 @@ class DraftCardPrompt:
             return "No specific skills assigned to this card."
 
         parts = ["**Skills to invoke:**"]
+
         for skill in skills:
-            parts.append(f"- `{skill.slug}`: {skill.name} ({skill.kind})")
-            parts.append(f"  {skill.description}")
+            if level == "L1":
+                parts.append(f"- `{skill.slug}`: {skill.name} ({skill.kind})")
+                continue
+
+            # L2 and L3 share the structured per-skill block.
+            parts.append("")
+            parts.append(f"### `{skill.slug}` ({skill.kind})")
+            parts.append(f"**Name:** {skill.name}")
+            parts.append(f"**Description:** {skill.description}")
+
+            # Body content: excerpt at L2, full at L3.
+            body_md = getattr(skill, "body_md", "") or ""
+            if level == "L2":
+                excerpt = _body_summary(body_md)
+                if excerpt:
+                    parts.append("")
+                    parts.append("**Guidance excerpt:**")
+                    parts.append(excerpt)
+            elif level == "L3" and body_md.strip():
+                parts.append("")
+                parts.append("**Full guidance:**")
+                parts.append(body_md)
+
+            # Resources: always list (filename + purpose) up to a cap.
+            resources = getattr(skill, "resources", []) or []
+            if resources:
+                shown = resources[:_MAX_RESOURCES_LISTED]
+                parts.append("")
+                parts.append("**Available resources:**")
+                for res in shown:
+                    # `purpose` does not exist on SkillResourceView yet, so we
+                    # fall back to the first line of content as a hint.
+                    hint = ""
+                    if res.content:
+                        first_line = res.content.strip().splitlines()[0] if res.content.strip() else ""
+                        hint = f" — {first_line[:120]}" if first_line else ""
+                    parts.append(f"- `{res.filename}` ({res.language}){hint}")
+                if len(resources) > _MAX_RESOURCES_LISTED:
+                    parts.append(f"- _...and {len(resources) - _MAX_RESOURCES_LISTED} more_")
+
+                # At L3 also inline the resource content (capped).
+                if level == "L3":
+                    for res in shown:
+                        if not res.content:
+                            continue
+                        content = res.content
+                        if len(content) > _RESOURCE_CONTENT_MAX_CHARS:
+                            content = content[:_RESOURCE_CONTENT_MAX_CHARS] + "\n…(truncated)"
+                        parts.append("")
+                        parts.append(f"<details><summary>{res.filename}</summary>\n\n```\n{content}\n```\n\n</details>")
 
         return "\n".join(parts)
 

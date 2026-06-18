@@ -1,0 +1,43 @@
+key: brave-search
+name: Brave Search
+description: Web search using Brave Search API for finding information and documentation
+vendor: brave
+category: utility
+run_command: "npx @modelcontextprotocol/server-brave-search"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search"
+icon: search
+
+env_vars:
+  BRAVE_API_KEY:
+    required: true
+    secret: true
+    label: "Brave Search API Key"
+    hint: "Get from api.search.brave.com — free tier available"
+
+config_fields:
+  country:
+    type: string
+    required: false
+    label: "Country Code"
+    hint: "Optional — ISO 3166-1 alpha-2 code for localized results (e.g., US, BR)"
+  search_lang:
+    type: string
+    required: false
+    label: "Language"
+    hint: "Optional — language code for results (e.g., en, pt)"
+  safesearch:
+    type: string
+    required: false
+    label: "Safe Search"
+    hint: "Optional — off, moderate, or strict (default: moderate)"
+    default: "moderate"
+
+tools:
+  - name: brave_web_search
+    description: Search the web and return results with snippets
+    risk_level: N1
+  - name: brave_local_search
+    description: Search for local businesses and places
+    risk_level: N1
+
+requires_approval: false

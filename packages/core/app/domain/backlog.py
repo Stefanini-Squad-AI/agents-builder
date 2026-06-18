@@ -78,12 +78,19 @@ class Card(UuidPkMixin, TimestampsMixin, Base):
         ),
         Index("ix_cards__phase_order", "phase_id", "order_no"),
         Index("ix_cards__code", "code"),
+        Index("ix_cards__package", "package_id"),
     )
 
     phase_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("phases.id", ondelete="CASCADE"),
         nullable=False,
+    )
+    # Optional link to ETL package (for migration projects with per-package backlogs)
+    package_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("etl_packages.id", ondelete="SET NULL"),
+        nullable=True,
     )
     code: Mapped[str] = mapped_column(Text, nullable=False)
     title: Mapped[str] = mapped_column(Text, nullable=False)

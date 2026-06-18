@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 from app.llm.base import ChatPrompt
 from app.schemas.common import ValidationIssue
-from app.schemas.views import CardView, PhaseView, ProjectView, SkillView
+from app.schemas.views import CardLinkView, CardView, PhaseView, ProjectView, SkillView
 
 
 class CardDraftContext(BaseModel):
@@ -26,6 +26,9 @@ class CardDraftContext(BaseModel):
     skills_used: list[SkillView]
     sibling_cards_in_phase: list[CardView]
     upstream_cards: list[CardView]
+    # Resolved cross-card link targets (populated by the exporter; empty for LLM drafting)
+    depends_on_links: list[CardLinkView] = []
+    parallel_with_links: list[CardLinkView] = []
 
 
 class GroupingReadmeContext(BaseModel):
@@ -35,6 +38,8 @@ class GroupingReadmeContext(BaseModel):
     grouping: PhaseView  # For phase-based families, this is a PhaseView
     cards: list[CardView]
     skills_referenced: list[SkillView]
+    # code -> resolved link target, for rendering dependency references
+    card_links: dict[str, CardLinkView] = {}
 
 
 class ProjectReadmeContext(BaseModel):

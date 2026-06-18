@@ -1,0 +1,52 @@
+key: slack
+name: Slack
+description: Search messages, read channels, and send messages in Slack workspaces
+vendor: slack
+category: messaging
+run_command: "npx @modelcontextprotocol/server-slack"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/slack"
+icon: slack
+
+env_vars:
+  SLACK_BOT_TOKEN:
+    required: true
+    secret: true
+    label: "Bot Token"
+    hint: "Bot token starting with xoxb- (from Slack app settings)"
+  SLACK_TEAM_ID:
+    required: false
+    secret: false
+    label: "Team ID"
+    hint: "Optional — workspace team ID for enterprise grid"
+
+config_fields:
+  default_channel:
+    type: string
+    required: false
+    label: "Default Channel"
+    hint: "Optional — channel ID or name for default posting"
+
+tools:
+  - name: list_channels
+    description: List channels the bot can access
+    risk_level: N1
+  - name: get_channel_history
+    description: Read recent messages in a channel
+    risk_level: N1
+  - name: search_messages
+    description: Search messages across channels
+    risk_level: N2
+  - name: get_thread_replies
+    description: Get replies in a thread
+    risk_level: N1
+  - name: list_users
+    description: List workspace users
+    risk_level: N1
+  - name: post_message
+    description: Send a message to a channel
+    risk_level: N3
+  - name: reply_to_thread
+    description: Reply to a message thread
+    risk_level: N3
+
+requires_approval: false

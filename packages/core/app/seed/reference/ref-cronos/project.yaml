@@ -10,8 +10,6 @@ card_code_prefix: CRN
 card_template: phase_vli
 grouping: phase
 status: draft
-llm_provider: anthropic
-llm_model: claude-sonnet-4-5
 
 objective: |
   Add reports, email notifications, and an audit log to an existing

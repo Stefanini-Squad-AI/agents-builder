@@ -2,10 +2,12 @@
 
 from app.families._base import TemplateFamily
 from app.families.phase_vli import PhaseVliFamily
+from app.families.migration import MigrationFamily
 
 # Global registry of all available template families
 TEMPLATE_REGISTRY: dict[str, TemplateFamily] = {
     "phase_vli": PhaseVliFamily(),
+    "migration": MigrationFamily(),
     # Future families will be added here:
     # "strict_9": Strict9Family(),   # P5+
     # "free_form": FreeFormFamily(), # P5+

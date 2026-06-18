@@ -1,0 +1,66 @@
+key: databricks
+name: Databricks
+description: Query Unity Catalog tables, inspect schemas, and explore notebooks
+vendor: databricks
+category: database
+run_command: "npx @modelcontextprotocol/server-databricks"
+documentation_url: "https://github.com/databricks/databricks-mcp"
+icon: databricks
+
+env_vars:
+  DATABRICKS_HOST:
+    required: true
+    secret: false
+    label: "Workspace URL"
+    hint: "e.g., https://myworkspace.cloud.databricks.com"
+  DATABRICKS_TOKEN:
+    required: true
+    secret: true
+    label: "Personal Access Token"
+    hint: "Generate in User Settings > Developer > Access Tokens"
+
+config_fields:
+  catalog:
+    type: string
+    required: false
+    label: "Default Catalog"
+    hint: "Unity Catalog name (defaults to workspace default)"
+  warehouse_id:
+    type: string
+    required: false
+    label: "SQL Warehouse ID"
+    hint: "Optional — SQL warehouse for queries"
+
+tools:
+  - name: query
+    description: Execute a SQL query using SQL warehouse
+    risk_level: N2
+  - name: list_catalogs
+    description: List Unity Catalog catalogs
+    risk_level: N1
+  - name: list_schemas
+    description: List schemas in a catalog
+    risk_level: N1
+  - name: list_tables
+    description: List tables in a schema
+    risk_level: N1
+  - name: describe_table
+    description: Get table schema and metadata
+    risk_level: N1
+  - name: get_table_sample
+    description: Get sample rows from a table
+    risk_level: N1
+  - name: list_notebooks
+    description: List notebooks in a workspace path
+    risk_level: N1
+  - name: get_notebook_content
+    description: Read notebook source
+    risk_level: N1
+  - name: list_jobs
+    description: List scheduled jobs
+    risk_level: N1
+  - name: get_job_runs
+    description: Get recent job run history
+    risk_level: N1
+
+requires_approval: false

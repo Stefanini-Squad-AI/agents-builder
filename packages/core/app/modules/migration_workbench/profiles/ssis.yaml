@@ -1,0 +1,175 @@
+# SSIS Technology Profile
+# SQL Server Integration Services patterns for migration analysis
+
+name: SQL Server Integration Services (SSIS)
+slug: ssis
+file_extension: .dtsx
+format: xml
+
+structural_patterns:
+  - id: disabled_tasks
+    name: Disabled Tasks
+    description: >
+      SSIS packages often contain disabled tasks that may be dead code,
+      superseded logic, or accidentally disabled functionality.
+    detection_hint: "DTS:Executable with DTS:Disabled='True'"
+    migration_implication: >
+      Must audit each disabled task before migration to avoid missing
+      functionality or migrating dead code.
+    skill_suggestion: Include a task audit step in discovery phase
+    equivalent_in:
+      airflow: "Commented out tasks or is_paused=True"
+
+  - id: change_annotations
+    name: Change Annotations
+    description: >
+      Developers leave annotations in AnnotationLayout blocks documenting
+      changes, workarounds, and important notes.
+    detection_hint: "AnnotationLayout elements in package XML"
+    migration_implication: >
+      These contain risk information and evolution history that should
+      be preserved in target documentation.
+    skill_suggestion: Parse annotations during discovery for risk register
+
+  - id: connection_managers
+    name: Connection Managers
+    description: >
+      External connectivity defined via ConnectionManager elements.
+      Includes database connections, file paths, FTP servers, etc.
+    detection_hint: "DTS:ConnectionManager elements"
+    migration_implication: >
+      Each connection must be mapped to target platform equivalent.
+      Credentials and connection strings need secure handling.
+    skill_suggestion: Include connectivity mapping in foundation phase
+
+  - id: execution_modes
+    name: Multiple Execution Modes
+    description: >
+      Packages support multiple execution modes via expression variables
+      controlling precedence constraints.
+    detection_hint: "Variables with EvaluateAsExpression=True controlling precedence"
+    migration_implication: >
+      All execution modes must be replicated in target. Often includes
+      full reload vs incremental, debug mode, etc.
+    skill_suggestion: Document all execution modes during analysis
+
+  - id: control_flow_vs_data_flow
+    name: Control Flow vs Data Flow Tasks
+    description: >
+      Some packages are SQL-only (ExecuteSQLTask), others have Data Flow
+      Tasks with complex transformations.
+    detection_hint: "DTS:ExecutableType values - SQLTask vs DataFlowTask"
+    migration_implication: >
+      Data Flow Tasks require different migration patterns than SQL tasks.
+      SQL-only packages are simpler to migrate.
+    skill_suggestion: Classify task types early to choose migration strategy
+
+  - id: script_tasks
+    name: Script Tasks
+    description: >
+      Custom C#/VB.NET code embedded in Script Tasks or Script Components.
+    detection_hint: "Microsoft.SqlServer.Dts.Tasks.ScriptTask"
+    migration_implication: >
+      Script logic must be analyzed and rewritten in target language
+      (Python for Databricks). High complexity.
+    skill_suggestion: Extract and document script logic for manual review
+
+  - id: event_handlers
+    name: Event Handlers
+    description: >
+      OnError, OnPreExecute, OnPostExecute handlers for logging,
+      alerting, and error handling.
+    detection_hint: "DTS:EventHandler elements"
+    migration_implication: >
+      Event handling logic must be replicated in target workflow
+      orchestration (Databricks Workflows, Airflow, etc.).
+    skill_suggestion: Document event handlers and map to target patterns
+
+  - id: package_configurations
+    name: Package Configurations
+    description: >
+      External configuration via XML files, environment variables,
+      SQL Server tables, or registry.
+    detection_hint: "DTS:Configuration elements"
+    migration_implication: >
+      Configuration sources must be migrated to target pattern
+      (Databricks secrets, environment variables, etc.).
+    skill_suggestion: Map configuration sources in foundation phase
+
+execution_patterns:
+  - id: incremental_vs_full
+    name: Incremental vs Full Reload
+    description: >
+      Many ETL packages support both incremental and full reload modes
+      controlled by variables or parameters.
+    detection_hint: "Control flags like 'processamento_full' or date-range parameters"
+    migration_implication: >
+      Target must support both MERGE and OVERWRITE patterns.
+      Watermark tracking must be preserved.
+
+  - id: soft_deletes
+    name: Soft Deletes
+    description: >
+      Logical deletion via flag columns (exclusao_logica, is_deleted)
+      rather than physical DELETE.
+    detection_hint: "UPDATE statements setting exclusao_logica or similar flags"
+    migration_implication: >
+      Business rule must be preserved exactly. Delta Lake supports
+      this natively with UPDATE operations.
+
+  - id: scd_type2
+    name: Slowly Changing Dimension Type 2
+    description: >
+      Historical tracking with effective dates and current flags.
+    detection_hint: "dt_inicio, dt_fim, fl_atual columns in dimension tables"
+    migration_implication: >
+      Delta Lake MERGE with SCD Type 2 pattern or use Delta
+      time travel for simpler cases.
+
+  - id: batch_windowing
+    name: Batch Windowing
+    description: >
+      Processing in date-based windows or batch IDs.
+    detection_hint: "Variables like @DataInicio, @DataFim, @BatchId"
+    migration_implication: >
+      Preserve windowing logic in target. Consider if streaming
+      would be better for near-real-time needs.
+
+validation_requirements:
+  - id: parallel_run
+    name: Parallel Run
+    description: >
+      Production ETL requires side-by-side validation before cutover.
+      Both source and target run simultaneously and outputs are compared.
+    rationale: >
+      Cannot rely on unit tests alone for data pipelines. Production
+      data volumes and edge cases must be validated.
+    skill_suggestion: Include parallel run phase with reconciliation metrics
+
+  - id: static_code_comparison
+    name: Static Code Comparison
+    description: >
+      Rule-by-rule comparison between source SQL and target code to
+      ensure business logic equivalence.
+    rationale: >
+      Ensures no business logic drift during migration. Catches
+      subtle differences in SQL dialects.
+    skill_suggestion: Include static analysis step before parallel run
+
+  - id: row_count_reconciliation
+    name: Row Count Reconciliation
+    description: >
+      Compare row counts between source and target tables at various
+      granularities (total, by date, by key).
+    rationale: >
+      First-line validation that data was transferred completely.
+    skill_suggestion: Automated row count comparison in validation phase
+
+  - id: aggregate_reconciliation
+    name: Aggregate Reconciliation
+    description: >
+      Compare SUM, AVG, MIN, MAX of numeric columns between source
+      and target with tolerance thresholds.
+    rationale: >
+      Validates numeric accuracy of transformations.
+    skill_suggestion: Automated aggregate comparison with configurable tolerance

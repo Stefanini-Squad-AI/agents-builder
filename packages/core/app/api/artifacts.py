@@ -1,10 +1,11 @@
-"""Artifact API: upload, fetch, list, retry.
+"""Artifact API: upload, fetch, list, retry, delete.
 
 Endpoints
-- POST  /api/projects/{project_id}/artifacts     multipart upload, 202
-- GET   /api/projects/{project_id}/artifacts     list project artifacts
-- GET   /api/artifacts/{artifact_id}             single artifact (poll)
-- POST  /api/artifacts/{artifact_id}/retry       re-enqueue extraction
+- POST   /api/projects/{project_ref}/artifacts     multipart upload, 202
+- GET    /api/projects/{project_ref}/artifacts     list project artifacts
+- GET    /api/artifacts/{artifact_id}              single artifact (poll)
+- POST   /api/artifacts/{artifact_id}/retry        re-enqueue extraction
+- DELETE /api/artifacts/{artifact_id}              delete artifact + file
 
 The upload handler is intentionally narrow: write file, insert row,
 enqueue actor, return 202 + the row. The actor (Step 0.10) does the
@@ -33,37 +34,49 @@ router = APIRouter(tags=["artifacts"])
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 
+def _get_project_by_ref(session: Session, project_ref: str) -> Project | None:
+    """Fetch project by UUID or slug."""
+    try:
+        project_uuid = uuid.UUID(project_ref)
+        return session.get(Project, project_uuid)
+    except ValueError:
+        pass
+    return session.execute(
+        select(Project).where(Project.slug == project_ref)
+    ).scalar_one_or_none()
+
+
 def _to_summary(row: ProjectArtifact) -> ArtifactSummary:
-    """ORM row -> compact API view used by every artifact response."""
-    excerpt = None
-    if row.content_md:
-        excerpt = row.content_md[:2000]
+    """ORM row -> API view used by every artifact response.
+    
+    Full content_md is included — no truncation for richer context.
+    """
     return ArtifactSummary(
         id=row.id,
         filename=row.filename,
         kind=ArtifactKind(row.kind),
         extraction_status=ExtractionStatus(row.extraction_status),
         size_bytes=row.size_bytes,
-        content_md_excerpt=excerpt,
+        content_md_excerpt=row.content_md,  # Full content
         content_md_truncated=row.content_md_truncated,
     )
 
 
 @router.post(
-    "/api/projects/{project_id}/artifacts",
+    "/api/projects/{project_ref}/artifacts",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=ArtifactSummary,
 )
 async def upload_artifact(
-    project_id: uuid.UUID,
+    project_ref: str,
     file: Annotated[UploadFile, File(..., description="Binary upload")],
     kind: Annotated[str, Form(...)] = ArtifactKind.DOC.value,
     session: Session = Depends(get_session),
 ) -> ArtifactSummary:
     """Save the file to disk, insert a row in 'pending' state, enqueue extraction."""
-    project = session.get(Project, project_id)
+    project = _get_project_by_ref(session, project_ref)
     if project is None:
-        raise HTTPException(status_code=404, detail=f"Project {project_id} not found")
+        raise HTTPException(status_code=404, detail=f"Project {project_ref} not found")
 
     try:
         kind_enum = ArtifactKind(kind)
@@ -79,10 +92,10 @@ async def upload_artifact(
             detail=f"File too large: {len(blob)} > {MAX_UPLOAD_BYTES} bytes",
         )
 
-    abs_path, rel_path = save_upload(project_id, file.filename or "upload", blob)
+    abs_path, rel_path = save_upload(project.id, file.filename or "upload", blob)
 
     row = ProjectArtifact(
-        project_id=project_id,
+        project_id=project.id,
         kind=kind_enum.value,
         filename=file.filename or abs_path.name,
         mime_type=file.content_type,
@@ -91,24 +104,27 @@ async def upload_artifact(
         extraction_status=ExtractionStatus.PENDING.value,
     )
     session.add(row)
-    session.flush()  # populate row.id before we enqueue
+    session.commit()  # commit before enqueue — worker must see the row (P1: TOCTOU fix)
 
     extract_artifact.send(str(row.id))
     return _to_summary(row)
 
 
 @router.get(
-    "/api/projects/{project_id}/artifacts",
+    "/api/projects/{project_ref}/artifacts",
     response_model=list[ArtifactSummary],
 )
 def list_project_artifacts(
-    project_id: uuid.UUID,
+    project_ref: str,
     session: Session = Depends(get_session),
 ) -> list[ArtifactSummary]:
+    project = _get_project_by_ref(session, project_ref)
+    if project is None:
+        raise HTTPException(status_code=404, detail=f"Project {project_ref} not found")
     rows = (
         session.execute(
             select(ProjectArtifact)
-            .where(ProjectArtifact.project_id == project_id)
+            .where(ProjectArtifact.project_id == project.id)
             .order_by(ProjectArtifact.created_at.desc())
         )
         .scalars()
@@ -157,6 +173,32 @@ def retry_artifact(
         )
     row.extraction_status = ExtractionStatus.PENDING.value
     row.extraction_error = None
-    session.flush()
+    session.commit()  # commit before enqueue — worker must see the row (P1: TOCTOU fix)
     extract_artifact.send(str(row.id))
     return _to_summary(row)
+
+
+@router.delete(
+    "/api/artifacts/{artifact_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_artifact(
+    artifact_id: uuid.UUID,
+    session: Session = Depends(get_session),
+) -> None:
+    """Delete an artifact record and its file from disk."""
+    from app.storage import resolve_artifact_path
+
+    row = session.get(ProjectArtifact, artifact_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"Artifact {artifact_id} not found")
+
+    # Try to delete the file from disk (ignore if missing)
+    try:
+        abs_path = resolve_artifact_path(row.path)
+        abs_path.unlink(missing_ok=True)
+    except Exception:
+        pass  # File may already be missing; that's OK
+
+    session.delete(row)
+    session.flush()

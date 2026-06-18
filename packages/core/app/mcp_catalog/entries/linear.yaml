@@ -1,0 +1,50 @@
+key: linear
+name: Linear
+description: Read and manage Linear issues, projects, cycles, and roadmaps
+vendor: linear
+category: project_management
+run_command: "npx @modelcontextprotocol/server-linear"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/linear"
+icon: linear
+
+env_vars:
+  LINEAR_API_KEY:
+    required: true
+    secret: true
+    label: "API Key"
+    hint: "Generate at linear.app/settings/api — needs read and write scopes"
+
+config_fields:
+  team_key:
+    type: string
+    required: false
+    label: "Team Key"
+    hint: "Optional — filter to a specific team (e.g., 'ENG')"
+
+tools:
+  - name: search_issues
+    description: Search issues with filters
+    risk_level: N1
+  - name: get_issue
+    description: Get details of a specific issue
+    risk_level: N1
+  - name: list_projects
+    description: List projects in workspace
+    risk_level: N1
+  - name: get_cycle
+    description: Get current cycle details
+    risk_level: N1
+  - name: list_teams
+    description: List teams in workspace
+    risk_level: N1
+  - name: create_issue
+    description: Create a new issue
+    risk_level: N3
+  - name: update_issue
+    description: Update an existing issue
+    risk_level: N3
+  - name: add_comment
+    description: Add a comment to an issue
+    risk_level: N3
+
+requires_approval: false

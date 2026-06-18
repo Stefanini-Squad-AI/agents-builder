@@ -19,6 +19,22 @@ To add a new actor:
 from app.jobs._broker import broker, use_stub_broker
 
 # Eagerly import every actor module so `dramatiq app.jobs` discovers them.
-from app.jobs import extract_artifact, ping
+from app.jobs import (
+    draft_skill_body,
+    extract_artifact,
+    ping,
+    run_lakebridge_analyzer,
+    run_lakebridge_reconciler,
+    run_lakebridge_transpiler,
+)
 
-__all__ = ["broker", "extract_artifact", "ping", "use_stub_broker"]
+__all__ = [
+    "broker",
+    "draft_skill_body",
+    "extract_artifact",
+    "ping",
+    "run_lakebridge_analyzer",
+    "run_lakebridge_reconciler",
+    "run_lakebridge_transpiler",
+    "use_stub_broker",
+]

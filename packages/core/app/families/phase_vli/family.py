@@ -61,6 +61,8 @@ class PhaseVliFamily(TemplateFamily):
             skills_used=context.skills_used,
             project=context.project,
             phase=context.phase,
+            depends_on_links=context.depends_on_links,
+            parallel_with_links=context.parallel_with_links,
         )
 
     def render_grouping_readme(self, context: GroupingReadmeContext) -> str:
@@ -72,6 +74,7 @@ class PhaseVliFamily(TemplateFamily):
             cards=context.cards,
             skills_referenced=context.skills_referenced,
             project=context.project,
+            card_links=context.card_links,
         )
 
     def render_project_readme(self, context: ProjectReadmeContext) -> str:

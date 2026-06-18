@@ -1,0 +1,74 @@
+-- Databricks notebook source
+{%- if include_docstring_header %}
+-- MAGIC %md
+-- MAGIC # {{ module_name }}
+-- MAGIC
+-- MAGIC **Purpose**: {{ purpose }}
+-- MAGIC **Phase**: {{ phase }}
+-- MAGIC **Source tasks**: {{ source_task_count }}
+{%- endif %}
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ## Parameters
+-- MAGIC Passed in by the orchestrator via `dbutils.notebook.run(...)`.
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.widgets.text("catalog", "{{ target_catalog }}")
+-- MAGIC dbutils.widgets.text("schema", "{{ target_schema }}")
+-- MAGIC dbutils.widgets.text("run_date", "")
+-- MAGIC
+-- MAGIC catalog = dbutils.widgets.get("catalog")
+-- MAGIC schema = dbutils.widgets.get("schema")
+-- MAGIC run_date = dbutils.widgets.get("run_date")
+-- MAGIC
+-- MAGIC spark.sql(f"USE CATALOG {catalog}")
+-- MAGIC spark.sql(f"USE SCHEMA {schema}")
+
+-- COMMAND ----------
+{%- if enable_photon_hints %}
+
+-- MAGIC %md
+-- MAGIC ## Photon hint
+-- MAGIC This notebook is intended for Photon-enabled clusters/warehouses.
+
+-- COMMAND ----------
+{%- endif %}
+{%- for stmt in statements %}
+
+-- MAGIC %md
+-- MAGIC ### {{ stmt.task_name }}
+{%- if include_comments and stmt.description %}
+-- MAGIC
+-- MAGIC {{ stmt.description }}
+{%- endif %}
+
+-- COMMAND ----------
+
+{{ stmt.sql | trim }}
+{%- if not stmt.sql.rstrip().endswith(';') %};{% endif %}
+
+-- COMMAND ----------
+{%- endfor %}
+{%- if include_validation_cells %}
+
+-- MAGIC %md
+-- MAGIC ## Validation
+-- MAGIC Quick sanity checks. Extend with project-specific assertions.
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC # Example: assert no NULLs in primary key columns
+-- MAGIC # df = spark.table(f"{catalog}.{schema}.<target_table>")
+-- MAGIC # assert df.filter("pk_col IS NULL").count() == 0
+-- MAGIC pass
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.notebook.exit("ok")
+{%- endif %}

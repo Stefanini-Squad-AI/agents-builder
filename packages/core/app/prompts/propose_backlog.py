@@ -93,20 +93,33 @@ class ProposeBacklogPrompt:
     def format_skills_summary(skills: list[SkillView]) -> str:
         """Format skills into a concise summary for LLM consumption.
 
+        Groups by kind and includes name + description for each skill so the
+        proposer can assign the right skills to each card. We deliberately
+        omit body_md and resources here — the goal is a scannable inventory,
+        not deep guidance. DraftCard handles that (via L2/L3 progressive
+        disclosure) once a specific card has been chosen.
+
         Args:
             skills: Skills to format
 
         Returns:
-            Formatted string with skill categories and names
+            Formatted string with skill categories, slugs, names, and
+            one-line descriptions.
         """
         categories = ProposeBacklogPrompt.get_skill_categories(skills)
 
         parts = []
         for kind, skill_list in categories.items():
-            skill_names = [f"`{s.slug}`" for s in skill_list]
-            parts.append(f"**{kind.title()}**: {', '.join(skill_names)}")
+            parts.append(f"**{kind.title()}:**")
+            for s in skill_list:
+                # Keep each line scannable — truncate verbose descriptions.
+                desc = s.description.strip().replace("\n", " ")
+                if len(desc) > 200:
+                    desc = desc[:200].rstrip() + "…"
+                parts.append(f"- `{s.slug}` — {s.name}: {desc}")
+            parts.append("")
 
-        return "\n".join(parts)
+        return "\n".join(parts).rstrip()
 
     @staticmethod
     def validate_proposed_backlog(

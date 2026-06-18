@@ -25,7 +25,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.base import Base, TimestampsMixin, UuidPkMixin
@@ -33,10 +33,17 @@ from app.enums import (
     ArtifactKind,
     CardTemplate,
     ExtractionStatus,
+    GapSource,
+    GapStatus,
     Grouping,
     LlmProvider,
     ProjectStatus,
     values_csv,
+)
+from app.defaults import (
+    DEFAULT_LLM_MODEL,
+    DEFAULT_LLM_PROVIDER,
+    DEFAULT_LLM_TEMPERATURE,
 )
 
 if TYPE_CHECKING:
@@ -45,6 +52,13 @@ if TYPE_CHECKING:
     from app.domain.llm import LlmRun
     from app.domain.skills import Skill
     from app.domain.tech import ProjectTechChoice
+    from app.modules.migration_workbench.models import (
+        ETLPackage,
+        MigrationBusinessRule,
+        MigrationConnection,
+        MigrationResolvedDecision,
+        ProjectMCPConfig,
+    )
 
 
 class Project(UuidPkMixin, TimestampsMixin, Base):
@@ -100,18 +114,36 @@ class Project(UuidPkMixin, TimestampsMixin, Base):
         server_default=ProjectStatus.DRAFT.value,
     )
 
+    # Project type and migration settings
+    project_type: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        server_default="application",
+    )
+    source_technology: Mapped[str | None] = mapped_column(String(32))
+    target_technology: Mapped[str | None] = mapped_column(String(32))
+
     # Per-project LLM defaults
     llm_provider: Mapped[str] = mapped_column(
         String(16),
         nullable=False,
-        server_default=LlmProvider.ANTHROPIC.value,
+        server_default=DEFAULT_LLM_PROVIDER.value,
     )
-    llm_model: Mapped[str] = mapped_column(Text, nullable=False, server_default="claude-sonnet-4-5")
+    llm_model: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default=DEFAULT_LLM_MODEL
+    )
     llm_temperature: Mapped[Decimal] = mapped_column(
-        Numeric(3, 2), nullable=False, server_default="0.20"
+        Numeric(3, 2), nullable=False, server_default=str(DEFAULT_LLM_TEMPERATURE)
     )
     llm_enable_reasoning: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="false"
+    )
+
+    # Coverage gaps identified by the most recent ProposeSkillSet run.
+    # Threaded into DraftSkillBody so individual skills can attempt to address
+    # adjacent gaps in their body content.
+    identified_gaps: Mapped[list[str]] = mapped_column(
+        JSONB, nullable=False, server_default="[]"
     )
 
     # Relationships
@@ -127,6 +159,11 @@ class Project(UuidPkMixin, TimestampsMixin, Base):
     qa_answers: Mapped[list[ProjectQaAnswer]] = relationship(
         back_populates="project",
         cascade="all, delete-orphan",
+    )
+    gaps: Mapped[list[ProjectGap]] = relationship(
+        back_populates="project",
+        cascade="all, delete-orphan",
+        order_by="ProjectGap.created_at",
     )
     tech_choices: Mapped[list[ProjectTechChoice]] = relationship(
         back_populates="project",
@@ -144,6 +181,48 @@ class Project(UuidPkMixin, TimestampsMixin, Base):
     )
     llm_runs: Mapped[list[LlmRun]] = relationship(
         back_populates="project",
+    )
+    
+    # Migration Workbench relationships
+    etl_packages: Mapped[list["ETLPackage"]] = relationship(
+        "ETLPackage",
+        back_populates="project",
+        cascade="all, delete-orphan",
+    )
+    migration_connections: Mapped[list["MigrationConnection"]] = relationship(
+        "MigrationConnection",
+        back_populates="project",
+        cascade="all, delete-orphan",
+    )
+    migration_business_rules: Mapped[list["MigrationBusinessRule"]] = relationship(
+        "MigrationBusinessRule",
+        back_populates="project",
+        cascade="all, delete-orphan",
+    )
+    migration_resolved_decisions: Mapped[list["MigrationResolvedDecision"]] = relationship(
+        "MigrationResolvedDecision",
+        back_populates="project",
+        cascade="all, delete-orphan",
+    )
+
+    # Lakebridge integration (one-to-one)
+    databricks_config: Mapped["DatabricksConfig | None"] = relationship(
+        "DatabricksConfig",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
+    lakebridge_jobs: Mapped[list["LakebridgeJob"]] = relationship(
+        "LakebridgeJob",
+        back_populates="project",
+        cascade="all, delete-orphan",
+    )
+
+    # Per-project MCP server configurations
+    mcp_configs: Mapped[list["ProjectMCPConfig"]] = relationship(
+        "ProjectMCPConfig",
+        back_populates="project",
+        cascade="all, delete-orphan",
     )
 
 
@@ -190,6 +269,10 @@ class ProjectArtifact(UuidPkMixin, Base):
     )
 
     project: Mapped[Project] = relationship(back_populates="artifacts")
+    lakebridge_jobs: Mapped[list["LakebridgeJob"]] = relationship(
+        "LakebridgeJob",
+        back_populates="result_artifact",
+    )
 
 
 # Allowed question keys for project_qa_answers.question_key
@@ -228,3 +311,68 @@ class ProjectQaAnswer(Base):
     )
 
     project: Mapped[Project] = relationship(back_populates="qa_answers")
+
+
+class ProjectGap(UuidPkMixin, Base):
+    """Coverage gap surfaced for a project.
+
+    Initial source is the ProposeSkillSet prompt output. A gap is open until a
+    human (or the system, when a draft addresses it) moves it to a terminal
+    status: addressed_by_skill, covered_by_mcp, or out_of_scope.
+    """
+
+    __tablename__ = "project_gaps"
+    __table_args__ = (
+        CheckConstraint(f"status IN ({values_csv(GapStatus)})", name="status_valid"),
+        CheckConstraint(f"source IN ({values_csv(GapSource)})", name="source_valid"),
+        Index("ix_project_gaps__project_status", "project_id", "status"),
+        UniqueConstraint("project_id", "title_key", name="project_gap_title_unique"),
+    )
+
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    # Normalised title used for de-duplication when the same gap is surfaced
+    # by repeated ProposeSkillSet runs. Lowercase, whitespace-collapsed.
+    title_key: Mapped[str] = mapped_column(Text, nullable=False)
+
+    source: Mapped[str] = mapped_column(
+        String(32), nullable=False, server_default=GapSource.PROPOSE_SKILL_SET.value
+    )
+    status: Mapped[str] = mapped_column(
+        String(32), nullable=False, server_default=GapStatus.OPEN.value
+    )
+
+    # Terminal-status payload. Exactly zero or one of these is set.
+    addressed_by_skill_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("skills.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    covered_by_mcp_key: Mapped[str | None] = mapped_column(Text, nullable=True)
+    decision_rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    decided_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    project: Mapped[Project] = relationship(back_populates="gaps")

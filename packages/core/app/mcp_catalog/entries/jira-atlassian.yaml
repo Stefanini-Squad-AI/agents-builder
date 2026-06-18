@@ -1,0 +1,68 @@
+key: jira-atlassian
+name: Jira (Atlassian)
+description: Read and manage Jira issues, projects, sprints, and boards
+vendor: atlassian
+category: project_management
+run_command: "npx @modelcontextprotocol/server-jira"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/jira"
+icon: jira
+
+env_vars:
+  JIRA_URL:
+    required: true
+    secret: false
+    label: "Jira Base URL"
+    hint: "e.g., https://mycompany.atlassian.net"
+  JIRA_USERNAME:
+    required: true
+    secret: false
+    label: "Email Address"
+    hint: "Your Atlassian account email"
+  JIRA_API_TOKEN:
+    required: true
+    secret: true
+    label: "API Token"
+    hint: "Generate at id.atlassian.com/manage-profile/security/api-tokens"
+
+config_fields:
+  project_key:
+    type: string
+    required: true
+    label: "Project Key"
+    hint: "Jira project key (e.g., PROJ, ETL, MIGR)"
+  board_id:
+    type: number
+    required: false
+    label: "Board ID"
+    hint: "Optional — specific board ID for sprint/kanban queries"
+
+tools:
+  - name: get_issue
+    description: Get details of a specific issue by key
+    risk_level: N1
+  - name: search_issues
+    description: Search issues using JQL
+    risk_level: N1
+  - name: list_projects
+    description: List accessible projects
+    risk_level: N1
+  - name: get_sprint
+    description: Get current sprint details
+    risk_level: N1
+  - name: list_transitions
+    description: List available transitions for an issue
+    risk_level: N1
+  - name: create_issue
+    description: Create a new issue
+    risk_level: N3
+  - name: update_issue
+    description: Update an existing issue
+    risk_level: N3
+  - name: transition_issue
+    description: Move issue to different status
+    risk_level: N3
+  - name: add_comment
+    description: Add a comment to an issue
+    risk_level: N3
+
+requires_approval: false

@@ -1,0 +1,61 @@
+key: github
+name: GitHub
+description: Read repositories, issues, pull requests, and search code in GitHub
+vendor: github
+category: source_control
+run_command: "npx @modelcontextprotocol/server-github"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/github"
+icon: github
+
+env_vars:
+  GITHUB_PERSONAL_ACCESS_TOKEN:
+    required: true
+    secret: true
+    label: "Personal Access Token"
+    hint: "Generate at github.com/settings/tokens — needs repo, issues, and read:org scopes"
+
+config_fields:
+  owner:
+    type: string
+    required: true
+    label: "Repository Owner"
+    hint: "GitHub org or username that owns the repositories"
+  repo:
+    type: string
+    required: false
+    label: "Repository Name"
+    hint: "Optional — if blank, all repos in the org are accessible"
+
+tools:
+  - name: search_repositories
+    description: Search for repositories by name or topic
+    risk_level: N1
+  - name: get_file_contents
+    description: Read file contents from a repository
+    risk_level: N1
+  - name: list_commits
+    description: List commits in a repository
+    risk_level: N1
+  - name: search_code
+    description: Search code across repositories
+    risk_level: N1
+  - name: list_issues
+    description: List issues in a repository
+    risk_level: N1
+  - name: get_issue
+    description: Get details of a specific issue
+    risk_level: N1
+  - name: list_pull_requests
+    description: List pull requests in a repository
+    risk_level: N1
+  - name: create_issue
+    description: Create a new issue
+    risk_level: N3
+  - name: create_pull_request
+    description: Create a new pull request
+    risk_level: N3
+  - name: push_files
+    description: Push files to a repository
+    risk_level: N3
+
+requires_approval: false

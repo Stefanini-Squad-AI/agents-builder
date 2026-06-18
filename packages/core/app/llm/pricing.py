@@ -36,6 +36,9 @@ _RATES: dict[str, tuple[Decimal, Decimal]] = {
     "anthropic.claude-3-5-haiku-20241022-v1:0": (Decimal("0.80"), Decimal("4.00")),
     "anthropic.claude-3-5-sonnet-20241022-v2:0": (Decimal("3.00"), Decimal("15.00")),
     "anthropic.claude-3-5-sonnet-20240620-v1:0": (Decimal("3.00"), Decimal("15.00")),
+    # AWS Bedrock Claude 4 models (cross-region inference)
+    "us.anthropic.claude-sonnet-4-20250514-v1:0": (Decimal("3.00"), Decimal("15.00")),
+    "us.anthropic.claude-haiku-4-20250514-v1:0": (Decimal("0.80"), Decimal("4.00")),
     # OpenAI GPT models
     "gpt-4o": (Decimal("2.50"), Decimal("10.00")),
     "gpt-4o-mini": (Decimal("0.15"), Decimal("0.60")),

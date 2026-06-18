@@ -24,6 +24,7 @@ Design decisions:
 
 from __future__ import annotations
 
+import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Generic, Literal, TypeVar
@@ -108,6 +109,7 @@ class ChatResult(Generic[T]):
     provider_name: str = ""
     model: str = ""
     extra: dict[str, Any] = field(default_factory=dict)
+    run_id: "uuid.UUID | None" = None  # LLM audit log row ID (set by LLMService)
 
     @property
     def total_tokens(self) -> int | None:

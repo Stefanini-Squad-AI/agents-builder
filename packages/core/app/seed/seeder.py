@@ -28,6 +28,7 @@ from app.domain.identity import Tenant, User
 from app.domain.projects import Project, ProjectQaAnswer
 from app.domain.skills import Skill, SkillResource
 from app.domain.tech import ProjectTechChoice, TechDimension, TechItem
+from app.defaults import DEFAULT_LLM_MODEL, DEFAULT_LLM_PROVIDER
 from app.enums import (
     CardDepRelation,
     CardInputKind,
@@ -35,7 +36,6 @@ from app.enums import (
     CardTemplate,
     CardType,
     Grouping,
-    LlmProvider,
     Priority,
     ProjectStatus,
     SkillKind,
@@ -223,8 +223,8 @@ def _seed_one_project(
         card_template=proj_yaml.get("card_template", CardTemplate.PHASE_VLI.value),
         grouping=proj_yaml.get("grouping", Grouping.PHASE.value),
         status=proj_yaml.get("status", ProjectStatus.DRAFT.value),
-        llm_provider=proj_yaml.get("llm_provider", LlmProvider.ANTHROPIC.value),
-        llm_model=proj_yaml.get("llm_model", "claude-sonnet-4-5"),
+        llm_provider=proj_yaml.get("llm_provider", DEFAULT_LLM_PROVIDER.value),
+        llm_model=proj_yaml.get("llm_model", DEFAULT_LLM_MODEL),
     )
     session.add(project)
     session.flush()

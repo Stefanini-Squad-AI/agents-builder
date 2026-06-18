@@ -1,0 +1,60 @@
+key: confluence
+name: Confluence
+description: Read and search Confluence pages, spaces, and documentation
+vendor: atlassian
+category: documentation
+run_command: "npx @modelcontextprotocol/server-confluence"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/confluence"
+icon: confluence
+
+env_vars:
+  CONFLUENCE_URL:
+    required: true
+    secret: false
+    label: "Confluence Base URL"
+    hint: "e.g., https://mycompany.atlassian.net/wiki"
+  CONFLUENCE_USERNAME:
+    required: true
+    secret: false
+    label: "Email Address"
+    hint: "Your Atlassian account email"
+  CONFLUENCE_API_TOKEN:
+    required: true
+    secret: true
+    label: "API Token"
+    hint: "Generate at id.atlassian.com/manage-profile/security/api-tokens"
+
+config_fields:
+  space_key:
+    type: string
+    required: false
+    label: "Space Key"
+    hint: "Optional — filter to a specific space"
+
+tools:
+  - name: search_pages
+    description: Search pages using CQL query
+    risk_level: N1
+  - name: get_page
+    description: Get a specific page by ID or title
+    risk_level: N1
+  - name: get_page_content
+    description: Get page content as HTML or storage format
+    risk_level: N1
+  - name: list_spaces
+    description: List accessible spaces
+    risk_level: N1
+  - name: get_page_children
+    description: Get child pages of a parent page
+    risk_level: N1
+  - name: get_page_attachments
+    description: List attachments on a page
+    risk_level: N1
+  - name: create_page
+    description: Create a new Confluence page
+    risk_level: N3
+  - name: update_page
+    description: Update an existing page
+    risk_level: N3
+
+requires_approval: false

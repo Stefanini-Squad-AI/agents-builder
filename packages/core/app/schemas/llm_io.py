@@ -97,6 +97,14 @@ class DraftedSkillBody(BaseModel):
         default_factory=list,
         description="Slugs of sibling skills the body mentions; must be real.",
     )
+    addressed_gaps: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Verbatim titles (from the Identified Coverage Gaps block) that the "
+            "drafted body actually addresses. Leave empty when the skill is "
+            "unrelated to any listed gap."
+        ),
+    )
 
 
 # ---------------------------------------------------------------------------

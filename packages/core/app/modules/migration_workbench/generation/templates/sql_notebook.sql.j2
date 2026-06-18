@@ -1,0 +1,42 @@
+-- Databricks notebook source
+{%- if include_docstring_header %}
+-- MAGIC %md
+-- MAGIC # {{ package_name }}
+-- MAGIC
+-- MAGIC **Source**: SSIS package `{{ package_name }}`
+-- MAGIC **Strategy**: Single SQL notebook (Photon optimized)
+-- MAGIC **Generated**: {{ generated_at }}
+{%- endif %}
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.widgets.text("catalog", "{{ target_catalog }}")
+-- MAGIC dbutils.widgets.text("schema", "{{ target_schema }}")
+-- MAGIC catalog = dbutils.widgets.get("catalog")
+-- MAGIC schema = dbutils.widgets.get("schema")
+-- MAGIC spark.sql(f"USE CATALOG {catalog}")
+-- MAGIC spark.sql(f"USE SCHEMA {schema}")
+{%- for task in sql_tasks %}
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### {{ task.name }}
+
+-- COMMAND ----------
+
+{{ task.sql_statement | trim }}
+{%- if not task.sql_statement.rstrip().endswith(';') %};{% endif %}
+{%- endfor %}
+{%- if include_validation_cells %}
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ## Validation
+
+-- COMMAND ----------
+
+-- TODO: Add SELECT COUNT(*) assertions per target table
+{%- endif %}

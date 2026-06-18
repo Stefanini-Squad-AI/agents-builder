@@ -1,0 +1,348 @@
+slug: corp-business-rules-compliance-analyzer
+name: Business Rules Compliance Analyzer
+description: |
+  Compare a business rules catalog against target implementation to verify 
+  compliance, find gaps, and document deviations. Use when validating 
+  migration completeness, auditing code against specifications, verifying 
+  refactored code preserves original logic, or preparing UAT compliance 
+  reports for stakeholder sign-off.
+kind: analyzer
+body: |
+  # Business Rules Compliance Analyzer
+
+  After rules are discovered and cataloged, this skill verifies they are 
+  correctly implemented in the target system. It produces a compliance 
+  report suitable for UAT sign-off.
+
+  ## Output Structure
+
+  ### Section 1 — Executive Summary
+
+  ```
+  COMPLIANCE SUMMARY
+  ----
+  Total rules in catalog:      N
+  ✅ Fully implemented:        N (X%)
+  ⚠️ Partially implemented:   N (X%)
+  ❌ Missing:                  N (X%)
+  🔄 Intentionally modified:  N (X%)
+  ⚡ New (not in source):      N (X%)
+  ----
+  BLOCKING ISSUES: N rules require resolution before release
+  ```
+
+  ### Section 2 — Coverage by Category
+
+  | Category | Total | ✅ | ⚠️ | ❌ | Notes |
+  |----------|-------|---|----|----|-------|
+  | Validation | N | N | N | N | |
+  | Calculation | N | N | N | N | |
+  | ... | | | | | |
+
+  ### Section 3 — Rule-by-Rule Analysis
+
+  One entry per rule following `resources/compliance-entry-template.md`.
+
+  ### Section 4 — Gap Analysis Matrix
+
+  Shows which components implement which rules. See 
+  `resources/gap-analysis-matrix.md`.
+
+  ### Section 5 — Accepted Deviations
+
+  Rules intentionally changed, with approval records.
+
+  ### Section 6 — Blocking Issues
+
+  Rules that MUST be fixed before release.
+
+  ## Comparison Checklist
+
+  For each rule, verify using `resources/comparison-checklist.md`:
+
+  1. **Logic equivalence** — Same conditions produce same outcomes
+  2. **Data mapping** — Source columns correctly map to target
+  3. **Calculation accuracy** — Formulas produce identical results
+  4. **Temporal behavior** — Time-based rules use same basis
+  5. **Edge case handling** — NULL, empty, boundary conditions match
+
+  ## Compliance Statuses
+
+  | Status | Meaning | Action Required |
+  |--------|---------|-----------------|
+  | ✅ Implemented | Rule works identically | None |
+  | ⚠️ Partial | Some aspects missing | Document gaps |
+  | ❌ Missing | Not implemented | Fix or get deviation approved |
+  | 🔄 Modified | Intentionally different | Get approval on record |
+  | ⚡ New | Added in target, not in source | Document rationale |
+  | 🔍 Unknown | Cannot determine | Investigate |
+
+  ## Deviation Approval Process
+
+  When a rule is intentionally changed:
+
+  1. Document source behavior vs. target behavior
+  2. Explain business rationale for change
+  3. Assess impact on downstream systems
+  4. Get written approval from business owner
+  5. Record approver, date, and approval reference
+
+  ## Rules for This Skill
+
+  1. **Every rule must have a status** — No rule left as "Unknown" at handoff
+  2. **Evidence both sides** — Show source AND target implementation
+  3. **Test, don't assume** — Run test cases to verify behavior match
+  4. **Document deviations** — Approved changes are acceptable; undocumented are not
+  5. **Track blocking issues** — Missing critical rules block release
+
+  ## When to Flag as Blocking
+
+  - Critical business rule is missing
+  - Calculation produces different results
+  - Data integrity rule not enforced
+  - Compliance-related rule absent
+  - No workaround exists
+
+resources:
+  - filename: compliance-entry-template.md
+    language: markdown
+    content: |
+      # Compliance Entry Template
+
+      Copy one block per rule from the catalog.
+
+      ---
+
+      ## [BR-xxx] {rule_title}
+
+      ### Compliance Status
+      
+      | Aspect | Status |
+      |--------|--------|
+      | **Overall** | ✅ Implemented / ⚠️ Partial / ❌ Missing / 🔄 Modified |
+      | **Logic** | ✅ / ⚠️ / ❌ |
+      | **Data** | ✅ / ⚠️ / ❌ |
+      | **Behavior** | ✅ / ⚠️ / ❌ |
+
+      ### Source Implementation
+
+      **Location**: `{source_file}:{line_range}`
+
+      ```sql
+      -- Source code excerpt
+      {paste relevant code}
+      ```
+
+      ### Target Implementation
+
+      **Location**: `{target_file}:{line_range}`
+
+      ```python
+      # Target code excerpt
+      {paste relevant code}
+      ```
+
+      ### Comparison Analysis
+
+      | Aspect | Source | Target | Match |
+      |--------|--------|--------|-------|
+      | Filter condition | `status != 'DEL'` | `status != 'DEL'` | ✅ |
+      | NULL handling | ISNULL → 0 | COALESCE → 0 | ✅ |
+      | {aspect} | {source} | {target} | {✅/⚠️/❌} |
+
+      ### Test Validation
+
+      | Test ID | Input | Source Result | Target Result | Match |
+      |---------|-------|---------------|---------------|-------|
+      | TC-001 | {input} | {result} | {result} | ✅/❌ |
+
+      ### Deviations (if any)
+
+      | Aspect | Source Behavior | Target Behavior | Impact | Approved |
+      |--------|-----------------|-----------------|--------|----------|
+      | {what} | {old} | {new} | {impact} | ✅ {approver} {date} / ❌ Pending |
+
+      ### Open Issues
+
+      - [ ] {Issue to resolve}
+
+      ---
+
+  - filename: gap-analysis-matrix.md
+    language: markdown
+    content: |
+      # Gap Analysis Matrix
+
+      ## Legend
+      | Symbol | Meaning |
+      |--------|---------|
+      | ✅ | Rule fully implemented |
+      | ⚠️ | Partially implemented |
+      | ❌ | Missing (should be here) |
+      | ➖ | Not applicable |
+      | 🔍 | Needs investigation |
+
+      ## Matrix
+
+      | Rule ID | Rule Name | Bronze | Silver | Gold | API | Notes |
+      |---------|-----------|--------|--------|------|-----|-------|
+      | BR-VAL-001 | {name} | ➖ | ✅ | ✅ | ➖ | |
+      | BR-CAL-001 | {name} | ➖ | ⚠️ | ✅ | ➖ | Silver missing rounding |
+      | BR-WF-001 | {name} | ➖ | ➖ | ❌ | ✅ | Gold needs this |
+
+      ## Summary by Component
+
+      ### Bronze Layer
+      - **Purpose**: Raw ingestion
+      - **Rules implemented**: N
+      - **Rules N/A**: N
+      - **Gaps**: None expected
+
+      ### Silver Layer
+      - **Purpose**: Cleansing, normalization
+      - **Rules implemented**: N
+      - **Gaps**: 
+        - BR-CAL-003: Missing rounding logic
+        - BR-VAL-007: NULL handling differs
+
+      ### Gold Layer
+      - **Purpose**: Business-ready facts
+      - **Rules implemented**: N
+      - **Gaps**:
+        - BR-WF-001: State transition not enforced
+
+      ## Critical Gaps (Blocking)
+
+      | Rule | Gap | Owner | ETA | Status |
+      |------|-----|-------|-----|--------|
+      | BR-CAL-005 | Calculation differs by 0.01% | @engineer | 2024-01-15 | In Progress |
+
+      ## Accepted Deviations
+
+      | Rule | Source | Target | Rationale | Approved By | Date |
+      |------|--------|--------|-----------|-------------|------|
+      | BR-TMP-002 | 7-day window | 24-hour window | Business decision | @product | 2024-01-10 |
+
+  - filename: comparison-checklist.md
+    language: markdown
+    content: |
+      # Rule Comparison Checklist
+
+      Use this checklist for each rule when comparing source to target.
+
+      ## Logic Equivalence
+      - [ ] IF/THEN/ELSE structure matches
+      - [ ] Comparison operators match (=, >, <, >=, <=, <>)
+      - [ ] Boolean combinations match (AND, OR, NOT)
+      - [ ] NULL handling equivalent (ISNULL vs COALESCE acceptable if behavior same)
+      - [ ] Short-circuit evaluation doesn't change outcome
+
+      ## Data Mapping
+      - [ ] Source table → Target table documented
+      - [ ] Source column → Target column documented
+      - [ ] Data types compatible (or transformation documented)
+      - [ ] Value translations documented (code mappings)
+      - [ ] New columns justified (not in source)
+
+      ## Calculation Equivalence
+      - [ ] Formula mathematically equivalent
+      - [ ] Rounding/precision matches
+      - [ ] Order of operations preserved
+      - [ ] Aggregation logic matches (SUM/AVG/COUNT/etc.)
+      - [ ] Division by zero handling matches
+
+      ## Temporal Logic
+      - [ ] Date/time comparisons use same basis
+      - [ ] Time zone handling consistent
+      - [ ] Magic numbers match (e.g., "7 hours")
+      - [ ] Date arithmetic produces same results
+      - [ ] Boundary conditions (midnight, month-end) match
+
+      ## Edge Cases
+      - [ ] NULL input → same output
+      - [ ] Empty string input → same output
+      - [ ] Zero input → same output
+      - [ ] Maximum value → same output
+      - [ ] Minimum value → same output
+      - [ ] Boundary values → same output
+
+      ## Behavioral Verification
+      - [ ] Test data produces identical output
+      - [ ] Production-like volume tested
+      - [ ] Performance acceptable
+      - [ ] Error conditions handled equivalently
+
+  - filename: compliance-report-template.md
+    language: markdown
+    content: |
+      # Business Rules Compliance Report
+
+      **Project**: {project_name}
+      **Migration**: {source_system} → {target_system}
+      **Report Date**: {date}
+      **Prepared By**: {author}
+
+      ---
+
+      ## Executive Summary
+
+      | Metric | Count | % |
+      |--------|-------|---|
+      | Total Rules | {N} | 100% |
+      | ✅ Fully Implemented | {N} | {%} |
+      | ⚠️ Partially Implemented | {N} | {%} |
+      | ❌ Missing | {N} | {%} |
+      | 🔄 Intentionally Modified | {N} | {%} |
+
+      **Release Readiness**: 🟢 Ready / 🟡 Conditional / 🔴 Blocked
+
+      **Blocking Issues**: {N} items require resolution
+
+      ---
+
+      ## Coverage by Category
+
+      | Category | Total | ✅ | ⚠️ | ❌ | Coverage |
+      |----------|-------|---|----|----|----------|
+      | Validation | {N} | {N} | {N} | {N} | {%} |
+      | Calculation | {N} | {N} | {N} | {N} | {%} |
+      | Workflow | {N} | {N} | {N} | {N} | {%} |
+      | Access | {N} | {N} | {N} | {N} | {%} |
+      | Integration | {N} | {N} | {N} | {N} | {%} |
+      | Temporal | {N} | {N} | {N} | {N} | {%} |
+
+      ---
+
+      ## Blocking Issues
+
+      Must resolve before release:
+
+      | # | Rule | Issue | Owner | ETA |
+      |---|------|-------|-------|-----|
+      | 1 | BR-xxx | {description} | {owner} | {date} |
+
+      ---
+
+      ## Approved Deviations
+
+      Business-approved changes from source behavior:
+
+      | Rule | Change | Rationale | Approver | Date |
+      |------|--------|-----------|----------|------|
+      | BR-xxx | {old} → {new} | {why} | {who} | {when} |
+
+      ---
+
+      ## Sign-Off
+
+      | Role | Name | Signature | Date |
+      |------|------|-----------|------|
+      | Technical Lead | | | |
+      | Business Owner | | | |
+      | QA Lead | | | |
+
+      ---
+
+      ## Appendix: Rule-by-Rule Details
+
+      {Include full compliance entries from compliance-entry-template.md}

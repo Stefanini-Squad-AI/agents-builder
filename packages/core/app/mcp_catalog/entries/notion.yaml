@@ -1,0 +1,53 @@
+key: notion
+name: Notion
+description: Read and search Notion pages, databases, and documentation
+vendor: notion
+category: documentation
+run_command: "npx @modelcontextprotocol/server-notion"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/notion"
+icon: notion
+
+env_vars:
+  NOTION_API_KEY:
+    required: true
+    secret: true
+    label: "Integration Token"
+    hint: "Create at notion.so/my-integrations — needs Read content capability"
+
+config_fields:
+  root_page_id:
+    type: string
+    required: false
+    label: "Root Page ID"
+    hint: "Optional — limit access to a specific page and its children"
+
+tools:
+  - name: search
+    description: Search pages and databases
+    risk_level: N1
+  - name: get_page
+    description: Get a page by ID
+    risk_level: N1
+  - name: get_page_content
+    description: Get page content as blocks
+    risk_level: N1
+  - name: query_database
+    description: Query a database with filters
+    risk_level: N1
+  - name: list_databases
+    description: List accessible databases
+    risk_level: N1
+  - name: get_block_children
+    description: Get child blocks of a block
+    risk_level: N1
+  - name: create_page
+    description: Create a new page
+    risk_level: N3
+  - name: update_page
+    description: Update page properties
+    risk_level: N3
+  - name: append_blocks
+    description: Append blocks to a page
+    risk_level: N3
+
+requires_approval: false

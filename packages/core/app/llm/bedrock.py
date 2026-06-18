@@ -53,7 +53,7 @@ from app.llm.base import (
 
 log = structlog.get_logger(__name__)
 
-_DEFAULT_MAX_TOKENS = 4096
+_DEFAULT_MAX_TOKENS = 8192
 _THROTTLE_SLEEP_S = 2.0
 _TOOL_NAME = "structured_output"
 
@@ -79,7 +79,7 @@ class BedrockProvider(LLMProvider):
 
     def __init__(
         self,
-        model_id: str = "anthropic.claude-3-5-sonnet-20241022-v2:0",
+        model_id: str = "us.anthropic.claude-sonnet-4-20250514-v1:0",
         region_name: str = "us-east-2",
         *,
         temperature: float = 0.20,
@@ -245,8 +245,11 @@ def _parse_converse_response(
     # Happy path: model called our tool
     if stop_reason == "tool_use":
         for block in content_blocks:
-            if block.get("type") == "toolUse" and block.get("name") == _TOOL_NAME:
-                tool_input: dict[str, Any] = block.get("input", {})
+            # Bedrock Converse API returns tool use blocks with a "toolUse" key
+            # (not a "type" key like some other APIs)
+            tool_use_block = block.get("toolUse")
+            if tool_use_block and tool_use_block.get("name") == _TOOL_NAME:
+                tool_input: dict[str, Any] = tool_use_block.get("input", {})
                 raw_text = json.dumps(tool_input, ensure_ascii=False)
                 parsed: T | None = None
                 try:

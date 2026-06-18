@@ -1,0 +1,2988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Workshop — Project Analysis</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --border: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 1rem;
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--surface);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            color: var(--text-muted);
+        }
+
+        tr:hover td {
+            background: var(--surface-hover);
+        }
+
+        /* Code blocks */
+        code {
+            background: var(--bg);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        pre {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        li strong {
+            color: var(--text);
+        }
+
+        /* Flow diagram */
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 1rem 0;
+        }
+
+        .flow-step {
+            background: var(--bg);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .flow-step strong {
+            color: var(--primary);
+            display: block;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-arrow {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        /* Status indicators */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.green { background: var(--success); }
+        .status-dot.yellow { background: var(--warning); }
+        .status-dot.blue { background: var(--info); }
+
+        /* Icon styles */
+        .icon {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .icon-purple { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .icon-blue { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .icon-green { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .icon-orange { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+
+        /* Highlight box */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .highlight-box h4 {
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        /* Architecture diagram */
+        .arch-diagram {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .arch-layer {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .arch-layer h5 {
+            color: var(--primary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .arch-layer p {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            header h1 { font-size: 1.75rem; }
+            .arch-diagram { grid-template-columns: 1fr; }
+            .tabs { gap: 0.25rem; }
+            .tab-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Agents Workshop</h1>
+            <p>Meta-automation tool for AI coding agent contracts</p>
+            <span class="badge badge-success">MVP Complete (Phase P2)</span>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="showTab('workflow')">Workflow</button>
+            <button class="tab-btn" onclick="showTab('architecture')">Architecture</button>
+            <button class="tab-btn" onclick="showTab('domain')">Domain Model</button>
+            <button class="tab-btn" onclick="showTab('etl-migration')">ETL/SSIS Migration</button>
+            <button class="tab-btn" onclick="showTab('enrichment')">Artifact Enrichment</button>
+            <button class="tab-btn" onclick="showTab('tech-applicability')">Tech Applicability</button>
+            <button class="tab-btn" onclick="showTab('large-scale')">Large-Scale Migration</button>
+            <button class="tab-btn" onclick="showTab('knowledge')">Knowledge Strategy</button>
+            <button class="tab-btn" onclick="showTab('migration-template')">Migration Template Family</button>
+            <button class="tab-btn" onclick="showTab('status')">Status & Roadmap</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="overview" class="tab-content active">
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-purple">💡</span> What It Is</h2>
+                    <p>A <strong>meta-automation tool</strong> that generates the "contract" (skill library + phased Jira backlog) that AI coding agents can execute.</p>
+                    <div class="highlight-box">
+                        <h4>Important Distinction</h4>
+                        <p style="margin:0">It's <strong>NOT</strong> a code generator — it generates the <em>instructions</em> other AI agents use.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-blue">👤</span> Target User</h2>
+                    <p><strong>Architects and Engineering Leads</strong> bootstrapping new PoCs who want consistent skill+card scaffolding across projects without copy-pasting from previous repos.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">✅</span> Business Problems Solved</h2>
+                <ul>
+                    <li><strong>Eliminates repetitive work</strong> — No more manual creation of agent instruction files</li>
+                    <li><strong>Standardization</strong> — Consistent structure for AI-driven development projects</li>
+                    <li><strong>Auditability</strong> — Full trail of all LLM interactions (costs, tokens, timing)</li>
+                    <li><strong>Reproducibility</strong> — PoC setup becomes shareable and consistent</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">🎯</span> Value Proposition</h2>
+                <div class="highlight-box">
+                    <div class="flow">
+                        <div class="flow-step">
+                            <strong>INPUT</strong>
+                            Objective + Discovery<br>(Q&A, Tech Stack, Docs)
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <strong>PROCESS</strong>
+                            AI-Powered Generation<br>(5 LLM Prompts)
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <strong>OUTPUT</strong>
+                            .agents/ folder<br>(Ready for Cursor/Claude/Gemini)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-purple">🎮</span> Supported AI Agents</h2>
+                <table>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Cursor</strong></td>
+                        <td>AI-first code editor with built-in agent capabilities</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Claude Code</strong></td>
+                        <td>Anthropic's terminal-based coding agent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gemini CLI</strong></td>
+                        <td>Google's command-line AI coding assistant</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- WORKFLOW TAB -->
+        <div id="workflow" class="tab-content">
+            <div class="card">
+                <h2><span class="icon icon-purple">🔄</span> Discovery → Contract Pipeline</h2>
+                <p>The complete 7-stage process from project creation to exportable agent contract:</p>
+                
+                <table>
+                    <tr>
+                        <th>#</th>
+                        <th>Stage</th>
+                        <th>Purpose</th>
+                        <th>Implementation</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><strong>Discovery</strong></td>
+                        <td>Gather project context</td>
+                        <td>4 channels: Objective, Q&A wizard, Tech panorama, Artifact uploads</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>ProposeSkillSet</strong></td>
+                        <td>AI suggests skills</td>
+                        <td>LLM prompt with few-shot examples → 5-10 skills</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>DraftSkillBody</strong></td>
+                        <td>Generate skill content</td>
+                        <td>Per-skill LLM call with kind-specific biases</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>ProposeBacklog</strong></td>
+                        <td>Create implementation plan</td>
+                        <td>LLM generates 3-7 phases with cards + dependencies</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>DraftCard</strong></td>
+                        <td>Generate card bodies</td>
+                        <td>Per-card LLM call with 10-section format</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><strong>Validate</strong></td>
+                        <td>Ensure graph integrity</td>
+                        <td>DAG cycles, reference resolution, required fields</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td><strong>Export</strong></td>
+                        <td>Generate .agents/ folder</td>
+                        <td>Skills + Jira cards as markdown with Mermaid DAG</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-blue">📥</span> Discovery Channels</h2>
+                    <h3>1. Objective Text</h3>
+                    <p>One-paragraph project intent</p>
+                    
+                    <h3>2. Q&A Wizard</h3>
+                    <ul>
+                        <li><strong>Required (3):</strong> business_problem, success_definition, users_and_actors</li>
+                        <li><strong>Optional (4):</strong> must_preserve, must_change, compliance, known_gaps</li>
+                    </ul>
+                    
+                    <h3>3. Tech Panorama</h3>
+                    <p>13 dimensions with catalog items, user-added, LLM-suggested, or TBD</p>
+                    
+                    <h3>4. Artifact Upload</h3>
+                    <p>Async extraction: PDF, DOCX, MD, TXT, CSV, code files</p>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-green">📊</span> Skill Types</h2>
+                    <table>
+                        <tr>
+                            <th>Kind</th>
+                            <th>Purpose</th>
+                        </tr>
+                        <tr>
+                            <td><code>context</code></td>
+                            <td>Background knowledge, domain rules</td>
+                        </tr>
+                        <tr>
+                            <td><code>authoring</code></td>
+                            <td>Writing guidelines, documentation standards</td>
+                        </tr>
+                        <tr>
+                            <td><code>analyzer</code></td>
+                            <td>Code analysis patterns (needs resources)</td>
+                        </tr>
+                        <tr>
+                            <td><code>procedure</code></td>
+                            <td>Step-by-step implementation guides</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">📝</span> Card Format (10 Sections)</h2>
+                <div class="arch-diagram" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="arch-layer"><h5>Context</h5><p>Background</p></div>
+                    <div class="arch-layer"><h5>Skills</h5><p>Required</p></div>
+                    <div class="arch-layer"><h5>Inputs</h5><p>Files/Data</p></div>
+                    <div class="arch-layer"><h5>Task</h5><p>Work items</p></div>
+                    <div class="arch-layer"><h5>Outputs</h5><p>Deliverables</p></div>
+                </div>
+                <div class="arch-diagram" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="arch-layer"><h5>Acceptance</h5><p>Criteria</p></div>
+                    <div class="arch-layer"><h5>Dependencies</h5><p>Blockers</p></div>
+                    <div class="arch-layer"><h5>Parallel</h5><p>Relations</p></div>
+                    <div class="arch-layer"><h5>Human Gate</h5><p>Checkpoints</p></div>
+                    <div class="arch-layer"><h5>Story Points</h5><p>Estimation</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ARCHITECTURE TAB -->
+        <div id="architecture" class="tab-content">
+            <div class="card">
+                <h2><span class="icon icon-purple">🏗️</span> Technology Stack</h2>
+                <table>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Technology</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Backend API</strong></td>
+                        <td>FastAPI + SQLAlchemy + Alembic</td>
+                        <td>Python 3.12</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Async Jobs</strong></td>
+                        <td>Dramatiq + Redis</td>
+                        <td>Artifact extraction, future async LLM</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database</strong></td>
+                        <td>PostgreSQL 16</td>
+                        <td>17 tables</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Web UI</strong></td>
+                        <td>Next.js 14 + shadcn/ui + Tailwind</td>
+                        <td>React Flow (DAG), Monaco editor</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CLI</strong></td>
+                        <td>Typer</td>
+                        <td>"workshop" command</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LLM Providers</strong></td>
+                        <td>Anthropic, OpenAI, Ollama, Bedrock</td>
+                        <td>Anthropic default</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">📁</span> Monorepo Structure</h2>
+                <pre><code>agents-workshop/
+├── docker-compose.yml          # postgres + redis + api + worker
+├── pyproject.toml              # uv workspace marker
+├── packages/
+│   ├── core/                   # FastAPI + Dramatiq + LLM + templates
+│   │   └── app/
+│   │       ├── api/            # REST endpoints
+│   │       ├── domain/         # SQLAlchemy ORM models
+│   │       ├── llm/            # Provider abstraction
+│   │       ├── prompts/        # 5 LLM prompts
+│   │       ├── validators/     # DAG, refs, frontmatter
+│   │       ├── exporters/      # filesystem, zip
+│   │       ├── extractors/     # markitdown, pdfplumber
+│   │       └── jobs/           # Dramatiq actors
+│   ├── cli/                    # Typer CLI ("workshop")
+│   └── web/                    # Next.js 14 frontend
+├── data/                       # Runtime artifacts + exports
+└── docs/                       # SPEC.md, IMPLEMENTATION_PLAN.md</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">⚙️</span> Key Technical Patterns</h2>
+                <div class="card-grid">
+                    <div>
+                        <h3>Template Family Abstraction</h3>
+                        <p>Pluggable card formats. MVP: <code>PhaseVliFamily</code> with 10-section cards. Future: <code>strict_9</code>, <code>free_form</code></p>
+                    </div>
+                    <div>
+                        <h3>LLM Provider Abstraction</h3>
+                        <p>Unified interface for Anthropic/OpenAI/Ollama with retry + fallback logic</p>
+                    </div>
+                    <div>
+                        <h3>Async Extraction Pipeline</h3>
+                        <p>Dramatiq actors for PDF/DOCX parsing via markitdown/pdfplumber</p>
+                    </div>
+                    <div>
+                        <h3>Per-Project LLM Settings</h3>
+                        <p>Each project stores its own provider, model, and temperature</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">🐳</span> Runtime Services (Docker)</h2>
+                <table>
+                    <tr>
+                        <th>Service</th>
+                        <th>Image</th>
+                        <th>Port</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><code>postgres</code></td>
+                        <td>postgres:16-alpine</td>
+                        <td>5432</td>
+                        <td>Volume-backed, DB "workshop"</td>
+                    </tr>
+                    <tr>
+                        <td><code>redis</code></td>
+                        <td>redis:7-alpine</td>
+                        <td>6379</td>
+                        <td>Broker + cache</td>
+                    </tr>
+                    <tr>
+                        <td><code>api</code></td>
+                        <td>packages/core</td>
+                        <td>8000</td>
+                        <td>FastAPI + uvicorn</td>
+                    </tr>
+                    <tr>
+                        <td><code>worker</code></td>
+                        <td>packages/core</td>
+                        <td>—</td>
+                        <td>Dramatiq workers</td>
+                    </tr>
+                    <tr>
+                        <td><code>web</code></td>
+                        <td>packages/web</td>
+                        <td>3000</td>
+                        <td>Next.js</td>
+                    </tr>
+                    <tr>
+                        <td><code>ollama</code></td>
+                        <td>ollama/ollama</td>
+                        <td>11434</td>
+                        <td>Optional, via compose profile</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- DOMAIN MODEL TAB -->
+        <div id="domain" class="tab-content">
+            <div class="card">
+                <h2><span class="icon icon-purple">🗃️</span> Database Schema (17 Tables)</h2>
+                <div class="arch-diagram">
+                    <div class="arch-layer">
+                        <h5>Core</h5>
+                        <p>users, tenants, projects</p>
+                    </div>
+                    <div class="arch-layer">
+                        <h5>Discovery</h5>
+                        <p>project_artifacts, project_qa_answers, project_tech_choices</p>
+                    </div>
+                    <div class="arch-layer">
+                        <h5>Tech Catalog</h5>
+                        <p>tech_dimensions, tech_items</p>
+                    </div>
+                </div>
+                <div class="arch-diagram">
+                    <div class="arch-layer">
+                        <h5>Skills</h5>
+                        <p>skills, skill_resources</p>
+                    </div>
+                    <div class="arch-layer">
+                        <h5>Backlog</h5>
+                        <p>phases, cards, card_skills, card_deps, card_inputs</p>
+                    </div>
+                    <div class="arch-layer">
+                        <h5>Audit</h5>
+                        <p>llm_runs, exports</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">📋</span> Business Rules</h2>
+                
+                <h3>Skill Rules</h3>
+                <ul>
+                    <li>Four kinds: <code>context</code>, <code>authoring</code>, <code>analyzer</code>, <code>procedure</code></li>
+                    <li><code>kind='analyzer'</code> with 0 resources → <strong>WARNING</strong> (not blocking)</li>
+                    <li>Skill slug must be unique per project</li>
+                </ul>
+
+                <h3>Card Rules</h3>
+                <ul>
+                    <li>Every card MUST have ≥1 skill link → <strong>ERROR</strong> if not</li>
+                    <li>Card code must be unique per project (format: <code>{PREFIX}-{phase}{card_num}</code>)</li>
+                    <li><code>human_gate=true</code> requires non-empty checklist</li>
+                    <li>Last card of each phase SHOULD have <code>human_gate=true</code> → <strong>WARNING</strong> if not</li>
+                </ul>
+
+                <h3>Dependency Rules</h3>
+                <ul>
+                    <li>All <code>depends_on</code> references MUST resolve → <strong>ERROR</strong></li>
+                    <li>No DAG cycles allowed → <strong>ERROR</strong> (Kahn's algorithm)</li>
+                    <li>Forward-phase dependencies forbidden → <strong>ERROR</strong></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🔄</span> State Transitions</h2>
+                <div class="card-grid">
+                    <div>
+                        <h3>Project Status</h3>
+                        <pre><code>draft → in_progress → exported → archived
+              ↑__________________________|</code></pre>
+                    </div>
+                    <div>
+                        <h3>Card Status</h3>
+                        <pre><code>draft → ready → in_progress → done</code></pre>
+                    </div>
+                    <div>
+                        <h3>Artifact Extraction</h3>
+                        <pre><code>pending → extracting → extracted
+                      └→ failed</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">🔍</span> Validation Severities</h2>
+                <table>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Behavior</th>
+                        <th>Examples</th>
+                    </tr>
+                    <tr>
+                        <td><span class="status"><span class="status-dot" style="background:#ef4444"></span> Error</span></td>
+                        <td>Blocks export, must be fixed</td>
+                        <td>DAG cycle, unresolved dependency, card without skill</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status"><span class="status-dot yellow"></span> Warning</span></td>
+                        <td>Allowed but flagged</td>
+                        <td>Analyzer without resources, no human gate on phase end</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ARTIFACT ENRICHMENT TAB -->
+        <div id="enrichment" class="tab-content">
+            <div class="card">
+                <h2><span class="icon icon-purple">📚</span> Artifact Enrichment: Analysis as Enhancement</h2>
+                <p>After raw extraction, AI generates an <strong>enriched analysis document</strong> that adds business context, user journeys, and decision points — without replacing the source.</p>
+                
+                <div class="highlight-box">
+                    <h4>Key Principle: Analysis = Lens, Not Filter</h4>
+                    <ul style="margin:0">
+                        <li><strong>Raw Source</strong> tells you WHAT the code does</li>
+                        <li><strong>Enriched Analysis</strong> tells you WHY it matters and HOW it fits</li>
+                        <li>Both are available to cards — analysis for orientation, source for verification</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">🔄</span> Enrichment Flow</h2>
+                <div class="flow">
+                    <div class="flow-step">
+                        <strong>1. UPLOAD</strong>
+                        .dtsx, .py, SQL
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>2. EXTRACT</strong>
+                        Raw content_md
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--primary);">
+                        <strong>3. ENRICH</strong>
+                        AI generates analysis
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--warning);">
+                        <strong>4. FEEDBACK</strong>
+                        Human resolves questions
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--success);">
+                        <strong>5. APPROVE</strong>
+                        Analysis ready for cards
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">📄</span> Enriched Analysis Sections</h2>
+                <table>
+                    <tr>
+                        <th>Section</th>
+                        <th>Purpose</th>
+                        <th>Audience</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Executive Summary</strong></td>
+                        <td>What it does, business process, who uses it, failure impact</td>
+                        <td>Business stakeholders</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data User Journey</strong></td>
+                        <td>Story of how a record flows through the system</td>
+                        <td>Architects, Analysts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Business Rules</strong></td>
+                        <td>Rules encoded in code with WHY explanations</td>
+                        <td>Engineers, QA</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Connection Landscape</strong></td>
+                        <td>System roles, not just connection strings</td>
+                        <td>Architects, Infra</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Objective & Metrics</strong></td>
+                        <td>Success criteria for current and migrated state</td>
+                        <td>PM, Leadership</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Execution Modes</strong></td>
+                        <td>Full vs Incremental, when and why each is used</td>
+                        <td>Engineers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Known Gaps</strong></td>
+                        <td>What AI couldn't determine, needs human input</td>
+                        <td>SMEs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Readiness Score</strong></td>
+                        <td>1-5 rating with category breakdown</td>
+                        <td>Everyone</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">⚡</span> Human Feedback System</h2>
+                <p>When AI encounters something requiring human decision, it creates a <strong>Feedback Item</strong> with options:</p>
+                
+                <div style="background: var(--bg); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                    <h4 style="color: var(--warning); margin-bottom: 0.5rem;">Example: Feedback Item #1</h4>
+                    <p style="margin: 0.5rem 0;"><strong>Topic:</strong> 7-Hour Deduplication Tie-Breaker Rule</p>
+                    <p style="margin: 0.5rem 0;"><strong>Priority:</strong> 🟠 High</p>
+                    <p style="margin: 0.5rem 0;"><strong>Category:</strong> Business Rule</p>
+                    
+                    <p style="margin: 0.75rem 0;"><strong>Context:</strong> Found ROW_NUMBER with 7-hour partition, but tie-breaker logic prioritizes Company A (MRS) without documented justification.</p>
+                    
+                    <p style="margin: 0.75rem 0;"><strong>Why It Matters:</strong> Incorrect tie-breaker could cause duplicate billing or missed records.</p>
+                    
+                    <h5 style="margin: 1rem 0 0.5rem;">Options:</h5>
+                    <div style="margin-left: 1rem;">
+                        <p><strong>Option 1:</strong> Keep MRS Priority (Document as Business Rule)<br>
+                        <span style="color: var(--success);">✅ No code change</span> | <span style="color: var(--warning);">❌ May perpetuate undocumented assumption</span></p>
+                        
+                        <p><strong>Option 2:</strong> Use Timestamp as Tie-Breaker<br>
+                        <span style="color: var(--success);">✅ More transparent logic</span> | <span style="color: var(--warning);">❌ Changes behavior, needs testing</span></p>
+                        
+                        <p><strong>Option 3:</strong> Escalate to Business SME ⭐ Recommended<br>
+                        <span style="color: var(--success);">✅ Correct decision with approval</span> | <span style="color: var(--warning);">❌ Delays timeline</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-purple">📋</span> Feedback Categories</h2>
+                    <ul>
+                        <li><strong>business_rule</strong> — Logic decisions needing SME input</li>
+                        <li><strong>technical_decision</strong> — Architecture choices</li>
+                        <li><strong>data_quality</strong> — Data issues found</li>
+                        <li><strong>security</strong> — Credential/access concerns</li>
+                        <li><strong>compliance</strong> — Regulatory requirements</li>
+                        <li><strong>architecture</strong> — Design pattern decisions</li>
+                        <li><strong>ownership</strong> — Who maintains what</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-blue">🚦</span> Feedback Priorities</h2>
+                    <ul>
+                        <li><span style="color: #ef4444;">🔴 <strong>Critical</strong></span> — Blocks ALL migration work</li>
+                        <li><span style="color: #f59e0b;">🟠 <strong>High</strong></span> — Blocks specific phase</li>
+                        <li><span style="color: #eab308;">🟡 <strong>Medium</strong></span> — Should resolve, can proceed with assumptions</li>
+                        <li><span style="color: #22c55e;">🟢 <strong>Low</strong></span> — Nice to have</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🗄️</span> Database Schema</h2>
+                <pre><code>-- Enriched analyses linked to artifacts
+CREATE TABLE artifact_analyses (
+    id UUID PRIMARY KEY,
+    artifact_id UUID REFERENCES project_artifacts(id),
+    
+    analysis_type TEXT DEFAULT 'technical_assessment',
+    analysis_md TEXT NOT NULL,           -- Rendered markdown
+    summary_md TEXT,                      -- One-paragraph summary
+    extracted_metadata JSONB,             -- Structured data for querying
+    
+    status TEXT DEFAULT 'draft',          -- draft | human_review | approved
+    readiness_score NUMERIC(2,1),         -- 1.0 - 5.0
+    has_blocking_feedback BOOLEAN,
+    
+    reviewed_by_user_id UUID,
+    reviewed_at TIMESTAMPTZ,
+    llm_run_id UUID REFERENCES llm_runs(id)
+);
+
+-- Feedback items requiring human input
+CREATE TABLE analysis_feedback_items (
+    id UUID PRIMARY KEY,
+    analysis_id UUID REFERENCES artifact_analyses(id),
+    
+    item_number INTEGER,
+    topic TEXT NOT NULL,
+    category TEXT NOT NULL,               -- business_rule, technical_decision, etc.
+    priority TEXT NOT NULL,               -- critical, high, medium, low
+    
+    context_md TEXT NOT NULL,
+    why_it_matters_md TEXT NOT NULL,
+    source_location TEXT,
+    source_evidence TEXT,
+    
+    options JSONB NOT NULL,               -- Array of {id, title, description, pros, cons}
+    
+    status TEXT DEFAULT 'pending',        -- pending | resolved | deferred
+    selected_option_id TEXT,
+    custom_response TEXT,
+    decided_by_user_id UUID,
+    decided_at TIMESTAMPTZ,
+    
+    suggested_owner TEXT,
+    blocking_phase TEXT
+);</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">🔗</span> Cards Reference Both</h2>
+                <p>Cards have access to <strong>both</strong> raw source and enriched analysis:</p>
+                
+                <pre><code># Card: MIGRATE-101 — Validate Package Analysis
+inputs:
+  # Primary: Analysis for quick understanding
+  - kind: artifact_analysis
+    artifact_id: "uuid-of-dtsx"
+    path: analyses/PKG_Fato_assessment.md
+    label: "AI-generated technical assessment"
+    
+  # Secondary: Raw source for verification
+  - kind: artifact_source
+    artifact_id: "uuid-of-dtsx"
+    path: artifacts/PKG_Fato.dtsx
+    label: "Original SSIS package (full XML)"
+
+task_md: |
+  1. Read AI assessment for orientation
+  2. **VERIFY against source**: Open original .dtsx
+  3. Cross-check every SQL statement
+  4. Flag any discrepancies
+  5. Mark analysis as "verified" when accurate</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-purple">📁</span> Created Files</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><code>templates/analysis/artifact_analysis.md.j2</code></td>
+                        <td>Jinja2 template for rendering enriched analysis</td>
+                    </tr>
+                    <tr>
+                        <td><code>templates/analysis/human_feedback_request.md.j2</code></td>
+                        <td>Template for feedback documents with options</td>
+                    </tr>
+                    <tr>
+                        <td><code>schemas/analysis.py</code></td>
+                        <td>Pydantic schemas for analysis data structures</td>
+                    </tr>
+                    <tr>
+                        <td><code>docs/IMPLEMENTATION_ANALYSIS_ENRICHMENT.md</code></td>
+                        <td>Full implementation analysis with code examples</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- TECHNOLOGY APPLICABILITY TAB -->
+        <div id="tech-applicability" class="tab-content">
+            <div class="card">
+                <h2><span class="icon icon-purple">🎯</span> Enrichment Applicability by Technology</h2>
+                <p>Not all artifacts benefit equally from enrichment. The value depends on <strong>complexity</strong> and <strong>readability</strong> of the source format:</p>
+                
+                <div class="flow" style="justify-content: space-between; flex-wrap: wrap;">
+                    <div class="flow-step" style="border-color: var(--success); flex: 1; min-width: 150px;">
+                        <strong>HIGH VALUE</strong>
+                        SSIS, Talend, Informatica
+                    </div>
+                    <div class="flow-step" style="border-color: var(--warning); flex: 1; min-width: 150px;">
+                        <strong>MEDIUM-HIGH</strong>
+                        Airflow DAGs, dbt, NiFi
+                    </div>
+                    <div class="flow-step" style="border-color: #eab308; flex: 1; min-width: 150px;">
+                        <strong>MEDIUM</strong>
+                        PDF/DOCX Specs
+                    </div>
+                    <div class="flow-step" style="border-color: var(--text-muted); flex: 1; min-width: 150px;">
+                        <strong>LOW/SKIP</strong>
+                        Markdown, Simple Code
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">📊</span> Enrichment Decision Matrix</h2>
+                <table>
+                    <tr>
+                        <th>File Type</th>
+                        <th>Enrichment Type</th>
+                        <th>Auto-Trigger</th>
+                        <th>Feedback Likely?</th>
+                        <th>Primary Consumer</th>
+                    </tr>
+                    <tr>
+                        <td><code>.dtsx</code> (SSIS)</td>
+                        <td>technical_assessment</td>
+                        <td><span style="color: var(--success);">✅ Always</span></td>
+                        <td><span style="color: var(--warning);">✅ High</span></td>
+                        <td>BacklogPrompt, CardPrompt</td>
+                    </tr>
+                    <tr>
+                        <td><code>.py</code> (Airflow)</td>
+                        <td>dag_analysis</td>
+                        <td><span style="color: var(--success);">✅ If DAG detected</span></td>
+                        <td><span style="color: var(--warning);">⚠️ Medium</span></td>
+                        <td>BacklogPrompt, CardPrompt</td>
+                    </tr>
+                    <tr>
+                        <td><code>.sql</code> (large/dbt)</td>
+                        <td>code_analysis</td>
+                        <td>Conditional (>500 lines)</td>
+                        <td><span style="color: var(--text-muted);">⚪ Low</span></td>
+                        <td>CardPrompt</td>
+                    </tr>
+                    <tr>
+                        <td><code>.pdf</code> (spec)</td>
+                        <td>requirements_extraction</td>
+                        <td>Conditional (>10 pages)</td>
+                        <td><span style="color: var(--warning);">⚠️ Medium</span></td>
+                        <td>SkillSetPrompt, BacklogPrompt</td>
+                    </tr>
+                    <tr>
+                        <td><code>.docx</code></td>
+                        <td>requirements_extraction</td>
+                        <td>Conditional</td>
+                        <td><span style="color: var(--text-muted);">⚪ Low</span></td>
+                        <td>SkillSetPrompt</td>
+                    </tr>
+                    <tr>
+                        <td><code>.md</code></td>
+                        <td>None (skip)</td>
+                        <td><span style="color: #ef4444;">❌ Skip</span></td>
+                        <td>N/A</td>
+                        <td>Direct use</td>
+                    </tr>
+                    <tr>
+                        <td><code>.csv</code></td>
+                        <td>data_profile</td>
+                        <td>Conditional (>1000 rows)</td>
+                        <td><span style="color: var(--text-muted);">⚪ Low</span></td>
+                        <td>CardPrompt</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🔄</span> Who Consumes Artifact Context?</h2>
+                <p>Multiple LLM prompts use artifact data. Enrichment improves all of them:</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="background: var(--bg); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--primary);">
+                        <h4 style="margin-bottom: 0.5rem;">ProposeSkillSetPrompt</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                            <strong>Currently:</strong> Uses first ~2K chars<br>
+                            <strong>With Enrichment:</strong> Gets business rules, connections, key logic
+                        </p>
+                    </div>
+                    <div style="background: var(--bg); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--warning);">
+                        <h4 style="margin-bottom: 0.5rem;">ProposeBacklogPrompt</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                            <strong>Currently:</strong> Includes artifact snippets<br>
+                            <strong>With Enrichment:</strong> Can create "resolve feedback" cards
+                        </p>
+                    </div>
+                    <div style="background: var(--bg); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--success);">
+                        <h4 style="margin-bottom: 0.5rem;">DraftCardPrompt</h4>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                            <strong>Currently:</strong> References raw files<br>
+                            <strong>With Enrichment:</strong> References BOTH raw + analysis
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-orange">⚡</span> SSIS: Why HIGH VALUE</h2>
+                    <ul>
+                        <li><strong>XML complexity</strong> — Business logic hidden in encoded SQL</li>
+                        <li><strong>Implicit rules</strong> — Tie-breakers, dedup logic undocumented</li>
+                        <li><strong>Connection mapping</strong> — What connects to what and why</li>
+                        <li><strong>2K chars = 10%</strong> — Raw excerpt misses 90% of logic</li>
+                    </ul>
+                    <p style="margin-top: 0.75rem; color: var(--warning);">
+                        <strong>Feedback Needed:</strong> Business rule clarifications, undocumented tie-breakers
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-blue">🔧</span> Airflow: Why MEDIUM-HIGH</h2>
+                    <ul>
+                        <li><strong>Code is readable</strong> — But schedule implications aren't obvious</li>
+                        <li><strong>DAG structure</strong> — Task dependencies need visualization</li>
+                        <li><strong>XCom/Variables</strong> — Hidden data dependencies</li>
+                        <li><strong>Retry logic</strong> — Failure handling strategy</li>
+                    </ul>
+                    <p style="margin-top: 0.75rem; color: var(--warning);">
+                        <strong>Feedback Needed:</strong> SLA decisions, alert configuration
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-purple">📁</span> Technology-Specific Templates Needed</h2>
+                <table>
+                    <tr>
+                        <th>Technology</th>
+                        <th>Template</th>
+                        <th>Prompt Class</th>
+                        <th>Key Sections</th>
+                    </tr>
+                    <tr>
+                        <td>SSIS (.dtsx)</td>
+                        <td><code>artifact_analysis.md.j2</code> ✅</td>
+                        <td>AnalyzeArtifactPrompt</td>
+                        <td>Executive Summary, User Journey, Business Rules</td>
+                    </tr>
+                    <tr>
+                        <td>Airflow (.py)</td>
+                        <td><code>dag_analysis.md.j2</code> 🔜</td>
+                        <td>AnalyzeAirflowDagPrompt</td>
+                        <td>DAG Summary, Task Graph, Schedule Analysis</td>
+                    </tr>
+                    <tr>
+                        <td>dbt (.sql+yml)</td>
+                        <td><code>dbt_model_analysis.md.j2</code> 🔜</td>
+                        <td>AnalyzeDbtModelPrompt</td>
+                        <td>Lineage, Quality Checks, Materialization</td>
+                    </tr>
+                    <tr>
+                        <td>PDF/DOCX (spec)</td>
+                        <td><code>requirements_analysis.md.j2</code> 🔜</td>
+                        <td>ExtractRequirementsPrompt</td>
+                        <td>SHALL Statements, Stakeholders, Open Questions</td>
+                    </tr>
+                    <tr>
+                        <td>Large Code</td>
+                        <td><code>code_summary.md.j2</code> 🔜</td>
+                        <td>SummarizeCodePrompt</td>
+                        <td>Public API, Dependencies, Complexity</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🧩</span> New Card Input Kind</h2>
+                <p>Cards should reference BOTH raw source and enriched analysis:</p>
+                
+                <pre><code># Current CardInputKind
+class CardInputKind(StrEnum):
+    SKILL_RESOURCE = "skill_resource"
+    ARTIFACT = "artifact"         # Raw source file
+    EXTERNAL = "external"
+
+# Proposed Addition
+class CardInputKind(StrEnum):
+    SKILL_RESOURCE = "skill_resource"
+    ARTIFACT = "artifact"         # Raw source file
+    ARTIFACT_ANALYSIS = "artifact_analysis"  # Enriched analysis doc  ← NEW
+    EXTERNAL = "external"</code></pre>
+                
+                <p style="margin-top: 1rem;">This allows cards to explicitly state:</p>
+                <ul>
+                    <li><strong>artifact_analysis</strong> → "Read this for understanding"</li>
+                    <li><strong>artifact</strong> → "Verify against this source"</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">📋</span> Detection Heuristics</h2>
+                <pre><code># Pseudo-code for enrichment triggering
+
+def should_enrich(artifact: ProjectArtifact) -> tuple[str | None, str]:
+    ext = Path(artifact.filename).suffix.lower()
+    
+    # Always enrich
+    if ext == ".dtsx":
+        return ("technical_assessment", "SSIS package detected")
+    
+    # Conditional: Airflow DAG detection
+    if ext == ".py" and "from airflow import DAG" in artifact.content_md:
+        return ("dag_analysis", "Airflow DAG detected")
+    
+    # Conditional: Large SQL
+    if ext == ".sql" and len(artifact.content_md) > 50_000:
+        return ("code_analysis", "Large SQL file (>50K chars)")
+    
+    # Conditional: Large PDF
+    if ext == ".pdf" and artifact.size_bytes > 500_000:
+        return ("requirements_extraction", "Large PDF (>500KB)")
+    
+    # Skip markdown (already readable)
+    if ext in (".md", ".txt"):
+        return (None, "Already human-readable")
+    
+    return (None, "No enrichment configured")</code></pre>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Key Insight: Enrichment is for DENSE artifacts</h4>
+                <ul style="margin: 0;">
+                    <li>SSIS packages are XML soup → need semantic extraction</li>
+                    <li>Airflow DAGs are code → but schedule/dependency implications are implicit</li>
+                    <li>PDF specs have requirements → but buried in paragraphs</li>
+                    <li>Markdown is already consumable → skip enrichment</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- LARGE-SCALE MIGRATION TAB -->
+        <div id="large-scale" class="tab-content">
+            <div class="card" style="border-left: 4px solid var(--primary);">
+                <h2><span class="icon icon-purple">📦</span> Large-Scale Migration: 2,000+ Packages</h2>
+                <p>When migrating thousands of packages, you need a <strong>shared context layer</strong> that accumulates knowledge across packages:</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div style="background: #ef4444; padding: 1rem; border-radius: 8px; color: white;">
+                        <h4 style="margin: 0 0 0.5rem;">❌ Without Shared Context</h4>
+                        <ul style="margin: 0; font-size: 0.9rem;">
+                            <li>Same connection asked 500 times</li>
+                            <li>Same business rule rediscovered</li>
+                            <li>Each package analyzed in isolation</li>
+                            <li>10,000+ feedback items</li>
+                        </ul>
+                    </div>
+                    <div style="background: var(--success); padding: 1rem; border-radius: 8px; color: white;">
+                        <h4 style="margin: 0 0 0.5rem;">✅ With Shared Context</h4>
+                        <ul style="margin: 0; font-size: 0.9rem;">
+                            <li>Connection resolved once, inherited everywhere</li>
+                            <li>Business rules catalogued project-wide</li>
+                            <li>Clusters batch-migrate together</li>
+                            <li>~500 unique feedback items</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">🗄️</span> Shared Context Components</h2>
+                <div class="arch-diagram" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="arch-layer" style="border-color: var(--primary);">
+                        <h5>Connection Registry</h5>
+                        <p>42 connections shared by 2,000 packages</p>
+                    </div>
+                    <div class="arch-layer" style="border-color: var(--warning);">
+                        <h5>Business Rule Catalog</h5>
+                        <p>67 rules documented once</p>
+                    </div>
+                    <div class="arch-layer" style="border-color: var(--success);">
+                        <h5>Pattern Library</h5>
+                        <p>23 transformation patterns</p>
+                    </div>
+                    <div class="arch-layer" style="border-color: var(--info);">
+                        <h5>Resolved Decisions</h5>
+                        <p>156 decisions applicable to 1,800 packages</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🔄</span> Knowledge Propagation</h2>
+                <div class="flow">
+                    <div class="flow-step" style="border-color: var(--warning);">
+                        <strong>Package 1</strong>
+                        First to use Connection X
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--warning);">
+                        <strong>Feedback</strong>
+                        "Auth for OLEDB_DW?"
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--success);">
+                        <strong>Human Resolves</strong>
+                        Windows Auth, SRVDW01
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--primary);">
+                        <strong>Save to Registry</strong>
+                        Project-level
+                    </div>
+                </div>
+                <div class="flow" style="margin-top: 1rem;">
+                    <div class="flow-step" style="border-color: var(--primary);">
+                        <strong>Package 2-500</strong>
+                        Also use Connection X
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--success);">
+                        <strong>Lookup</strong>
+                        Found in Registry!
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--success);">
+                        <strong>Auto-Apply</strong>
+                        No feedback needed
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">📊</span> Package Registry Schema</h2>
+                <pre><code>CREATE TABLE etl_packages (
+    id UUID PRIMARY KEY,
+    project_id UUID REFERENCES projects(id),
+    
+    -- Identity
+    package_name TEXT NOT NULL,           -- "PKG_FatoPesagem_Full"
+    package_path TEXT,                    -- Original location
+    artifact_id UUID,                     -- Uploaded .dtsx
+    
+    -- Classification
+    domain TEXT,                          -- "weighing", "billing"
+    complexity TEXT DEFAULT 'medium',     -- simple | medium | complex | critical
+    migration_wave INTEGER,               -- 1, 2, 3... for batching
+    
+    -- Status
+    status TEXT DEFAULT 'registered',
+    -- registered | analyzing | analyzed | needs_feedback | 
+    -- ready | migrating | migrated | verified
+    
+    -- Progress
+    pending_feedback_count INTEGER,
+    blocking_feedback_count INTEGER,
+    
+    -- Dependencies
+    depends_on_packages TEXT[],
+    triggers_packages TEXT[]
+);
+
+CREATE TABLE migration_connections (
+    id UUID PRIMARY KEY,
+    project_id UUID REFERENCES projects(id),
+    
+    connection_name TEXT NOT NULL,        -- "OLEDB_DW_Corporativo"
+    source_server TEXT,
+    source_database TEXT,
+    auth_method TEXT,
+    
+    -- Target mapping
+    target_catalog TEXT,
+    target_schema TEXT,
+    
+    -- Usage
+    used_by_package_count INTEGER,
+    resolved_at TIMESTAMPTZ
+);</code></pre>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-purple">📦</span> Package Clustering</h2>
+                    <p>Group similar packages for batch operations:</p>
+                    <ul>
+                        <li><strong>"Full-reload fact tables"</strong> — 150 packages</li>
+                        <li><strong>"Incremental dimension loads"</strong> — 200 packages</li>
+                        <li><strong>"Staging ETL"</strong> — 300 packages</li>
+                    </ul>
+                    <p style="margin-top: 0.75rem;">When you resolve a decision for the <strong>template package</strong>, apply it to all cluster members.</p>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-blue">⚡</span> Batch Operations</h2>
+                    <ul>
+                        <li><strong>Batch Analyze</strong> — Queue 300 packages by domain</li>
+                        <li><strong>Apply Template</strong> — Propagate decisions to cluster</li>
+                        <li><strong>Resolve All</strong> — Answer once, apply to 500 packages</li>
+                        <li><strong>Export Status</strong> — Dashboard for 2,000 packages</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">📈</span> Migration Dashboard</h2>
+                <div style="background: var(--bg); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <h4 style="margin-bottom: 1rem;">Client XYZ SSIS Migration — 2,000 Packages</h4>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <div style="background: var(--surface); border-radius: 4px; height: 24px; position: relative;">
+                            <div style="background: linear-gradient(135deg, var(--success), #059669); width: 25%; height: 100%; border-radius: 4px;"></div>
+                            <span style="position: absolute; right: 8px; top: 2px; font-size: 0.85rem;">500/2000 (25%)</span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; text-align: center;">
+                        <div style="background: var(--surface); padding: 0.5rem; border-radius: 4px;">
+                            <div style="font-size: 1.5rem; font-weight: bold;">1,200</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Registered</div>
+                        </div>
+                        <div style="background: var(--surface); padding: 0.5rem; border-radius: 4px;">
+                            <div style="font-size: 1.5rem; font-weight: bold;">300</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Analyzed</div>
+                        </div>
+                        <div style="background: var(--surface); padding: 0.5rem; border-radius: 4px;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning);">50</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Needs Feedback</div>
+                        </div>
+                        <div style="background: var(--surface); padding: 0.5rem; border-radius: 4px;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);">450</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Migrated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">🎯</span> Aggregated Feedback Resolution</h2>
+                <p>Instead of resolving feedback per-package, resolve per-topic:</p>
+                
+                <div style="background: var(--bg); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="color: #ef4444;">🔴</span>
+                        <strong>Connection: OLEDB_LEGACY_SYSTEM (auth unknown)</strong>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">
+                        Affects: PKG_001, PKG_002, PKG_003, ... <strong>+197 more</strong>
+                    </p>
+                    <button style="margin-top: 0.75rem; padding: 0.5rem 1rem; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Resolve for All 200 Packages
+                    </button>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Key Insight: Migration Knowledge is Project-Level</h4>
+                <ul style="margin: 0;">
+                    <li><strong>Connections</strong> are shared across packages → registry</li>
+                    <li><strong>Business rules</strong> apply to domains, not packages → catalog</li>
+                    <li><strong>Patterns</strong> repeat across similar packages → library</li>
+                    <li><strong>Decisions</strong> should propagate automatically → resolution system</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- KNOWLEDGE STRATEGY TAB -->
+        <div id="knowledge" class="tab-content">
+            <div class="card" style="border-left: 4px solid var(--warning);">
+                <h2><span class="icon icon-orange">🧠</span> Knowledge Preservation Strategy</h2>
+                <p>For 2,000+ package migrations, we need to accumulate and reuse knowledge. This section explores <strong>meta-learning</strong> vs hardcoded skills.</p>
+                
+                <h3>The Question: Fine-Tuning?</h3>
+                <table>
+                    <tr>
+                        <th>Approach</th>
+                        <th>Pros</th>
+                        <th>Cons</th>
+                        <th>Verdict</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Fine-tuning</strong></td>
+                        <td>Deep pattern learning</td>
+                        <td>Expensive, black box, frozen knowledge</td>
+                        <td style="color: #ef4444;">❌ Not recommended</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RAG (Vector DB)</strong></td>
+                        <td>Easy updates, explainable</td>
+                        <td>Retrieval quality varies</td>
+                        <td style="color: var(--success);">✅ For similar packages</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Structured KB</strong></td>
+                        <td>Precise, queryable, auditable</td>
+                        <td>Manual schema design</td>
+                        <td style="color: var(--success);">✅ For decisions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Technology Profiles</strong></td>
+                        <td>Makes generation tech-aware</td>
+                        <td>Needs curation</td>
+                        <td style="color: var(--success);">✅ For skill generation</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">📋</span> Technology Profiles (Not Hardcoded Skills)</h2>
+                <p>Instead of hardcoding skills like <code>disabled-task-auditor</code>, define <strong>technology profiles</strong> that the LLM uses during generation:</p>
+                
+                <pre><code># technology_profiles/ssis.yaml
+structural_patterns:
+  - name: "disabled_tasks"
+    description: "SSIS packages often contain disabled tasks"
+    detection: "DTS:Executable with DTS:Disabled='True'"
+    migration_implication: "Must audit before migration"
+    skill_suggestion: "Include task audit in discovery"
+    
+  - name: "change_annotations"
+    description: "Developers leave notes in AnnotationLayout"
+    detection: "AnnotationLayout elements"
+    migration_implication: "Risk information hidden here"
+    skill_suggestion: "Parse annotations for risk register"
+
+execution_patterns:
+  - name: "incremental_vs_full"
+    description: "Many packages support both modes"
+    detection: "Control flags like 'processamento_full'"
+    migration_implication: "Target must support MERGE and OVERWRITE"
+
+validation_requirements:
+  - name: "parallel_run"
+    description: "Side-by-side validation before cutover"
+    skill_suggestion: "Include parallel run phase"</code></pre>
+                
+                <p style="margin-top: 1rem;"><strong>Result:</strong> Skills are generated dynamically from technology characteristics, not hardcoded per-migration.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">📊</span> Knowledge Accumulation Over Time</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div>
+                        <h4>Feedback Items Per Package</h4>
+                        <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <span style="width: 100px;">Pkg 1-10:</span>
+                                <div style="background: #ef4444; height: 20px; width: 100%; border-radius: 4px;"></div>
+                                <span>50+</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <span style="width: 100px;">Pkg 11-100:</span>
+                                <div style="background: var(--warning); height: 20px; width: 40%; border-radius: 4px;"></div>
+                                <span>15</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <span style="width: 100px;">Pkg 101-500:</span>
+                                <div style="background: var(--info); height: 20px; width: 15%; border-radius: 4px;"></div>
+                                <span>5</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="width: 100px;">Pkg 501-2000:</span>
+                                <div style="background: var(--success); height: 20px; width: 6%; border-radius: 4px;"></div>
+                                <span>&lt;2</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4>ROI Projection</h4>
+                        <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                            <p style="margin: 0 0 0.5rem;"><strong>Without knowledge:</strong></p>
+                            <p style="margin: 0; color: #ef4444;">2,000 × 30 items × 5 min = 5,000 hours</p>
+                            <p style="margin: 1rem 0 0.5rem;"><strong>With knowledge:</strong></p>
+                            <p style="margin: 0; color: var(--success);">~570 hours total</p>
+                            <p style="margin: 0.5rem 0 0; font-size: 1.25rem; font-weight: bold; color: var(--success);">89% reduction</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-purple">🔄</span> Hybrid Knowledge Architecture</h2>
+                
+                <div class="arch-diagram" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="arch-layer" style="border-color: var(--warning);">
+                        <h5>Technology Profiles</h5>
+                        <p>YAML files describing patterns per technology</p>
+                        <code style="font-size: 0.7rem;">profiles/ssis.yaml</code>
+                    </div>
+                    <div class="arch-layer" style="border-color: var(--info);">
+                        <h5>Pattern Library</h5>
+                        <p>Vector DB of completed migrations</p>
+                        <code style="font-size: 0.7rem;">pgvector / Pinecone</code>
+                    </div>
+                    <div class="arch-layer" style="border-color: var(--success);">
+                        <h5>Resolved Decisions</h5>
+                        <p>Structured DB of human decisions</p>
+                        <code style="font-size: 0.7rem;">PostgreSQL</code>
+                    </div>
+                </div>
+                
+                <div class="flow" style="margin-top: 1.5rem;">
+                    <div class="flow-step" style="border-color: var(--warning);">
+                        <strong>Load Context</strong>
+                        Profile + Similar + Decisions
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--primary);">
+                        <strong>LLM Generate</strong>
+                        With full context
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--info);">
+                        <strong>Human Review</strong>
+                        Only novel items
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--success);">
+                        <strong>Store Knowledge</strong>
+                        For next package
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-blue">🔍</span> RAG for Similar Packages</h2>
+                    <p>After each package completes, store embedding:</p>
+                    <ul>
+                        <li>Package analysis summary</li>
+                        <li>Business rules extracted</li>
+                        <li>Key decisions made</li>
+                    </ul>
+                    <p style="margin-top: 0.75rem;">Query: "Find 3 packages similar to this one's domain and complexity"</p>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-green">📝</span> Few-Shot Selection</h2>
+                    <p>During card generation:</p>
+                    <ul>
+                        <li>Select 2-3 examples from same domain</li>
+                        <li>Match complexity level</li>
+                        <li>Include in prompt as examples</li>
+                    </ul>
+                    <p style="margin-top: 0.75rem;">No training required — just smart retrieval.</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Why NOT Fine-Tuning?</h4>
+                <ul style="margin: 0;">
+                    <li><strong>2,000 packages ≠ enough data</strong> — Fine-tuning needs 10,000+ consistent examples</li>
+                    <li><strong>Loses explainability</strong> — Can't trace why model made a decision</li>
+                    <li><strong>Frozen knowledge</strong> — Databricks releases new features, model doesn't know</li>
+                    <li><strong>Can't update rules</strong> — Individual corrections require full retraining</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- MIGRATION TEMPLATE FAMILY TAB -->
+        <div id="migration-template" class="tab-content">
+            <div class="card">
+                <h2><span class="icon icon-purple">🏗️</span> Template Family System Overview</h2>
+                <p>Agents Workshop uses a <strong>pluggable template family system</strong> to define how cards and project structure are rendered:</p>
+                
+                <pre><code>packages/core/app/families/
+├── _base.py              # Abstract TemplateFamily class
+├── registry.py           # Family registration & factory
+├── phase_vli/            # Current MVP family
+│   ├── family.py         # Implementation
+│   └── templates/
+│       ├── card.md.j2           # Card markdown template
+│       ├── phase_readme.md.j2   # Phase folder README
+│       └── project_readme.md.j2 # Top-level README
+└── migration/            # NEW: Migration-specific family
+    ├── family.py
+    └── templates/
+        ├── card.md.j2
+        ├── phase_readme.md.j2
+        └── project_readme.md.j2</code></pre>
+
+                <div class="highlight-box">
+                    <h4>What a Template Family Defines</h4>
+                    <ul style="margin:0">
+                        <li><strong>Grouping type</strong> — phase | epic | flat</li>
+                        <li><strong>Card sections</strong> — What fields appear in each card</li>
+                        <li><strong>Validation rules</strong> — Family-specific constraints</li>
+                        <li><strong>LLM prompts</strong> — How to draft cards and backlogs</li>
+                        <li><strong>Few-shot examples</strong> — Domain-specific examples for the LLM</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">📋</span> Proposed: MigrationFamily</h2>
+                <p>A new template family optimized for workload migration projects (SSIS → Databricks, Airflow → Databricks, etc.)</p>
+                
+                <table>
+                    <tr>
+                        <th>Property</th>
+                        <th>PhaseVliFamily (Current)</th>
+                        <th>MigrationFamily (Proposed)</th>
+                    </tr>
+                    <tr>
+                        <td><strong>slug</strong></td>
+                        <td><code>phase_vli</code></td>
+                        <td><code>migration</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>grouping</strong></td>
+                        <td>phase</td>
+                        <td>phase (fixed 5 phases)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pre-defined phases</strong></td>
+                        <td>None (user creates)</td>
+                        <td>Discovery → Compatibility → Refactor → Orchestration → Validation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Card sections</strong></td>
+                        <td>10 sections (generic)</td>
+                        <td>12 sections (+ automation_level, concept_mapping)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Few-shot examples</strong></td>
+                        <td>Generic software development</td>
+                        <td>ETL migration-specific</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Validation</strong></td>
+                        <td>≥1 skill, no forward deps</td>
+                        <td>+ source/target mapping validation</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🔄</span> Fixed 5-Phase Structure</h2>
+                <p>MigrationFamily enforces a standard migration lifecycle:</p>
+                
+                <div class="arch-diagram" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="arch-layer" style="border-color: #3b82f6;">
+                        <h5>Phase 1</h5>
+                        <p><strong>Discovery</strong></p>
+                        <p style="font-size: 0.75rem;">Mapping, extraction, assessment</p>
+                    </div>
+                    <div class="arch-layer" style="border-color: #8b5cf6;">
+                        <h5>Phase 2</h5>
+                        <p><strong>Compatibility</strong></p>
+                        <p style="font-size: 0.75rem;">Gap analysis, paradigm shift</p>
+                    </div>
+                    <div class="arch-layer" style="border-color: #ec4899;">
+                        <h5>Phase 3</h5>
+                        <p><strong>Refactoring</strong></p>
+                        <p style="font-size: 0.75rem;">Code conversion</p>
+                    </div>
+                    <div class="arch-layer" style="border-color: #f59e0b;">
+                        <h5>Phase 4</h5>
+                        <p><strong>Orchestration</strong></p>
+                        <p style="font-size: 0.75rem;">Pipeline assembly</p>
+                    </div>
+                    <div class="arch-layer" style="border-color: #22c55e;">
+                        <h5>Phase 5</h5>
+                        <p><strong>Validation</strong></p>
+                        <p style="font-size: 0.75rem;">Testing, cutover</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 1.5rem;">Phase Definitions (Auto-Created)</h3>
+                <pre><code>MIGRATION_PHASES = [
+    {
+        "code": "phase-1-discovery",
+        "name": "Discovery & Assessment",
+        "description": "Automated extraction of metadata, structure analysis, and technical assessment",
+        "order_no": 1,
+        "typical_cards": ["repo-mapping", "source-identification", "dependency-analysis", "framework-classification", "data-inventory", "tech-assessment"]
+    },
+    {
+        "code": "phase-2-compatibility",
+        "name": "Compatibility Analysis",
+        "description": "Evaluation of migration effort and paradigm translation strategy",
+        "order_no": 2,
+        "typical_cards": ["ingestion-strategy", "proprietary-mapping", "infra-dependencies", "orchestration-design"]
+    },
+    {
+        "code": "phase-3-refactoring",
+        "name": "Code Refactoring & Conversion",
+        "description": "Translation of legacy code to target platform",
+        "order_no": 3,
+        "typical_cards": ["extraction-conversion", "processing-conversion", "write-pattern-conversion", "parameter-adaptation"]
+    },
+    {
+        "code": "phase-4-orchestration",
+        "name": "Orchestration Recreation",
+        "description": "Pipeline assembly in target environment",
+        "order_no": 4,
+        "typical_cards": ["dependency-graph-conversion", "cluster-sizing", "retry-timeout-config"]
+    },
+    {
+        "code": "phase-5-validation",
+        "name": "Validation & Cutover",
+        "description": "Parity testing, reconciliation, and production switch",
+        "order_no": 5,
+        "typical_cards": ["shadow-mode", "data-reconciliation", "performance-tuning", "go-live", "catalog-update"]
+    }
+]</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">🎚️</span> Automation Levels (New Card Field)</h2>
+                <p>Each card in MigrationFamily has an <code>automation_level</code> indicating AI vs human responsibility:</p>
+                
+                <table>
+                    <tr>
+                        <th>Level</th>
+                        <th>Code</th>
+                        <th>Meaning</th>
+                        <th>Card Behavior</th>
+                    </tr>
+                    <tr>
+                        <td><span class="status"><span class="status-dot green"></span> AUTO</span></td>
+                        <td><code>auto</code></td>
+                        <td>Fully automated, AI/scripts execute end-to-end</td>
+                        <td>AI agent can complete without human intervention</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status"><span class="status-dot yellow"></span> AUTO + HITL</span></td>
+                        <td><code>auto_hitl</code></td>
+                        <td>AI generates draft, human validates before applying</td>
+                        <td>Card output requires human review before proceeding</td>
+                    </tr>
+                    <tr>
+                        <td><span class="status"><span class="status-dot blue"></span> HITL</span></td>
+                        <td><code>hitl</code></td>
+                        <td>Human decision required, AI only consultative</td>
+                        <td>Similar to <code>human_gate=true</code>, blocks automation</td>
+                    </tr>
+                </table>
+
+                <h3>Schema Change</h3>
+                <pre><code>-- Add automation_level to cards table
+ALTER TABLE cards ADD COLUMN automation_level TEXT 
+    DEFAULT 'auto_hitl'
+    CHECK (automation_level IN ('auto', 'auto_hitl', 'hitl'));</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-purple">🔀</span> Concept Mappings (De/Para)</h2>
+                <p>Migration projects need structured "From → To" mappings that cards can reference:</p>
+                
+                <h3>Example: Airflow → Databricks</h3>
+                <table>
+                    <tr>
+                        <th>Source Concept</th>
+                        <th>Target Concept</th>
+                        <th>Mapping Type</th>
+                    </tr>
+                    <tr>
+                        <td>DAG</td>
+                        <td>Workflow Job</td>
+                        <td>orchestration</td>
+                    </tr>
+                    <tr>
+                        <td>Task (PythonOperator)</td>
+                        <td>Notebook Task</td>
+                        <td>execution</td>
+                    </tr>
+                    <tr>
+                        <td>XCom</td>
+                        <td>Databricks Widget / dbutils</td>
+                        <td>parameter</td>
+                    </tr>
+                    <tr>
+                        <td>{{ ds }} (Jinja)</td>
+                        <td>dbutils.widgets.get()</td>
+                        <td>parameter</td>
+                    </tr>
+                    <tr>
+                        <td>Sqoop ingestion</td>
+                        <td>Autoloader / Spark JDBC</td>
+                        <td>ingestion</td>
+                    </tr>
+                    <tr>
+                        <td>Shell script</td>
+                        <td>PySpark Notebook</td>
+                        <td>code</td>
+                    </tr>
+                </table>
+
+                <h3>Example: SSIS → Databricks</h3>
+                <table>
+                    <tr>
+                        <th>Source Concept</th>
+                        <th>Target Concept</th>
+                        <th>Mapping Type</th>
+                    </tr>
+                    <tr>
+                        <td>Package (.dtsx)</td>
+                        <td>Workflow Job</td>
+                        <td>orchestration</td>
+                    </tr>
+                    <tr>
+                        <td>Execute SQL Task</td>
+                        <td>Notebook Task</td>
+                        <td>execution</td>
+                    </tr>
+                    <tr>
+                        <td>Precedence Constraint</td>
+                        <td>Task Dependency</td>
+                        <td>orchestration</td>
+                    </tr>
+                    <tr>
+                        <td>Package Variable</td>
+                        <td>Job Parameter</td>
+                        <td>parameter</td>
+                    </tr>
+                    <tr>
+                        <td>Staging Table</td>
+                        <td>Bronze Delta Table</td>
+                        <td>architecture</td>
+                    </tr>
+                    <tr>
+                        <td>DELETE + INSERT</td>
+                        <td>Delta MERGE</td>
+                        <td>code</td>
+                    </tr>
+                </table>
+
+                <h3>Schema</h3>
+                <pre><code>CREATE TABLE concept_mappings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+    
+    -- Source (legacy) side
+    source_platform TEXT NOT NULL,       -- 'ssis', 'airflow', 'talend', etc.
+    source_concept TEXT NOT NULL,        -- 'Execute SQL Task', 'XCom', etc.
+    source_example TEXT,                 -- Concrete example from discovery
+    
+    -- Target (modern) side
+    target_platform TEXT NOT NULL,       -- 'databricks', 'glue', 'synapse'
+    target_concept TEXT NOT NULL,        -- 'Notebook Task', 'Widget', etc.
+    target_implementation TEXT,          -- Code/config snippet
+    
+    -- Metadata
+    mapping_type TEXT NOT NULL,          -- ingestion | orchestration | code | parameter | architecture
+    confidence TEXT DEFAULT 'proposed',  -- proposed | confirmed | not_applicable
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    
+    UNIQUE (project_id, source_platform, source_concept, target_platform)
+);</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">📄</span> Migration Card Template (card.md.j2)</h2>
+                <p>Extended card format with migration-specific sections:</p>
+                
+                <pre><code># {{ card.code }} — {{ card.title }}
+
+**Automation Level:** {% if card.automation_level == 'auto' %}🟢 AUTO{% elif card.automation_level == 'auto_hitl' %}🟡 AUTO + HITL{% else %}🔵 HITL{% endif %}
+
+## Context
+
+{{ card.context_md }}
+
+## Source Analysis
+<!-- Links to discovery outputs and legacy artifacts -->
+{% if card.source_artifacts %}
+{% for artifact in card.source_artifacts %}
+- [{{ artifact.name }}]({{ artifact.path }}) — {{ artifact.description }}
+{% endfor %}
+{% endif %}
+
+## Concept Mappings Applied
+<!-- De/Para mappings this card uses -->
+{% if card.concept_mappings %}
+| Source | Target | Type |
+|--------|--------|------|
+{% for mapping in card.concept_mappings %}
+| {{ mapping.source_concept }} | {{ mapping.target_concept }} | {{ mapping.mapping_type }} |
+{% endfor %}
+{% endif %}
+
+## Skills to invoke
+
+{% for skill in skills_used %}
+- [{{ skill.name }}](.agents/skills/{{ skill.slug }}/SKILL.md)
+{% endfor %}
+
+## Inputs
+
+{% for input in card.inputs %}
+- **{{ input.label }}**: {{ input.path }}
+{% endfor %}
+
+## Task
+
+{{ card.task_md }}
+
+## Outputs
+
+{{ card.outputs_md }}
+
+## Acceptance criteria
+
+{{ card.acceptance_criteria_md }}
+
+{% if card.automation_level == 'auto_hitl' %}
+## Human Validation Required
+
+Before marking this card complete, a human must:
+
+{{ card.validation_checklist_md | default('- [ ] Review AI-generated outputs\n- [ ] Confirm technical accuracy\n- [ ] Approve for next phase', true) }}
+{% endif %}
+
+## Depends on
+
+{% for dep in card.deps_out %}
+- [{{ dep.depends_on_card.code }}](../{{ dep.depends_on_card.code }}.md)
+{% endfor %}
+
+{% if card.human_gate %}
+## 🚪 Human Gate
+
+{{ card.human_gate_checklist_md }}
+{% endif %}</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🔌</span> Integration Steps</h2>
+                
+                <h3>Step 1: Schema Migrations</h3>
+                <pre><code># packages/core/alembic/versions/XXXX_add_migration_family_tables.py
+
+def upgrade():
+    # Add automation_level to cards
+    op.add_column('cards', sa.Column('automation_level', sa.Text(), 
+                                      server_default='auto_hitl'))
+    op.create_check_constraint('cards_automation_level_check', 'cards',
+                               "automation_level IN ('auto', 'auto_hitl', 'hitl')")
+    
+    # Add concept_mappings table
+    op.create_table('concept_mappings',
+        sa.Column('id', UUID(), primary_key=True),
+        sa.Column('project_id', UUID(), sa.ForeignKey('projects.id', ondelete='CASCADE')),
+        sa.Column('source_platform', sa.Text(), nullable=False),
+        sa.Column('source_concept', sa.Text(), nullable=False),
+        sa.Column('source_example', sa.Text()),
+        sa.Column('target_platform', sa.Text(), nullable=False),
+        sa.Column('target_concept', sa.Text(), nullable=False),
+        sa.Column('target_implementation', sa.Text()),
+        sa.Column('mapping_type', sa.Text(), nullable=False),
+        sa.Column('confidence', sa.Text(), server_default='proposed'),
+        sa.Column('notes', sa.Text()),
+        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
+    )</code></pre>
+
+                <h3>Step 2: Create MigrationFamily Class</h3>
+                <pre><code># packages/core/app/families/migration/family.py
+
+class MigrationFamily(TemplateFamily):
+    """Migration-specific template family for ETL/pipeline migrations."""
+    
+    slug = "migration"
+    display_name = "Workload Migration"
+    grouping = "phase"
+    grouping_label_singular = "Phase"
+    grouping_label_plural = "Phases"
+    card_filename_pattern = "{code}-{title_slug}"
+    grouping_folder_pattern = "phase-{order}-{slug}"
+    
+    # Fixed migration phases
+    PHASES = [
+        {"code": "phase-1-discovery", "name": "Discovery & Assessment", "order_no": 1},
+        {"code": "phase-2-compatibility", "name": "Compatibility Analysis", "order_no": 2},
+        {"code": "phase-3-refactoring", "name": "Code Refactoring", "order_no": 3},
+        {"code": "phase-4-orchestration", "name": "Orchestration Recreation", "order_no": 4},
+        {"code": "phase-5-validation", "name": "Validation & Cutover", "order_no": 5},
+    ]
+    
+    def create_default_phases(self, project_id: UUID) -> list[Phase]:
+        """Auto-create the 5 migration phases when project uses this family."""
+        return [Phase(project_id=project_id, **p) for p in self.PHASES]
+    
+    def draft_card_prompt(self, context: CardDraftContext) -> ChatPrompt:
+        """Migration-specific card drafting with concept mappings."""
+        # Include concept mappings in prompt context
+        # Use migration-specific few-shot examples
+        ...</code></pre>
+
+                <h3>Step 3: Register the Family</h3>
+                <pre><code># packages/core/app/families/registry.py
+
+from app.families.migration import MigrationFamily
+
+TEMPLATE_REGISTRY: dict[str, TemplateFamily] = {
+    "phase_vli": PhaseVliFamily(),
+    "migration": MigrationFamily(),  # NEW
+}</code></pre>
+
+                <h3>Step 4: Add API Endpoints</h3>
+                <pre><code># packages/core/app/api/concept_mappings.py
+
+@router.post("/projects/{project_id}/concept-mappings")
+async def create_concept_mapping(project_id: UUID, mapping: ConceptMappingCreate):
+    """Add a source→target concept mapping."""
+    ...
+
+@router.post("/projects/{project_id}/concept-mappings/suggest")
+async def suggest_concept_mappings(project_id: UUID, source_platform: str, target_platform: str):
+    """Use LLM to suggest concept mappings based on discovered artifacts."""
+    ...</code></pre>
+
+                <h3>Step 5: Web UI Updates</h3>
+                <ul>
+                    <li>Add "Concept Mappings" tab in project editor</li>
+                    <li>Show automation level badges on cards in backlog view</li>
+                    <li>Add migration-specific discovery wizard steps</li>
+                    <li>Visualize De/Para mappings in DAG view</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-orange">🎯</span> Migration Workflow in Web UI</h2>
+                <div class="flow">
+                    <div class="flow-step">
+                        <strong>1. NEW PROJECT</strong>
+                        Select "Migration" template
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>2. SOURCE PLATFORM</strong>
+                        SSIS | Airflow | Talend | ...
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>3. TARGET PLATFORM</strong>
+                        Databricks | Glue | Synapse
+                    </div>
+                </div>
+                <div class="flow" style="margin-top: 1rem;">
+                    <div class="flow-step">
+                        <strong>4. UPLOAD ARTIFACTS</strong>
+                        .dtsx, .py, SQL files
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>5. AI DISCOVERY</strong>
+                        Auto-extract inventory
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>6. CONCEPT MAPPING</strong>
+                        Review De/Para suggestions
+                    </div>
+                </div>
+                <div class="flow" style="margin-top: 1rem;">
+                    <div class="flow-step">
+                        <strong>7. PROPOSE SKILLS</strong>
+                        Migration-specific
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>8. GENERATE BACKLOG</strong>
+                        5 phases auto-created
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>9. EXPORT .agents/</strong>
+                        Ready for AI agent
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-purple">📊</span> Migration-Specific Skills (Seed)</h2>
+                    <ul>
+                        <li><code>migration-discovery</code> — Source system analysis</li>
+                        <li><code>ssis-analyzer</code> — SSIS package parsing</li>
+                        <li><code>airflow-analyzer</code> — DAG/task extraction</li>
+                        <li><code>databricks-planner</code> — Target architecture</li>
+                        <li><code>delta-merge</code> — Write pattern conversion</li>
+                        <li><code>data-reconciler</code> — Validation queries</li>
+                        <li><code>concept-mapper</code> — De/Para generation</li>
+                        <li><code>shadow-runner</code> — Parallel execution</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-green">✅</span> Benefits of MigrationFamily</h2>
+                    <ul>
+                        <li><strong>Standardized phases</strong> — Every migration follows same lifecycle</li>
+                        <li><strong>Automation clarity</strong> — Clear AI vs human responsibility</li>
+                        <li><strong>Concept traceability</strong> — De/Para mappings linked to cards</li>
+                        <li><strong>Faster setup</strong> — Pre-defined structure, less decisions</li>
+                        <li><strong>Better LLM prompts</strong> — Migration-specific few-shots</li>
+                        <li><strong>Repeatable</strong> — Same playbook across SSIS, Airflow, Talend</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS TAB -->
+        <div id="status" class="tab-content">
+            <div class="card" style="border-left: 4px solid var(--primary);">
+                <h2><span class="icon icon-blue">📋</span> Implementation Roadmap</h2>
+                <p>Migration enhancement features across 5 phases (~6-7 weeks).</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-top: 1rem;">
+                    <div style="background: var(--bg); padding: 0.75rem; border-radius: 8px; border-top: 3px solid var(--primary);">
+                        <h5 style="margin: 0 0 0.5rem;">Phase A</h5>
+                        <p style="font-size: 0.8rem; margin: 0;">Foundation</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0.25rem 0 0;">Week 1-2</p>
+                    </div>
+                    <div style="background: var(--bg); padding: 0.75rem; border-radius: 8px; border-top: 3px solid var(--info);">
+                        <h5 style="margin: 0 0 0.5rem;">Phase B</h5>
+                        <p style="font-size: 0.8rem; margin: 0;">Enrichment</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0.25rem 0 0;">Week 3-4</p>
+                    </div>
+                    <div style="background: var(--bg); padding: 0.75rem; border-radius: 8px; border-top: 3px solid var(--warning);">
+                        <h5 style="margin: 0 0 0.5rem;">Phase C</h5>
+                        <p style="font-size: 0.8rem; margin: 0;">Large-Scale</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0.25rem 0 0;">Week 5-6</p>
+                    </div>
+                    <div style="background: var(--bg); padding: 0.75rem; border-radius: 8px; border-top: 3px solid var(--success);">
+                        <h5 style="margin: 0 0 0.5rem;">Phase D</h5>
+                        <p style="font-size: 0.8rem; margin: 0;">Knowledge</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0.25rem 0 0;">Week 7-8</p>
+                    </div>
+                    <div style="background: var(--bg); padding: 0.75rem; border-radius: 8px; border-top: 3px solid #8b5cf6;">
+                        <h5 style="margin: 0 0 0.5rem;">Phase E</h5>
+                        <p style="font-size: 0.8rem; margin: 0;">Skills</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0.25rem 0 0;">Week 9-10</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-blue">🔧</span> Phase A: Foundation</h2>
+                    <ul>
+                        <li><strong>A1:</strong> Technology Profiles (YAML)</li>
+                        <li><strong>A2:</strong> MigrationFamily (7 phases)</li>
+                        <li><strong>A3:</strong> Card schema extensions</li>
+                    </ul>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Ref: MIGRATION_KNOWLEDGE_STRATEGY, MIGRATION_BACKLOG_COMPARISON</p>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-blue">📊</span> Phase B: Enrichment</h2>
+                    <ul>
+                        <li><strong>B1:</strong> Analysis tables & models</li>
+                        <li><strong>B2:</strong> Analysis Dramatiq job</li>
+                        <li><strong>B3:</strong> Feedback resolution API</li>
+                    </ul>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Ref: IMPLEMENTATION_ANALYSIS_ENRICHMENT</p>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-orange">📦</span> Phase C: Large-Scale</h2>
+                    <ul>
+                        <li><strong>C1:</strong> Package registry tables</li>
+                        <li><strong>C2:</strong> Shared context (connections, rules)</li>
+                        <li><strong>C3:</strong> Batch operations API</li>
+                    </ul>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Ref: LARGE_SCALE_MIGRATION_SHARED_CONTEXT</p>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-green">🧠</span> Phase D: Knowledge</h2>
+                    <ul>
+                        <li><strong>D1:</strong> Pattern Library (Vector DB)</li>
+                        <li><strong>D2:</strong> Few-shot selection service</li>
+                        <li><strong>D3:</strong> Knowledge propagation</li>
+                    </ul>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Ref: MIGRATION_KNOWLEDGE_STRATEGY</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-purple">📚</span> Phase E: Pre-Built Skills</h2>
+                <table>
+                    <tr>
+                        <th>Skill</th>
+                        <th>Purpose</th>
+                        <th>Effort</th>
+                    </tr>
+                    <tr>
+                        <td><code>business-rules-compliance-analyzer</code></td>
+                        <td>Rule-by-rule source vs target comparison</td>
+                        <td>2 days</td>
+                    </tr>
+                    <tr>
+                        <td><code>disabled-task-auditor</code></td>
+                        <td>Classify disabled SSIS tasks</td>
+                        <td>1 day</td>
+                    </tr>
+                    <tr>
+                        <td><code>etl-migration-reconciler</code></td>
+                        <td>Reconciliation and sign-off evidence</td>
+                        <td>2 days</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">📄</span> Document Index</h2>
+                <table>
+                    <tr>
+                        <th>Document</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><strong>SPEC.md</strong></td>
+                        <td>Core schema, existing tables</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MIGRATION_BACKLOG_COMPARISON.md</strong></td>
+                        <td>Gap analysis vs VLI, phase structure, skills</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MIGRATION_KNOWLEDGE_STRATEGY.md</strong></td>
+                        <td>Tech profiles, RAG, no fine-tuning</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LARGE_SCALE_MIGRATION_SHARED_CONTEXT.md</strong></td>
+                        <td>2000+ packages, shared context tables</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IMPLEMENTATION_ANALYSIS_ENRICHMENT.md</strong></td>
+                        <td>Artifact enrichment system</td>
+                    </tr>
+                    <tr>
+                        <td><strong>IMPLEMENTATION_PLAN_MIGRATION_FEATURES.md</strong></td>
+                        <td>This implementation plan</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Quick Wins (Start Immediately)</h4>
+                <ul style="margin: 0;">
+                    <li><strong>Technology profiles</strong> — Just YAML files, no code changes</li>
+                    <li><strong>Pre-built skills</strong> — Just markdown files</li>
+                    <li><strong>Card schema extensions</strong> — Simple Alembic migration</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- ETL/SSIS MIGRATION TAB -->
+        <div id="etl-migration" class="tab-content">
+            <div class="card" style="border-left: 4px solid var(--warning);">
+                <h2><span class="icon icon-orange">⚠️</span> Gap Analysis: Multi-Package ETL Migrations</h2>
+                <p>The current system supports SSIS package <strong>analysis</strong> via artifact uploads and the <code>corp-ssis-analyzer</code> skill, but lacks a <strong>structured inventory model</strong> for managing multiple packages and their connections.</p>
+                
+                <div class="highlight-box">
+                    <h4>Current Capabilities</h4>
+                    <ul style="margin:0">
+                        <li>✅ Upload .dtsx files as artifacts (async extraction)</li>
+                        <li>✅ SSIS/T-SQL in tech catalog as "legacy" technology</li>
+                        <li>✅ <code>corp-ssis-analyzer</code> skill for package analysis</li>
+                        <li>✅ <code>corp-databricks-planner</code> skill for migration planning</li>
+                        <li>❌ No structured package inventory</li>
+                        <li>❌ No connection registry across packages</li>
+                        <li>❌ No package-to-package dependency mapping</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-purple">📦</span> Proposed: Package Inventory Model</h2>
+                <p>A new discovery channel for ETL/Data migration projects where users register each package to be migrated:</p>
+                
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Purpose</th>
+                        <th>Required</th>
+                    </tr>
+                    <tr>
+                        <td><strong>package_name</strong></td>
+                        <td>TEXT</td>
+                        <td>Unique identifier (e.g., "PKG_FatoPesagem_Full")</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>package_path</strong></td>
+                        <td>TEXT</td>
+                        <td>Source location (file path, SSISDB folder)</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>business_purpose</strong></td>
+                        <td>TEXT</td>
+                        <td>What business process does this serve?</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>execution_schedule</strong></td>
+                        <td>ENUM</td>
+                        <td>daily | hourly | weekly | on_demand | event_triggered</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>execution_window</strong></td>
+                        <td>TEXT</td>
+                        <td>When it runs (e.g., "02:00 AM BRT")</td>
+                        <td>Optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>avg_duration_minutes</strong></td>
+                        <td>INTEGER</td>
+                        <td>Typical runtime (for SLA planning)</td>
+                        <td>Optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>criticality</strong></td>
+                        <td>ENUM</td>
+                        <td>critical | high | medium | low</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>owner_team</strong></td>
+                        <td>TEXT</td>
+                        <td>Who maintains this package today?</td>
+                        <td>Optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>migration_priority</strong></td>
+                        <td>INTEGER</td>
+                        <td>Order in migration sequence (1 = first)</td>
+                        <td>Optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>depends_on_packages</strong></td>
+                        <td>TEXT[]</td>
+                        <td>Other packages that must run before this one</td>
+                        <td>Optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>triggers_packages</strong></td>
+                        <td>TEXT[]</td>
+                        <td>Packages that run after this one completes</td>
+                        <td>Optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>notes</strong></td>
+                        <td>TEXT</td>
+                        <td>SME notes, known issues, historical context</td>
+                        <td>Optional</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">🔌</span> Proposed: Connection Registry Model</h2>
+                <p>Each package has connections (data sources and targets). Users need to document these for migration planning:</p>
+                
+                <h3>Connection Types</h3>
+                <div class="arch-diagram" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="arch-layer"><h5>OLE DB</h5><p>SQL Server, Oracle</p></div>
+                    <div class="arch-layer"><h5>Flat File</h5><p>CSV, TXT, Fixed-width</p></div>
+                    <div class="arch-layer"><h5>FTP/SFTP</h5><p>File transfers</p></div>
+                    <div class="arch-layer"><h5>ODBC</h5><p>Generic DB access</p></div>
+                </div>
+                <div class="arch-diagram" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="arch-layer"><h5>Excel</h5><p>Spreadsheets</p></div>
+                    <div class="arch-layer"><h5>HTTP/REST</h5><p>Web services</p></div>
+                    <div class="arch-layer"><h5>SMTP</h5><p>Email notifications</p></div>
+                    <div class="arch-layer"><h5>Azure Blob</h5><p>Cloud storage</p></div>
+                </div>
+
+                <h3>Connection Fields</h3>
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><strong>connection_name</strong></td>
+                        <td>TEXT</td>
+                        <td>Name as it appears in SSIS (e.g., "OLEDB_DW_Corporativo")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>connection_type</strong></td>
+                        <td>ENUM</td>
+                        <td>oledb | flatfile | ftp | odbc | excel | http | smtp | azure_blob | other</td>
+                    </tr>
+                    <tr>
+                        <td><strong>direction</strong></td>
+                        <td>ENUM</td>
+                        <td>source | target | both | control</td>
+                    </tr>
+                    <tr>
+                        <td><strong>server</strong></td>
+                        <td>TEXT</td>
+                        <td>Server/host address</td>
+                    </tr>
+                    <tr>
+                        <td><strong>database</strong></td>
+                        <td>TEXT</td>
+                        <td>Database name (if applicable)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>auth_method</strong></td>
+                        <td>ENUM</td>
+                        <td>windows_auth | sql_auth | service_account | key_file | managed_identity</td>
+                    </tr>
+                    <tr>
+                        <td><strong>credential_ref</strong></td>
+                        <td>TEXT</td>
+                        <td>Reference to credential store (not the actual secret!)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>network_path</strong></td>
+                        <td>TEXT</td>
+                        <td>VPN, private endpoint, firewall rules needed?</td>
+                    </tr>
+                    <tr>
+                        <td><strong>tables_accessed</strong></td>
+                        <td>TEXT[]</td>
+                        <td>List of tables read/written through this connection</td>
+                    </tr>
+                    <tr>
+                        <td><strong>used_by_packages</strong></td>
+                        <td>TEXT[]</td>
+                        <td>Packages sharing this connection</td>
+                    </tr>
+                    <tr>
+                        <td><strong>migration_target</strong></td>
+                        <td>TEXT</td>
+                        <td>Where this connection maps in target platform</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">📊</span> Proposed: Data Flow Mapping Model</h2>
+                <p>For each package, track the data flows (what data goes where):</p>
+                
+                <table>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><strong>flow_name</strong></td>
+                        <td>TEXT</td>
+                        <td>Data flow task name from SSIS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>source_connection</strong></td>
+                        <td>FK</td>
+                        <td>Reference to connection registry</td>
+                    </tr>
+                    <tr>
+                        <td><strong>source_object</strong></td>
+                        <td>TEXT</td>
+                        <td>Table, view, query, or file pattern</td>
+                    </tr>
+                    <tr>
+                        <td><strong>target_connection</strong></td>
+                        <td>FK</td>
+                        <td>Reference to connection registry</td>
+                    </tr>
+                    <tr>
+                        <td><strong>target_object</strong></td>
+                        <td>TEXT</td>
+                        <td>Target table or file</td>
+                    </tr>
+                    <tr>
+                        <td><strong>transformation_summary</strong></td>
+                        <td>TEXT</td>
+                        <td>Brief description of transformations applied</td>
+                    </tr>
+                    <tr>
+                        <td><strong>estimated_row_count</strong></td>
+                        <td>BIGINT</td>
+                        <td>Typical volume per execution</td>
+                    </tr>
+                    <tr>
+                        <td><strong>incremental_key</strong></td>
+                        <td>TEXT</td>
+                        <td>Column used for incremental loads (e.g., "DT_ALTERACAO")</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-purple">📝</span> User Input: Package Registration Wizard</h2>
+                    <p>Proposed discovery step where users register packages:</p>
+                    
+                    <h3>Step 1: Package Upload</h3>
+                    <ul>
+                        <li>Upload .dtsx file(s) or point to SSISDB</li>
+                        <li>System auto-extracts: name, connections, variables</li>
+                        <li>AI proposes: business purpose, criticality</li>
+                    </ul>
+
+                    <h3>Step 2: Connection Mapping</h3>
+                    <ul>
+                        <li>Review extracted connections</li>
+                        <li>Fill: server, database, auth method</li>
+                        <li>Map to target platform connections</li>
+                        <li>Flag DSN-only or expression connections</li>
+                    </ul>
+
+                    <h3>Step 3: Dependency Declaration</h3>
+                    <ul>
+                        <li>Select packages this depends on</li>
+                        <li>Select packages triggered after</li>
+                        <li>System validates: no cycles</li>
+                    </ul>
+
+                    <h3>Step 4: Migration Priority</h3>
+                    <ul>
+                        <li>AI suggests order based on dependencies</li>
+                        <li>User adjusts based on business priority</li>
+                        <li>Generates migration wave plan</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-orange">🎯</span> Information Categories Summary</h2>
+                    
+                    <h3>Required from User</h3>
+                    <ul>
+                        <li><strong>Package files</strong> (.dtsx) or SSISDB path</li>
+                        <li><strong>Business purpose</strong> per package</li>
+                        <li><strong>Execution schedule</strong> (when does it run?)</li>
+                        <li><strong>Criticality level</strong> (impact if it fails)</li>
+                        <li><strong>Connection credentials</strong> (references only)</li>
+                        <li><strong>Target platform mapping</strong> (where to migrate)</li>
+                    </ul>
+
+                    <h3>Auto-Extracted by System</h3>
+                    <ul>
+                        <li>Package name and structure</li>
+                        <li>Connection manager list</li>
+                        <li>Variables and expressions</li>
+                        <li>Task inventory (enabled/disabled)</li>
+                        <li>SQL statements</li>
+                        <li>Data flow components</li>
+                    </ul>
+
+                    <h3>AI-Suggested (User Confirms)</h3>
+                    <ul>
+                        <li>Business purpose summary</li>
+                        <li>Criticality assessment</li>
+                        <li>Migration priority order</li>
+                        <li>Target architecture mapping</li>
+                        <li>Risk flags and blockers</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">🗄️</span> Proposed Schema Changes</h2>
+                <pre><code>-- New tables for ETL package inventory
+
+CREATE TABLE etl_packages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID FK → projects ON DELETE CASCADE,
+    package_name TEXT NOT NULL,
+    package_path TEXT,
+    artifact_id UUID FK → project_artifacts,  -- Link to uploaded .dtsx
+    business_purpose TEXT NOT NULL,
+    execution_schedule TEXT NOT NULL,  -- daily|hourly|weekly|on_demand|event_triggered
+    execution_window TEXT,
+    avg_duration_minutes INTEGER,
+    criticality TEXT NOT NULL DEFAULT 'medium',  -- critical|high|medium|low
+    owner_team TEXT,
+    migration_priority INTEGER,
+    migration_status TEXT NOT NULL DEFAULT 'pending',  -- pending|analyzing|ready|migrating|migrated|verified
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (project_id, package_name)
+);
+
+CREATE TABLE etl_connections (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID FK → projects ON DELETE CASCADE,
+    connection_name TEXT NOT NULL,
+    connection_type TEXT NOT NULL,  -- oledb|flatfile|ftp|odbc|excel|http|smtp|azure_blob|other
+    direction TEXT NOT NULL,  -- source|target|both|control
+    server TEXT,
+    database_name TEXT,
+    auth_method TEXT,  -- windows_auth|sql_auth|service_account|key_file|managed_identity
+    credential_ref TEXT,  -- Reference to secrets manager, NOT the actual secret
+    network_path TEXT,
+    migration_target TEXT,  -- Where this maps in target platform
+    is_blocker BOOLEAN NOT NULL DEFAULT false,  -- DSN-only, expression-only, etc.
+    blocker_reason TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (project_id, connection_name)
+);
+
+CREATE TABLE etl_package_connections (
+    package_id UUID FK → etl_packages ON DELETE CASCADE,
+    connection_id UUID FK → etl_connections ON DELETE CASCADE,
+    tables_accessed TEXT[],  -- Tables read/written through this connection
+    PRIMARY KEY (package_id, connection_id)
+);
+
+CREATE TABLE etl_package_deps (
+    package_id UUID FK → etl_packages ON DELETE CASCADE,
+    depends_on_package_id UUID FK → etl_packages ON DELETE RESTRICT,
+    dep_type TEXT NOT NULL DEFAULT 'sequential',  -- sequential|parallel|conditional
+    PRIMARY KEY (package_id, depends_on_package_id)
+);
+
+CREATE TABLE etl_data_flows (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    package_id UUID FK → etl_packages ON DELETE CASCADE,
+    flow_name TEXT NOT NULL,
+    source_connection_id UUID FK → etl_connections,
+    source_object TEXT,
+    target_connection_id UUID FK → etl_connections,
+    target_object TEXT,
+    transformation_summary TEXT,
+    estimated_row_count BIGINT,
+    incremental_key TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);</code></pre>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">🔄</span> Updated Workflow for ETL Projects</h2>
+                <div class="flow">
+                    <div class="flow-step">
+                        <strong>1. DISCOVERY</strong>
+                        Objective + Q&A + Tech
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--warning);">
+                        <strong>2. PACKAGE INVENTORY</strong>
+                        Upload .dtsx + Register
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--warning);">
+                        <strong>3. CONNECTION MAPPING</strong>
+                        Sources + Targets + Auth
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step" style="border-color: var(--warning);">
+                        <strong>4. DEPENDENCY GRAPH</strong>
+                        Package relationships
+                    </div>
+                </div>
+                <div class="flow" style="margin-top: 1rem;">
+                    <div class="flow-step">
+                        <strong>5. PROPOSE SKILLS</strong>
+                        (uses inventory context)
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>6. PROPOSE BACKLOG</strong>
+                        (cards per package wave)
+                    </div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">
+                        <strong>7. VALIDATE + EXPORT</strong>
+                        .agents/ folder
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; color: var(--warning);"><strong>Yellow steps</strong> = New ETL-specific discovery channels</p>
+            </div>
+        </div>
+            <div class="card">
+                <h2><span class="icon icon-green">✅</span> Current Status — MVP Complete</h2>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Status</th>
+                        <th>Details</th>
+                    </tr>
+                    <tr>
+                        <td>Backend API</td>
+                        <td><span class="status"><span class="status-dot green"></span> Complete</span></td>
+                        <td>All LLM prompts, validators, exporters</td>
+                    </tr>
+                    <tr>
+                        <td>CLI</td>
+                        <td><span class="status"><span class="status-dot green"></span> Complete</span></td>
+                        <td>Full end-to-end workflow</td>
+                    </tr>
+                    <tr>
+                        <td>Web UI</td>
+                        <td><span class="status"><span class="status-dot green"></span> Complete</span></td>
+                        <td>DAG visualization, editors, export</td>
+                    </tr>
+                    <tr>
+                        <td>Export Pipeline</td>
+                        <td><span class="status"><span class="status-dot green"></span> Complete</span></td>
+                        <td>Filesystem + ZIP with manifests</td>
+                    </tr>
+                    <tr>
+                        <td>Reference PoCs</td>
+                        <td><span class="status"><span class="status-dot green"></span> Complete</span></td>
+                        <td>3 few-shot examples seeded</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">🎯</span> What Works Today</h2>
+                <ol>
+                    <li><strong>Create project</strong> → Run discovery wizard (Q&A + Tech + Docs)</li>
+                    <li><strong>AI proposes skills</strong> → Edit and customize the suggestions</li>
+                    <li><strong>AI generates phased backlog</strong> → Visualize as interactive DAG</li>
+                    <li><strong>Export .agents/ folder</strong> → Drop into Cursor/Claude/Gemini workspace</li>
+                </ol>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h2><span class="icon icon-purple">💪</span> Strengths</h2>
+                    <ul>
+                        <li><strong>Clear separation</strong> — Generating contracts vs executing them</li>
+                        <li><strong>Resumable workflow</strong> — Drafts persist, user edits preserved</li>
+                        <li><strong>Cost tracking</strong> — LLM costs built-in from day one</li>
+                        <li><strong>Multi-provider</strong> — Flexibility across LLM vendors</li>
+                        <li><strong>Reference PoCs</strong> — Domain knowledge as few-shots</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2><span class="icon icon-orange">🚀</span> Future Roadmap (P3+)</h2>
+                    <ul>
+                        <li><strong>Reasoning capture</strong> — Extended thinking traces</li>
+                        <li><strong>Jira CSV export</strong> — Direct import to Jira</li>
+                        <li><strong>Team collaboration</strong> — Multi-user support</li>
+                        <li><strong>More template families</strong> — strict_9, free_form</li>
+                        <li><strong>Custom dimensions</strong> — User-defined tech categories</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-green">📚</span> Reference PoCs (Few-shot Examples)</h2>
+                <table>
+                    <tr>
+                        <th>Project</th>
+                        <th>Code</th>
+                        <th>Focus</th>
+                    </tr>
+                    <tr>
+                        <td>Caixa-2</td>
+                        <td><code>ref-siglm</code></td>
+                        <td>Legacy modernization skills</td>
+                    </tr>
+                    <tr>
+                        <td>Enel</td>
+                        <td><code>ref-cronos</code></td>
+                        <td>Authoring skills</td>
+                    </tr>
+                    <tr>
+                        <td>VLI</td>
+                        <td><code>ref-corp-vli</code></td>
+                        <td>Analyzer skills with rich resources</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon icon-blue">🤖</span> LLM Configuration</h2>
+                <table>
+                    <tr>
+                        <th>Setting</th>
+                        <th>Default</th>
+                        <th>Options</th>
+                    </tr>
+                    <tr>
+                        <td>Provider</td>
+                        <td>Anthropic</td>
+                        <td>OpenAI, Ollama, Bedrock</td>
+                    </tr>
+                    <tr>
+                        <td>Model</td>
+                        <td><code>claude-sonnet-4-5</code></td>
+                        <td>Any supported by provider</td>
+                    </tr>
+                    <tr>
+                        <td>Temperature</td>
+                        <td>0.20</td>
+                        <td>0.00 – 1.00</td>
+                    </tr>
+                    <tr>
+                        <td>Scope</td>
+                        <td>Per-project</td>
+                        <td>Stored in projects table</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

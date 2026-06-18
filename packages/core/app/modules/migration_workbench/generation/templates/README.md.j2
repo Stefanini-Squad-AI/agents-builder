@@ -1,0 +1,44 @@
+# {{ package_name }} - Migration Bundle
+
+**Source**: SSIS package `{{ package_name }}`
+**Target**: Databricks (Unity Catalog `{{ target_catalog }}.{{ target_schema }}`)
+**Strategy**: `{{ strategy }}`
+**Generated**: {{ generated_at }}
+
+## Rationale
+
+{{ rationale }}
+
+## Files
+
+| File | Type | Purpose |
+|------|------|---------|
+{%- for a in artifacts %}
+| `{{ a.relative_path }}` | {{ a.tier }} | {{ a.notes[0] if a.notes else '' }} |
+{%- endfor %}
+
+## How to deploy
+
+1. Import all files into a Databricks workspace folder (keep them in the same folder so `dbutils.notebook.run` relative paths resolve).
+{%- if strategy == 'modular' %}
+2. Open `00_*_orchestrator` and run it. It will sequentially invoke each SQL module.
+{%- else %}
+2. Open the main notebook and attach it to a Photon-enabled cluster or SQL warehouse.
+{%- endif %}
+3. Provide widget values for `catalog`, `schema`, and `run_date`.
+
+## Known gaps to review
+
+{%- for w in warnings %}
+- {{ w }}
+{%- else %}
+- _(none)_
+{%- endfor %}
+
+## Performance notes
+
+{%- for n in notes %}
+- {{ n }}
+{%- else %}
+- _(none)_
+{%- endfor %}

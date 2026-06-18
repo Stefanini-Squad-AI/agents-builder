@@ -27,11 +27,14 @@ def register_models() -> None:
         backlog,
         exports,
         identity,
+        lakebridge,
         llm,
         projects,
         skills,
         tech,
     )
+    # Migration workbench models (ETLPackage, etc.)
+    from app.modules.migration_workbench import models as migration_models  # noqa: F401
 
 
 __all__ = ["Base", "register_models"]

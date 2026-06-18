@@ -1,0 +1,74 @@
+key: sqlserver
+name: SQL Server
+description: Query SQL Server databases, inspect schemas, and analyze stored procedures
+vendor: microsoft
+category: database
+run_command: "npx @modelcontextprotocol/server-sqlserver"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/sqlserver"
+icon: sqlserver
+
+env_vars:
+  MSSQL_SERVER:
+    required: true
+    secret: false
+    label: "Server Address"
+    hint: "SQL Server hostname or IP (e.g., myserver.database.windows.net)"
+  MSSQL_DATABASE:
+    required: true
+    secret: false
+    label: "Database Name"
+    hint: "Initial database to connect to"
+  MSSQL_USER:
+    required: true
+    secret: false
+    label: "Username"
+    hint: "SQL Server login username"
+  MSSQL_PASSWORD:
+    required: true
+    secret: true
+    label: "Password"
+    hint: "SQL Server login password"
+  MSSQL_PORT:
+    required: false
+    secret: false
+    label: "Port"
+    hint: "SQL Server port (defaults to 1433)"
+
+config_fields:
+  schema:
+    type: string
+    required: false
+    label: "Default Schema"
+    hint: "Optional — defaults to 'dbo'"
+    default: "dbo"
+  encrypt:
+    type: boolean
+    required: false
+    label: "Encrypt Connection"
+    hint: "Use encrypted connection (recommended for Azure)"
+    default: "true"
+
+tools:
+  - name: query
+    description: Execute a SQL query and return results
+    risk_level: N2
+  - name: list_tables
+    description: List all tables in the schema
+    risk_level: N1
+  - name: describe_table
+    description: Get column definitions for a table
+    risk_level: N1
+  - name: list_stored_procedures
+    description: List stored procedures
+    risk_level: N1
+  - name: get_procedure_definition
+    description: Get stored procedure source code
+    risk_level: N1
+  - name: list_views
+    description: List views in the schema
+    risk_level: N1
+  - name: get_view_definition
+    description: Get view source code
+    risk_level: N1
+
+requires_approval: false

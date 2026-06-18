@@ -1,0 +1,60 @@
+key: gitlab
+name: GitLab
+description: Read repositories, issues, merge requests, and CI/CD pipelines in GitLab
+vendor: gitlab
+category: source_control
+run_command: "npx @modelcontextprotocol/server-gitlab"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/gitlab"
+icon: gitlab
+
+env_vars:
+  GITLAB_PERSONAL_ACCESS_TOKEN:
+    required: true
+    secret: true
+    label: "Personal Access Token"
+    hint: "Generate at gitlab.com/-/user_settings/personal_access_tokens — needs api scope"
+  GITLAB_URL:
+    required: false
+    secret: false
+    label: "GitLab URL"
+    hint: "Optional — defaults to gitlab.com. Use for self-hosted instances."
+
+config_fields:
+  group:
+    type: string
+    required: false
+    label: "Group/Namespace"
+    hint: "Optional — filter to a specific group or namespace"
+  project:
+    type: string
+    required: false
+    label: "Project Path"
+    hint: "Optional — specific project path (e.g., 'mygroup/myproject')"
+
+tools:
+  - name: search_projects
+    description: Search for projects by name
+    risk_level: N1
+  - name: get_file_contents
+    description: Read file contents from a repository
+    risk_level: N1
+  - name: list_commits
+    description: List commits in a project
+    risk_level: N1
+  - name: list_issues
+    description: List issues in a project
+    risk_level: N1
+  - name: list_merge_requests
+    description: List merge requests in a project
+    risk_level: N1
+  - name: get_pipeline_status
+    description: Get CI/CD pipeline status
+    risk_level: N1
+  - name: create_issue
+    description: Create a new issue
+    risk_level: N3
+  - name: create_merge_request
+    description: Create a new merge request
+    risk_level: N3
+
+requires_approval: false

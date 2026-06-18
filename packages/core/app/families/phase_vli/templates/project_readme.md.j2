@@ -15,13 +15,13 @@ This project follows the **Phase-based VLI template family**, organizing work in
 ### Phases
 
 {% for phase in phases | sort(attribute='order_no') %}
-#### Phase {{ phase.order_no }}: [{{ phase.name }}](phase-{{ phase.order_no }}-{{ phase.name | lower | replace(' ', '-') }}/README.md)
+#### Phase {{ phase.order_no }}: [{{ phase.name }}](jira-cards/phase-{{ phase.order_no }}-{{ phase.name | slugify }}/README.md)
 
 {{ phase.description_md | default('_Phase description pending._', true) }}
 
 **Cards in this phase:**
 {% for card in all_cards | selectattr('phase_id', 'equalto', phase.id) | sort(attribute='order_no') %}
-- [{{ card.code }}](phase-{{ phase.order_no }}-{{ phase.name | lower | replace(' ', '-') }}/{{ card.code }}-{{ card.title | lower | replace(' ', '-') }}.md) — {{ card.title }}
+- [{{ card.code }}](jira-cards/phase-{{ phase.order_no }}-{{ phase.name | slugify }}/{{ card.code }}-{{ card.title | slugify }}.md) — {{ card.title }}
 {% endfor %}
 
 {% endfor %}
@@ -32,7 +32,6 @@ This project follows the **Phase-based VLI template family**, organizing work in
 {% for skill in all_skills | sort(attribute='name') %}
 - [{{ skill.name }}](skills/{{ skill.slug }}/SKILL.md) — {{ skill.description }}
   - **Kind**: {{ skill.kind | title }}
-  - **Trigger phrases**: {{ skill.trigger_phrases | join(', ') }}
 {% endfor %}
 {% else %}
 _No skills have been defined for this project yet._

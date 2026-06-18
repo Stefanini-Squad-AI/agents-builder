@@ -1,17 +1,28 @@
-# Agents Workshop — local development services.
+# Agents Workshop — Full Stack Docker Compose
 #
-# In MVP we only run Postgres and Redis in containers; the FastAPI API and the
-# Dramatiq worker run on the host via `uv run uvicorn ...` / `uv run dramatiq ...`.
-# A containerized api + worker can be added later for shareable deployments.
+# This file defines all services needed to run Agents Workshop:
+#   - postgres: PostgreSQL 16 database
+#   - redis: Redis 7 for Dramatiq job queue
+#   - api: FastAPI backend (runs migrations on startup)
+#   - worker: Dramatiq background worker
+#   - web: Next.js frontend
 #
 # Usage:
-#   docker compose up -d           # start postgres + redis in the background
-#   docker compose ps              # show status (must be "healthy")
-#   docker compose logs -f redis   # tail one service's logs
-#   docker compose down            # stop + remove containers (keeps volumes)
-#   docker compose down -v         # stop + remove containers AND data volumes
+#   docker compose up -d              # start all services
+#   docker compose up -d postgres redis  # infrastructure only (dev mode)
+#   docker compose ps                 # show status
+#   docker compose logs -f api worker # tail API + worker logs
+#   docker compose down               # stop containers (keeps volumes)
+#   docker compose down -v            # stop + remove data volumes
+#
+# Scaling workers:
+#   docker compose up -d --scale worker=3
 
 services:
+
+  # ═══════════════════════════════════════════════════════════
+  # Infrastructure
+  # ═══════════════════════════════════════════════════════════
 
   postgres:
     image: postgres:16-alpine
@@ -21,11 +32,8 @@ services:
       POSTGRES_DB: workshop
       POSTGRES_USER: workshop
       POSTGRES_PASSWORD: workshop
-      # initdb args for sensible defaults
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
-      # Host 5433 → container 5432, to avoid clashing with other local Postgres
-      # instances (e.g. another PoC running on 5432). Update DATABASE_URL accordingly.
       - "127.0.0.1:5433:5432"
     volumes:
       - workshop_pg_data:/var/lib/postgresql/data
@@ -35,6 +43,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks:
+      - workshop-net
 
   redis:
     image: redis:7-alpine
@@ -51,6 +61,121 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
+    networks:
+      - workshop-net
+
+  # ═══════════════════════════════════════════════════════════
+  # Backend API (FastAPI)
+  # ═══════════════════════════════════════════════════════════
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: workshop-api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://workshop:workshop@postgres:5432/workshop
+      REDIS_URL: redis://redis:6379/0
+      WORKSHOP_DATA_DIR: /app/data
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      WORKSHOP_DEFAULT_PROVIDER: ${WORKSHOP_DEFAULT_PROVIDER:-anthropic}
+      WORKSHOP_DEFAULT_MODEL: ${WORKSHOP_DEFAULT_MODEL:-claude-sonnet-4-5}
+      # AWS credentials for Bedrock (optional if mounting ~/.aws)
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-2}
+    volumes:
+      - ./data:/app/data
+      # Mount host AWS credentials for boto3 (optional - remove if using env vars)
+      - ~/.aws:/root/.aws:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - workshop-net
+    profiles:
+      - full
+
+  # ═══════════════════════════════════════════════════════════
+  # Dramatiq Worker (background jobs)
+  # ═══════════════════════════════════════════════════════════
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: workshop-worker
+    restart: unless-stopped
+    command: ["dramatiq", "app.jobs", "-p", "2", "-t", "4"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://workshop:workshop@postgres:5432/workshop
+      REDIS_URL: redis://redis:6379/0
+      WORKSHOP_DATA_DIR: /app/data
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      WORKSHOP_DEFAULT_PROVIDER: ${WORKSHOP_DEFAULT_PROVIDER:-anthropic}
+      WORKSHOP_DEFAULT_MODEL: ${WORKSHOP_DEFAULT_MODEL:-claude-sonnet-4-5}
+      # AWS credentials for Bedrock (optional if mounting ~/.aws)
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+    volumes:
+      - ./data:/app/data
+      # Mount host AWS credentials for boto3 (optional - remove if using env vars)
+      - ~/.aws:/root/.aws:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - workshop-net
+    profiles:
+      - full
+
+  # ═══════════════════════════════════════════════════════════
+  # Frontend (Next.js)
+  # ═══════════════════════════════════════════════════════════
+
+  web:
+    build:
+      context: ./packages/web
+      dockerfile: ../../docker/Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    container_name: workshop-web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - workshop-net
+    profiles:
+      - full
+
+# ═══════════════════════════════════════════════════════════
+# Networks & Volumes
+# ═══════════════════════════════════════════════════════════
+
+networks:
+  workshop-net:
+    name: workshop-net
 
 volumes:
   workshop_pg_data:

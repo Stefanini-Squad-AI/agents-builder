@@ -33,6 +33,8 @@ from app.enums import (
     LlmRunStatus,
     Priority,
     ProjectStatus,
+    ProjectType,
+    SkillDraftStatus,
     SkillKind,
     SkillResourceLanguage,
     TechChoiceRole,
@@ -159,6 +161,9 @@ class ProjectView(BaseModel):
     card_template: CardTemplate
     grouping: Grouping
     status: ProjectStatus
+    project_type: ProjectType = ProjectType.APPLICATION
+    source_technology: str | None = None
+    target_technology: str | None = None
     llm_provider: LlmProvider
     llm_model: str
     llm_temperature: Decimal
@@ -193,6 +198,10 @@ class SkillView(BaseModel):
     body_md: str
     order_no: int = 0
     resources: list[SkillResourceView] = []
+    # Draft status tracking
+    draft_status: SkillDraftStatus = SkillDraftStatus.NONE
+    last_llm_run_id: UUID | None = None
+    draft_error: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -254,6 +263,20 @@ class PhaseView(BaseModel):
     description_md: str | None = None
     order_no: int = 0
     cards: list[CardView] = []
+
+
+class CardLinkView(BaseModel):
+    """Resolved link target for a card, used to render cross-card markdown links.
+
+    `phase_folder` and `filename` mirror the on-disk export layout so links in
+    rendered cards/READMEs point at the actual files.
+    """
+
+    model_config = _VIEW_CONFIG
+    code: str
+    title: str
+    phase_folder: str
+    filename: str
 
 
 # ---------------------------------------------------------------------------

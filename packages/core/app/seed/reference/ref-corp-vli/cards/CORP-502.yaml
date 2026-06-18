@@ -1,0 +1,91 @@
+code: CORP-502
+phase_code: phase-5-cutover
+title: Business rules compliance verification
+type: Task
+story_points: 8
+priority: High
+status: draft
+human_gate: true
+skills:
+  - corp-business-rules-discoverer
+  - corp-business-rules-compliance-analyzer
+depends_on:
+  - CORP-501
+  - CORP-103
+parallel_with: []
+
+human_gate_checklist: |
+  Before production cutover:
+  - [ ] All rules ✅ Implemented or 🔄 Modified with approval
+  - [ ] Zero ❌ Missing critical rules
+  - [ ] All deviations have written business approval
+  - [ ] Test results documented for critical rules
+  - [ ] Compliance report signed by business owner
+  - [ ] Technical lead sign-off complete
+
+inputs:
+  - kind: external
+    path: discovery/CORP-103-business-rules-catalog.md
+    label: Business rules catalog from discovery
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-compliance-analyzer/SKILL.md
+    label: Compliance analyzer methodology
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-compliance-analyzer/resources/compliance-entry-template.md
+    label: Compliance entry template
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-compliance-analyzer/resources/gap-analysis-matrix.md
+    label: Gap matrix template
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-compliance-analyzer/resources/comparison-checklist.md
+    label: Comparison checklist
+  - kind: skill_resource
+    path: .agents/skills/corp-business-rules-compliance-analyzer/resources/compliance-report-template.md
+    label: Final report template
+  - kind: external
+    path: databricks/notebooks/silver/*.py
+    label: Silver layer notebooks (target implementation)
+  - kind: external
+    path: databricks/notebooks/gold/*.py
+    label: Gold layer notebooks (target implementation)
+
+context: |
+  Before production cutover, we verify every business rule from the 
+  discovery catalog (CORP-103) is correctly implemented in Databricks.
+  This is the final validation gate ensuring migration fidelity.
+
+task: |
+  1. Load business rules catalog from CORP-103.
+  2. For each rule, locate the corresponding implementation in 
+     Silver/Gold notebooks.
+  3. Use comparison checklist to verify equivalence:
+     - Logic match
+     - Data mapping
+     - Calculation accuracy
+     - Edge case handling
+  4. Run test cases with sample data to verify behavior.
+  5. Document any deviations and get business approval.
+  6. Build gap analysis matrix showing coverage by component.
+  7. Generate compliance report using template.
+  8. Escalate blocking issues to project lead.
+
+outputs: |
+  - `cutover/CORP-502-compliance-report.md` with:
+    - Executive summary
+    - Coverage by category
+    - Rule-by-rule analysis
+    - Gap analysis matrix
+    - Approved deviations list
+    - Sign-off section
+  - `cutover/CORP-502-test-results.md` with validation evidence
+  - `cutover/CORP-502-deviation-approvals.md` with approval records
+
+acceptance_criteria: |
+  - [ ] Every rule from CORP-103 has a compliance entry
+  - [ ] No rule left as 🔍 Unknown status
+  - [ ] All ❌ Missing rules either fixed or approved as out-of-scope
+  - [ ] All 🔄 Modified rules have written business approval
+  - [ ] Test results documented for all Critical/High rules
+  - [ ] Gap analysis matrix complete for Bronze/Silver/Gold
+  - [ ] Compliance report reviewed by business owner
+  - [ ] Technical lead sign-off obtained

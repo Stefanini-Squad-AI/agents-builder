@@ -1,0 +1,79 @@
+# Agents Workshop — API + Worker image
+# 
+# This image serves both the FastAPI API and the Dramatiq worker.
+# The entrypoint differs based on the command passed:
+#   - API:    uvicorn app.main:app --host 0.0.0.0 --port 8000
+#   - Worker: dramatiq app.jobs -p 2 -t 4
+#
+# Build from repo root:
+#   docker build -f docker/Dockerfile.api -t workshop-api .
+
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy workspace dependency files first (for layer caching)
+COPY pyproject.toml uv.lock ./
+COPY packages/core/pyproject.toml packages/core/pyproject.toml
+COPY packages/core/README.md packages/core/README.md
+COPY packages/cli/pyproject.toml packages/cli/pyproject.toml
+COPY packages/cli/README.md packages/cli/README.md
+
+# Create dummy package structure for uv sync
+RUN mkdir -p packages/core/app packages/cli/workshop && \
+    touch packages/core/app/__init__.py packages/cli/workshop/__init__.py
+
+# Install dependencies (cached unless pyproject.toml changes)
+RUN uv sync --frozen --no-dev --no-editable
+
+# ─────────────────────────────────────────────────────────
+# Production image
+# ─────────────────────────────────────────────────────────
+FROM python:3.12-slim AS runtime
+
+WORKDIR /app
+
+# Install runtime dependencies (curl for healthcheck)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy uv and virtual environment from builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+COPY --from=builder /app/.venv /app/.venv
+
+# Copy source code
+COPY packages/core/app /app/packages/core/app
+COPY packages/core/alembic /app/packages/core/alembic
+COPY packages/core/alembic.ini /app/packages/core/alembic.ini
+COPY packages/cli/workshop /app/packages/cli/workshop
+
+# Copy seed data (reference templates, skills, cards)
+COPY packages/core/app/seed /app/packages/core/app/seed
+
+# Ensure venv is in PATH
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/packages/core:/app/packages/cli"
+ENV PYTHONUNBUFFERED=1
+
+# Working directory for the API
+WORKDIR /app/packages/core
+
+# Default: run API with migrations
+# Override with docker-compose command for worker
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+
+# Healthcheck for API (worker doesn't expose HTTP)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+EXPOSE 8000

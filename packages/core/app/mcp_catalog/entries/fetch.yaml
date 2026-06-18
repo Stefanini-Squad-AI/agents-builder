@@ -1,0 +1,42 @@
+key: fetch
+name: Fetch
+description: Web scraping and HTTP requests for fetching documentation and web content
+vendor: modelcontextprotocol
+category: utility
+run_command: "npx @modelcontextprotocol/server-fetch"
+documentation_url: "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch"
+icon: web
+
+env_vars: {}
+
+config_fields:
+  user_agent:
+    type: string
+    required: false
+    label: "User Agent"
+    hint: "Optional — custom User-Agent header for requests"
+  timeout:
+    type: number
+    required: false
+    label: "Timeout (seconds)"
+    hint: "Request timeout in seconds (default: 30)"
+    default: "30"
+  max_redirects:
+    type: number
+    required: false
+    label: "Max Redirects"
+    hint: "Maximum number of redirects to follow (default: 5)"
+    default: "5"
+
+tools:
+  - name: fetch
+    description: Fetch a URL and return content as markdown
+    risk_level: N1
+  - name: fetch_raw
+    description: Fetch a URL and return raw content
+    risk_level: N1
+  - name: fetch_html
+    description: Fetch a URL and return parsed HTML
+    risk_level: N1
+
+requires_approval: false

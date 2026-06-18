@@ -5,7 +5,7 @@
 ## Cards in this phase
 
 {% for card in cards | sort(attribute='order_no') %}
-- [{{ card.code }}]({{ card.code }}-{{ card.title | lower | replace(' ', '-') }}.md) — {{ card.title }}
+- [{{ card.code }}]({{ card.code }}-{{ card.title | slugify }}.md) — {{ card.title }}
   {% if card.story_points %}({{ card.story_points }} points){% endif %}
   {% if card.priority %}**{{ card.priority | title }}**{% endif %}
 {% endfor %}
@@ -22,17 +22,16 @@ _No skills are referenced in this phase._
 
 ## Dependencies
 
-{% set has_deps = false %}
+{% set ns = namespace(has_deps=false) %}
 {% for card in cards %}
-{% for dep in card.deps_out %}
-{% if dep.relation == 'depends_on' %}
-{% set has_deps = true %}
-- **{{ card.code }}** depends on **{{ dep.depends_on_card.code }}** ({{ dep.depends_on_card.phase.title }})
-{% endif %}
+{% for dep_code in card.depends_on_codes %}
+{% set ns.has_deps = true %}
+{% set dep = card_links.get(dep_code) %}
+- **{{ card.code }}** depends on **{{ dep_code }}**{% if dep %} — {{ dep.title }}{% endif %}
 {% endfor %}
 {% endfor %}
 
-{% if not has_deps %}
+{% if not ns.has_deps %}
 _No external dependencies for cards in this phase._
 {% endif %}
 

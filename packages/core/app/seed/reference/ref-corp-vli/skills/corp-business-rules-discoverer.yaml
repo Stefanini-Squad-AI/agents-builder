@@ -1,0 +1,270 @@
+slug: corp-business-rules-discoverer
+name: Business Rules Discoverer
+description: |
+  Extract and catalog business rules from legacy code, specifications, 
+  or documentation with traceable evidence. Use when analyzing legacy 
+  systems for migration, documenting undocumented business logic, 
+  building a business rules inventory from source material, or preparing
+  for UAT sign-off by cataloging all rules with evidence.
+kind: analyzer
+body: |
+  # Business Rules Discoverer
+
+  Every migration depends on correctly extracting and documenting the 
+  business rules embedded in legacy systems. This skill produces a 
+  formal catalog of rules with traceable evidence.
+
+  ## Output Levels
+
+  ### Level 1 — Rule Groups Summary (for business stakeholders)
+  
+  High-level categories with counts, suitable for executive review:
+
+  ```
+  RULE GROUPS IDENTIFIED
+  ----
+  Validation rules           (N)
+  Calculation rules          (N)
+  Workflow/state rules       (N)
+  Access/permission rules    (N)
+  Integration rules          (N)
+  Temporal/window rules      (N)
+  ----
+  TOTAL: N rules across N groups
+  N require business sign-off before migration
+  N have ambiguities requiring SME clarification
+  ```
+
+  ### Level 2 — Detailed Rule Catalog (for engineering)
+
+  One entry per rule following `resources/rule-catalog-template.md`.
+
+  ## Evidence Quality Levels
+
+  | Level | Description | Confidence | Action |
+  |-------|-------------|------------|--------|
+  | **E1** | Verbatim code/spec quote with file:line | Highest | Ready for migration |
+  | **E2** | Paraphrased from identifiable source | High | Verify quote |
+  | **E3** | Inferred from behavior/patterns | Medium | Validate with SME |
+  | **E4** | Assumed from domain knowledge | Low | Flag for validation |
+
+  ## Discovery Sources (Priority Order)
+
+  1. **Database constraints** — CHECK, UNIQUE, FK constraints
+  2. **Stored procedures/triggers** — Business logic in SQL
+  3. **Application code** — Validation, calculation, workflow modules
+  4. **Configuration** — Lookup tables, config files, magic numbers
+  5. **Test cases** — Often encode implicit rules as assertions
+  6. **Documentation** — May be outdated; verify against code
+  7. **SME interviews** — Capture immediately, verify later
+
+  ## Rule Categories
+
+  | Category | What to Look For |
+  |----------|------------------|
+  | **Validation** | Data constraints, format checks, ranges, required fields |
+  | **Calculation** | Formulas, derivations, aggregations, rounding |
+  | **Workflow** | State transitions, sequencing, gates, approvals |
+  | **Access** | Permissions, visibility, role-based filters |
+  | **Integration** | Cross-system contracts, mappings, transformations |
+  | **Temporal** | Time windows, deadlines, scheduling, SLAs |
+
+  ## Extraction Patterns
+
+  See `resources/extraction-patterns.yaml` for code patterns that 
+  commonly encode business rules.
+
+  ## Rules for This Skill
+
+  1. **Evidence is mandatory** — A rule without evidence is a hypothesis
+  2. **Quote verbatim** — Never paraphrase SQL or code in evidence
+  3. **Separate intent from mechanism** — Business meaning vs. how it's coded
+  4. **Flag ambiguities immediately** — Don't guess; mark for SME review
+  5. **Include inactive rules** — Disabled code may be reactivated
+  6. **Track rule changes** — If a rule changed, document both versions
+
+  ## When to Escalate
+
+  - Code comment disagrees with actual code behavior
+  - Magic numbers without documentation
+  - Business logic split across multiple files/systems
+  - Rule was changed without rationale in commit history
+
+resources:
+  - filename: rule-catalog-template.md
+    language: markdown
+    content: |
+      # Business Rule Catalog Entry
+
+      Copy one block per discovered rule.
+
+      ---
+
+      ## Rule: [BR-{CAT}-{NNN}] {descriptive_title}
+
+      ### Classification
+      | Attribute | Value |
+      |-----------|-------|
+      | **ID** | BR-{CAT}-{NNN} |
+      | **Category** | Validation / Calculation / Workflow / Access / Integration / Temporal |
+      | **Criticality** | Critical / High / Medium / Low |
+      | **Domain** | {business domain or module} |
+      | **Status** | Active / Inactive / Changed |
+
+      ### Natural Language Statement
+      > {Plain English description a business user would understand.
+      > No code or technical jargon.}
+
+      ### Formal Expression
+      ```
+      IF {condition}
+      THEN {action/result}
+      ELSE {alternative} [optional]
+      WHEN {temporal/contextual constraint} [optional]
+      ```
+
+      ### Evidence
+      | Source | Location | Quote/Reference | Quality |
+      |--------|----------|-----------------|---------|
+      | {file.sql} | Line 45-52 | `WHERE status NOT IN ('DEL', 'ARC')` | E1 |
+      | {spec.docx} | Section 3.2 | "Records marked deleted..." | E2 |
+
+      ### Data Elements
+      - `{schema.table.column}` — {role: filter/input/output}
+      - `@{variable}` — {purpose}
+
+      ### Edge Cases & Exceptions
+      1. When {condition}: {special handling}
+      2. NULL handling: {behavior}
+
+      ### Dependencies
+      - **Depends on**: BR-xxx (must execute first)
+      - **Depended by**: BR-yyy, BR-zzz
+
+      ### Validation Test Cases
+      | ID | Input | Expected | Rule Aspect |
+      |----|-------|----------|-------------|
+      | TC-001 | {input} | {output} | {what it proves} |
+
+      ### Open Questions
+      - [ ] {Question for SME}
+      - [ ] {Ambiguity to resolve}
+
+      ---
+
+  - filename: extraction-patterns.yaml
+    language: yaml
+    content: |
+      # Code Patterns That Encode Business Rules
+      
+      patterns:
+        sql_where_clause:
+          description: "Business filters in WHERE clauses"
+          examples:
+            - "WHERE status NOT IN ('DELETED', 'ARCHIVED')"
+            - "WHERE effective_date <= GETDATE()"
+            - "WHERE is_active = 1"
+          extraction: |
+            Each filter condition is a rule. Ask: "Why are we excluding these?"
+            The answer is the business rule.
+          
+        case_when_logic:
+          description: "Branching business logic"
+          examples:
+            - "CASE WHEN amount > 10000 THEN 'HIGH_VALUE' ELSE 'STANDARD' END"
+            - "CASE WHEN region IN ('US', 'CA') THEN tax_rate_na ELSE tax_rate_intl END"
+          extraction: |
+            Each branch represents a business decision. 
+            Document: threshold values, category names, what triggers each branch.
+          
+        row_number_dedup:
+          description: "Deduplication encodes precedence rules"
+          examples:
+            - "ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY created_date DESC)"
+            - "ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY priority ASC, timestamp DESC)"
+          extraction: |
+            The PARTITION BY defines "what is a duplicate."
+            The ORDER BY defines "which record wins."
+            Both are business rules.
+          
+        isnull_coalesce_chain:
+          description: "Fallback/default value chains"
+          examples:
+            - "ISNULL(primary_phone, ISNULL(mobile_phone, 'NO PHONE'))"
+            - "COALESCE(preferred_name, first_name, 'Unknown')"
+          extraction: |
+            Each level in the chain is a priority rule.
+            The final fallback (sentinel value) is a default rule.
+          
+        temporal_comparison:
+          description: "Time-based business logic"
+          examples:
+            - "DATEDIFF(hour, event_time, @process_time) <= 7"
+            - "WHERE created_date >= DATEADD(day, -30, GETDATE())"
+          extraction: |
+            Magic numbers (7 hours, 30 days) are business parameters.
+            Document: what does the window represent? Why that value?
+          
+        check_constraint:
+          description: "Database-level validation"
+          examples:
+            - "CHECK (status IN ('ACTIVE', 'PENDING', 'CLOSED'))"
+            - "CHECK (amount >= 0 AND amount <= 999999.99)"
+          extraction: |
+            Direct evidence of allowed values or ranges.
+            These are hard rules that the database enforces.
+          
+        trigger_logic:
+          description: "Event-driven business rules"
+          examples:
+            - "CREATE TRIGGER tr_audit ON orders AFTER INSERT, UPDATE, DELETE"
+            - "IF UPDATE(status) AND @new_status = 'APPROVED'"
+          extraction: |
+            Triggers encode rules about "when X happens, do Y."
+            Often contain audit, validation, or cascade logic.
+          
+        foreign_key_cascade:
+          description: "Referential integrity rules"
+          examples:
+            - "ON DELETE CASCADE"
+            - "ON DELETE SET NULL"
+          extraction: |
+            Defines what happens to child records when parent is deleted.
+            Business rule about data lifecycle.
+
+  - filename: discovery-checklist.md
+    language: markdown
+    content: |
+      # Business Rules Discovery Checklist
+
+      Complete before marking discovery phase done.
+
+      ## Database Layer
+      - [ ] All CHECK constraints documented
+      - [ ] All UNIQUE constraints documented  
+      - [ ] All FK relationships with cascade behavior documented
+      - [ ] All triggers cataloged with their rules
+
+      ## Stored Procedure Layer
+      - [ ] All stored procedures analyzed
+      - [ ] All functions analyzed
+      - [ ] Dynamic SQL extracted and analyzed
+
+      ## Application Layer
+      - [ ] Validation modules analyzed
+      - [ ] Calculation modules analyzed
+      - [ ] Workflow/state machine logic analyzed
+      - [ ] Configuration tables inventoried
+
+      ## Documentation Layer
+      - [ ] Specification documents reviewed
+      - [ ] Test cases reviewed for implicit rules
+      - [ ] Comments in code reviewed
+
+      ## Quality Assurance
+      - [ ] All rules have at least E2 evidence
+      - [ ] E3/E4 rules flagged for SME validation
+      - [ ] No duplicate rule IDs
+      - [ ] Dependencies between rules documented
+      - [ ] Open questions list complete
+      - [ ] Critical rules identified for priority validation

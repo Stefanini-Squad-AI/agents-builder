@@ -9,8 +9,6 @@ card_code_prefix: CORP
 card_template: phase_vli
 grouping: phase
 status: draft
-llm_provider: anthropic
-llm_model: claude-sonnet-4-5
 
 objective: |
   Migrate a legacy SSIS package (consolidating wagon load/unload events

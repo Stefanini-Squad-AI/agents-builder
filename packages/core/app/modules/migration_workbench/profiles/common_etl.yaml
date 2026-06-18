@@ -1,0 +1,97 @@
+# Common ETL Patterns
+# Cross-technology patterns applicable to any ETL migration
+
+name: Common ETL Patterns
+slug: common_etl
+file_extension: "*"
+format: various
+
+structural_patterns:
+  - id: staging_pattern
+    name: Staging Tables
+    description: >
+      Landing zone tables that hold raw data before transformation.
+    detection_hint: "Tables with 'stg_', 'staging_', 'raw_' prefix"
+    migration_implication: >
+      Map to Bronze layer in medallion architecture.
+      Consider Delta Lake for ACID transactions.
+
+  - id: dimension_tables
+    name: Dimension Tables
+    description: >
+      Reference data tables for lookups (dim_customer, dim_product).
+    detection_hint: "Tables with 'dim_' prefix or lookup patterns"
+    migration_implication: >
+      Map to Silver layer. Consider broadcast joins for
+      small dimensions in Spark.
+
+  - id: fact_tables
+    name: Fact Tables
+    description: >
+      Transactional/event data tables (fact_sales, fact_orders).
+    detection_hint: "Tables with 'fact_' prefix or FK relationships to dims"
+    migration_implication: >
+      Map to Silver/Gold layer depending on aggregation level.
+      Optimize partitioning and Z-ordering.
+
+  - id: error_handling
+    name: Error Handling Pattern
+    description: >
+      Error logging, retry logic, and failure notifications.
+    detection_hint: "Error tables, try-catch blocks, notification tasks"
+    migration_implication: >
+      Map to Databricks Workflows error handling and
+      notification integrations.
+
+execution_patterns:
+  - id: extract_load
+    name: Extract-Load (EL)
+    description: >
+      Simple data movement without transformation.
+    detection_hint: "Direct table copy with no transformations"
+    migration_implication: >
+      Use COPY INTO or Auto Loader for efficient loading.
+      Simplest migration pattern.
+
+  - id: extract_transform_load
+    name: Extract-Transform-Load (ETL)
+    description: >
+      Data movement with in-flight transformations.
+    detection_hint: "Data transformations before loading"
+    migration_implication: >
+      Use Spark transformations in notebooks.
+      Consider Delta Live Tables for declarative pipelines.
+
+  - id: change_data_capture
+    name: Change Data Capture (CDC)
+    description: >
+      Incremental processing based on changed records.
+    detection_hint: "CDC tables, timestamp-based filtering, MERGE patterns"
+    migration_implication: >
+      Use Delta Lake MERGE for upserts.
+      Consider Databricks CDC features.
+
+validation_requirements:
+  - id: data_quality_checks
+    name: Data Quality Checks
+    description: >
+      Validate data completeness, accuracy, and consistency.
+    rationale: >
+      Migration is opportunity to improve data quality.
+    skill_suggestion: Include DQ checks in each layer
+
+  - id: schema_validation
+    name: Schema Validation
+    description: >
+      Validate schema compatibility between source and target.
+    rationale: >
+      Catch data type mismatches early.
+    skill_suggestion: Schema comparison in discovery phase
+
+  - id: referential_integrity
+    name: Referential Integrity
+    description: >
+      Validate foreign key relationships are maintained.
+    rationale: >
+      Data warehouses often have soft FKs that must be preserved.
+    skill_suggestion: RI validation in reconciliation phase

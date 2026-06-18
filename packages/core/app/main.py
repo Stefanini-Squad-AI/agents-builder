@@ -6,13 +6,28 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app import health
 from app.api import artifacts as artifacts_api
+from app.api import auth as auth_api
+from app.api import backlog as backlog_api
+from app.api import export as export_api
+from app.api import gaps as gaps_api
+from app.api import lakebridge as lakebridge_api
+from app.api import llm_runs as llm_runs_api
+from app.api import mcp_config as mcp_config_api
+from app.api import project_tech as project_tech_api
 from app.api import projects as projects_api
+from app.api import qa as qa_api
+from app.api import settings as settings_api
+from app.api import skills as skills_api
 from app.api import tech as tech_api
+from app.llm.base import ProviderNotConfigured
 from app.logging import configure_logging
+from app.modules.migration_workbench import router as migration_router
 from app.settings import get_settings
 
 log = structlog.get_logger(__name__)
@@ -44,9 +59,53 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    # CORS middleware — allow Next.js frontend
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    app.include_router(auth_api.router)
     app.include_router(projects_api.router)
+    app.include_router(qa_api.router)
     app.include_router(tech_api.router)
+    app.include_router(project_tech_api.router)
     app.include_router(artifacts_api.router)
+    app.include_router(skills_api.router)
+    app.include_router(gaps_api.router)
+    app.include_router(backlog_api.router)
+    app.include_router(export_api.router)
+    app.include_router(llm_runs_api.router)
+    app.include_router(settings_api.router)
+    app.include_router(mcp_config_api.router)  # MCP Configuration
+    app.include_router(lakebridge_api.router)  # Lakebridge Integration
+    app.include_router(migration_router)  # Migration Workbench module
+
+    @app.exception_handler(ProviderNotConfigured)
+    async def _provider_not_configured_handler(  # type: ignore[no-untyped-def]
+        request: Request, exc: ProviderNotConfigured
+    ) -> JSONResponse:
+        log.warning(
+            "provider_not_configured_response",
+            provider=exc.provider,
+            reason=exc.reason,
+            path=request.url.path,
+        )
+        return JSONResponse(
+            status_code=503,
+            content={
+                "detail": (
+                    f"LLM provider '{exc.provider}' is not configured: {exc.reason}. "
+                    "Set the matching credentials, or change the project's "
+                    "LLM provider in Settings."
+                ),
+                "provider": exc.provider,
+                "code": "provider_not_configured",
+            },
+        )
 
     @app.get("/health", tags=["meta"])
     async def health_endpoint() -> dict[str, Any]:
@@ -67,6 +126,26 @@ def create_app() -> FastAPI:
         if redis_error:
             body["redis_error"] = redis_error
         return body
+
+    @app.get("/api/worker-status", tags=["meta"])
+    async def worker_status_endpoint() -> dict[str, Any]:
+        """Check Dramatiq worker infrastructure status.
+
+        Returns:
+            - redis_connected: Is Redis reachable?
+            - pending_jobs: Number of jobs waiting in queue
+            - workers_detected: Number of active worker consumers
+            - status: "healthy" | "no_workers" | "redis_down"
+        """
+        settings = get_settings()
+        worker_status = await health.check_worker_status(settings)
+        return {
+            "redis_connected": worker_status.redis_connected,
+            "pending_jobs": worker_status.pending_jobs,
+            "workers_detected": worker_status.workers_detected,
+            "status": worker_status.status,
+            "error": worker_status.error,
+        }
 
     return app
 
