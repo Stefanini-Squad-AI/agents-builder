@@ -79,3 +79,15 @@ uvicorn.err
 
 worker.log
 worker.err
+
+# Documentation with business knowledge (hide from public repo)
+docs/
+*.md
+!README.md
+*.docx
+*.doc
+*.pdf
+*.pptx
+*.ppt
+*.xlsx
+*.xls
