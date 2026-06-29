@@ -120,13 +120,6 @@ npm run test:e2e
 
 ---
 
-## Documentation
-
-- [Architecture & decisions (`docs/SPEC.md`)](docs/SPEC.md)
-- [Implementation plan (`docs/IMPLEMENTATION_PLAN.md`)](docs/IMPLEMENTATION_PLAN.md)
-
----
-
 ## License
 
 TBD.
